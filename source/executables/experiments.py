@@ -20,8 +20,7 @@ def main():
         y_train = pickle.load(handle)
 
     logger = get_logger()
-    with Timer("Finished Model Experiments (BayesSearchCV)", logger):
-        logger.info("Starting BayesSearchCV")
+    with Timer("Running Model Experiments (BayesSearchCV)", logger):
         bayes_search = BayesSearchCV(
             estimator=css.create_pipeline(data=x_train),
             search_spaces=css.create_search_space(iterations=5),
