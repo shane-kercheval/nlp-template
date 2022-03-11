@@ -1,5 +1,7 @@
 # The UN General Debates Dataset
 
+> un-general-debates-blueprint.csv.zip
+
 This dataset was copied from https://github.com/blueprints-for-text-analytics-python/blueprints-text/tree/master/data/un-general-debates
 
 ---
