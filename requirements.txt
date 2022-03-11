@@ -1,5 +1,5 @@
 click==8.0.4
-helpsk==0.1.21
+helpsk==0.1.22
 jupyter-contrib-nbextensions==0.5.1
 notebook==6.4.8
 numpy==1.22.2
