@@ -19,16 +19,9 @@ FORMAT_MESSAGE =  "\n[MAKE "$(1)"] >>>" $(2)
 #################################################################################
 # Project-specific Commands
 #################################################################################
-tests_python: environment_python
-	@echo $(call FORMAT_MESSAGE,"tests_python", "Running python unit tests.")
+tests: environment_python
+	@echo $(call FORMAT_MESSAGE,"tests", "Running python unit tests.")
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) -m unittest discover source/tests
-
-tests_r: environment_r
-	@echo $(call FORMAT_MESSAGE,"tests_r","Running R unit tests.")
-	R --quiet -e "testthat::test_dir('source/tests')"
-
-tests: tests_python tests_r
-	@echo $(call FORMAT_MESSAGE,"tests","Finished running unit tests.")
 
 ## Make Dataset
 data_extract: environment_python
@@ -46,19 +39,12 @@ data_training_test: environment_python
 data: data_extract data_transform data_training_test
 	@echo $(call FORMAT_MESSAGE,"data","Finished running local ETL.")
 
-exploration_python: environment_python data_training_test
-	@echo $(call FORMAT_MESSAGE,"exploration_python","Running exploratory jupyter notebooks and converting to .html files.")
+exploration_nlp: environment_python data_training_test
+	@echo $(call FORMAT_MESSAGE,"exploration_nlp","Running exploratory jupyter notebooks and converting to .html files.")
 	. .venv/bin/activate && jupyter nbconvert --execute --to html source/executables/data-profile.ipynb
 	mv source/executables/data-profile.html docs/data/data-profile.html
 
-exploration_r: environment_r
-	@echo $(call FORMAT_MESSAGE,"exploration_r","Running exploratory RMarkdown notebooks and converting to .md files.")
-	Rscript -e "rmarkdown::render('source/executables/r-markdown-template.Rmd')"
-	rm -rf docs/data/r-markdown-template_files/
-	mv source/executables/r-markdown-template.md docs/data/r-markdown-template.md
-	mv source/executables/r-markdown-template_files/ docs/data/
-
-exploration: exploration_python exploration_r
+exploration: exploration_nlp
 	@echo $(call FORMAT_MESSAGE,"exploration","Finished running exploration notebooks.")
 
 experiments: environment_python
@@ -87,7 +73,7 @@ all: environment tests data exploration experiments experiments_eval final_model
 	@echo $(call FORMAT_MESSAGE,"all","Finished running entire workflow.")
 
 ## Delete all generated files (e.g. virtual environment)
-clean: clean_python clean_r
+clean: clean_python
 	@echo $(call FORMAT_MESSAGE,"clean","Cleaning project files.")
 	rm -f artifacts/data/raw/*.pkl
 	rm -f artifacts/data/raw/*.csv
@@ -101,11 +87,6 @@ clean_python:
 	rm -rf .venv
 	find . \( -name __pycache__ \) -prune -exec rm -rf {} +
 	find . \( -name .ipynb_checkpoints \) -prune -exec rm -rf {} +
-
-clean_r:
-	@echo $(call FORMAT_MESSAGE,"clean_r","Cleaning R files.")
-	rm -rf renv
-	rm -f .Rprofile
 
 environment_python:
 ifneq ($(wildcard .venv/.*),)
