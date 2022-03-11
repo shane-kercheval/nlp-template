@@ -112,19 +112,8 @@ else
 	. .venv/bin/activate && brew install libomp
 endif
 
-environment_r:
-ifneq ($(wildcard renv/.*),)
-	@echo $(call FORMAT_MESSAGE,"environment_r","Found renv directory. Skipping virtual environment creation.")
-else
-	@echo $(call FORMAT_MESSAGE,"environment_r","Did not find renv directory. Creating virtual environment.")
-	R --quiet -e 'install.packages("renv", repos = "http://cran.us.r-project.org")'
-	# Creates `.Rprofile` file, and `renv` folder
-	R --quiet -e 'renv::init(bare = TRUE)'
-	R --quiet -e 'renv::install()'
-endif
-
 ## Set up python/R virtual environments and install dependencies
-environment: environment_python environment_r
+environment: environment_python
 	@echo $(call FORMAT_MESSAGE,"environment","Finished setting up environment.")
 
 #################################################################################
