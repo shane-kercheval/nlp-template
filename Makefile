@@ -1,7 +1,7 @@
 #################################################################################
 # File adapted from https://github.com/drivendata/cookiecutter-data-science
 #################################################################################
-.PHONY: clean_python clean_r clean environment_python environment_r environment tests_python tests_r tests data_extract data_transform data_training_test data exploration_python exploration_r exploration experiments experiments_eval final_model final_eval all
+.PHONY: clean_python clean environment_python environment tests data_extract data_transform data_training_test data exploration_nlp exploration experiments experiments_eval final_model final_eval all
 
 #################################################################################
 # GLOBALS
