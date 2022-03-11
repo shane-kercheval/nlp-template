@@ -1,0 +1,22 @@
+{
+'model': 'model',
+'model__C': 'C',
+'model__max_features': 'max_features',
+'model__max_depth': 'max_depth',
+'model__n_estimators': 'n_estimators',
+'model__min_samples_split': 'min_samples_split',
+'model__min_samples_leaf': 'min_samples_leaf',
+'model__max_samples': 'max_samples',
+'model__criterion': 'criterion',
+'model__learning_rate': 'learning_rate',
+'model__min_child_weight': 'min_child_weight',
+'model__subsample': 'subsample',
+'model__colsample_bytree': 'colsample_bytree',
+'model__colsample_bylevel': 'colsample_bylevel',
+'model__reg_alpha': 'reg_alpha',
+'model__reg_lambda': 'reg_lambda',
+'prep__numeric__imputer__transformer': 'imputer',
+'prep__numeric__scaler__transformer': 'scaler',
+'prep__numeric__pca__transformer': 'pca',
+'prep__non_numeric__encoder__transformer': 'encoder'
+}
