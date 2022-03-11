@@ -1,6 +1,12 @@
-# data-science-template
+# nlp-template
 
 This repo contains a template for natural language processing (NLP) Projects. It was generated from the template https://github.com/shane-kercheval/data-science-template.
+
+Much of the code and examples are copied/modified from 
+
+> Blueprints for Text Analytics Using Python by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler (O'Reilly, 2021), 978-1-492-07408-3.
+>
+> https://github.com/blueprints-for-text-analytics-python/blueprints-text
 
 ---
 
