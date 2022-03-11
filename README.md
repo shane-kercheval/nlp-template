@@ -1,6 +1,6 @@
 # nlp-template
 
-This repo contains a template for natural language processing (NLP) Projects. It structure was generated from the template https://github.com/shane-kercheval/data-science-template.
+This repo contains a template for natural language processing (NLP) Projects. The structure was generated from this template https://github.com/shane-kercheval/data-science-template.
 
 Much of the code and examples are copied/modified from 
 
