@@ -9,7 +9,6 @@
 PYTHON_VERSION := 3.9
 PYTHON_VERSION_SHORT := $(subst .,,$(PYTHON_VERSION))
 PYTHON_INTERPRETER := python$(PYTHON_VERSION)
-SNOWFLAKE_VERSION := 2.7.4
 
 # PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
@@ -106,9 +105,6 @@ else
 	@echo $(call FORMAT_MESSAGE,"environment_python","Installing packages from requirements.txt.")
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) -m pip install --upgrade pip
 	. .venv/bin/activate && pip install -r requirements.txt
-	@echo $(call FORMAT_MESSAGE,"environment_python","Installing snowflake packages.")
-	. .venv/bin/activate && pip install -r https://raw.githubusercontent.com/snowflakedb/snowflake-connector-python/v$(SNOWFLAKE_VERSION)/tested_requirements/requirements_$(PYTHON_VERSION_SHORT).reqs
-	. .venv/bin/activate && pip install snowflake-connector-python==v$(SNOWFLAKE_VERSION)
 	. .venv/bin/activate && brew install libomp
 endif
 
