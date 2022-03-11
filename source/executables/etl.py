@@ -3,12 +3,13 @@ import warnings
 
 import click
 import numpy as np
+import pandas as pd
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import label_binarize
 
-from helpers.utilities import get_logger
-    
+from helpers.utilities import get_logger, Timer
+
 
 @click.group()
 def main():
@@ -21,7 +22,18 @@ def main():
 @main.command()
 def extract():
     logger = get_logger()
+    with Timer("Loading UN Generate Debate Dataset - Saving to /artifacts/data/raw/un-general-debates-blueprint.pkl"):
+        pd.read_csv('artifacts/data/external/un-general-debates-blueprint.csv.zip')
+
+
+
+
     logger.info(f"Downloading credit data from https://www.openml.org/d/31")
+
+
+    un_speaches = pd.read_csv('')
+
+
     credit_g = fetch_openml('credit-g', version=1)
     credit_data = credit_g['data']
     credit_data['target'] = credit_g['target']
