@@ -33,6 +33,10 @@ class Timer:
         self._message = message
 
     def __enter__(self):
+        if self._logger is None:
+            print(f'Started: {self._message}')
+        else:
+            self._logger.info(f'Started: {self._message}')
         self._start = datetime.datetime.now()
 
         return self
@@ -40,7 +44,7 @@ class Timer:
     def __exit__(self, *args):
         self._end = datetime.datetime.now()
         self._interval = self._end - self._start
-        message = f"{self._message} ({self._interval.total_seconds():.2f} seconds)"
+        message = f"Finished ({self._interval.total_seconds():.2f} seconds)"
 
         if self._logger is None:
             print(message)
