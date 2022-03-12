@@ -1,5 +1,7 @@
+from collections import Counter
 from typing import List, Callable, Union
 import nltk
+import pandas as pd
 import regex as re
 
 
@@ -88,3 +90,44 @@ def prepare(text: str, pipeline: List[Callable] = None) -> list:
     for transform in pipeline:
         tokens = transform(tokens)
     return tokens
+
+
+def count_tokens(tokens: Union[pd.Series, list], min_frequency: int = 2) -> pd.DataFrame:
+    """
+    Counts tokens, returns the results as a DataFrame with 'token' and 'frequency' columns.
+
+    Modified from:
+        Blueprints for Text Analytics Using Python
+        by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
+        (O'Reilly, 2021), 978-1-492-07408-3.
+         https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch01/First_Insights.ipynb
+
+    Args:
+        tokens:
+            either
+                - a pandas Series (with strings or a list of strings)
+                - a list of strings
+                - a list of lists of strings
+        min_frequency:
+            The minimum times the token has to appear in order to be returned
+    """
+    if isinstance(tokens, list):
+        tokens = pd.Series(tokens)
+
+    # create counter and run through all data
+    counter = Counter()
+
+    def count(x):
+        # if we pass a string it will count characters, which is not the intent
+        if isinstance(x, str):
+            x = [x]
+        counter.update(x)
+
+    _ = tokens.map(count)
+
+    # transform counter into data frame
+    freq_df = pd.DataFrame.from_dict(counter, orient='index', columns=['frequency'])
+    freq_df = freq_df.query('frequency >= @min_frequency')
+    freq_df.index.name = 'token'
+    
+    return freq_df.sort_values('frequency', ascending=False)
