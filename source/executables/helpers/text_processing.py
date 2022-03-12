@@ -1,4 +1,4 @@
-from typing import List, Callable
+from typing import List, Callable, Union
 import nltk
 import regex as re
 
@@ -28,7 +28,10 @@ def get_stop_words(source: str = 'nltk') -> set:
     return stop_words
 
 
-def remove_stop_words(tokens: list, source: str = 'nltk') -> list:
+def remove_stop_words(tokens: list,
+                      include_stop_words: Union[list, set] = None,
+                      exclude_stop_words = None,
+                      source: str = 'nltk') -> list:
     """
     Remove stop-words from `tokens` in a list of tokens.
 
@@ -40,9 +43,24 @@ def remove_stop_words(tokens: list, source: str = 'nltk') -> list:
 
     Args:
         tokens: string of text
+        include_stop_words: list/set of stop-words to include
+        exclude_stop_words: list/set of stop-words to exclude
         source: source of the stop-words to use
+
     """
-    return [t for t in tokens if t.lower() not in get_stop_words(source=source)]
+    stop_words = get_stop_words(source=source)
+
+    if include_stop_words is not None:
+        if isinstance(include_stop_words, list):
+            include_stop_words = set(include_stop_words)
+        stop_words |= include_stop_words
+
+    if exclude_stop_words is not None:
+        if isinstance(exclude_stop_words, list):
+            exclude_stop_words = set(exclude_stop_words)
+        stop_words -= exclude_stop_words
+
+    return [t for t in tokens if t.lower() not in stop_words]
 
 
 def prepare(text: str, pipeline: List[Callable]) -> list:

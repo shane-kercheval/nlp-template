@@ -23,3 +23,8 @@ class TestTextProcessing(unittest.TestCase):
         with open(get_test_file_path('text_processing/remove_stop_words__simple.txt'), 'w') as file:
             file.write('|'.join(tokens))
 
+        sentence = "This is a sentence; it has punctuation, etc.. It also has numbers. It's a dumb sentence."
+        tokens = tokenize(sentence)
+        tokens = remove_stop_words(tokens, include_stop_words=['sentence'], exclude_stop_words=['a'])
+        with open(get_test_file_path('text_processing/remove_stop_words__include_exclude.txt'), 'w') as file:
+            file.write('|'.join(tokens))
