@@ -30,7 +30,7 @@ def get_stop_words(source: str = 'nltk') -> set:
 
 def remove_stop_words(tokens: list,
                       include_stop_words: Union[list, set] = None,
-                      exclude_stop_words = None,
+                      exclude_stop_words: Union[list, set] = None,
                       source: str = 'nltk') -> list:
     """
     Remove stop-words from `tokens` in a list of tokens.
@@ -63,7 +63,7 @@ def remove_stop_words(tokens: list,
     return [t for t in tokens if t.lower() not in stop_words]
 
 
-def prepare(text: str, pipeline: List[Callable]) -> list:
+def prepare(text: str, pipeline: List[Callable] = None) -> list:
     """
     Transform `text` according to the pipeline, which is a list of functions to be called on text.
 
@@ -74,11 +74,16 @@ def prepare(text: str, pipeline: List[Callable]) -> list:
          https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch01/First_Insights.ipynb
 
     Args:
-        text: string of text
-        pipeline: a list of functions that define how `text` should be transformed. Executed in order.
+        text:
+            string of text
+        pipeline:
+            A list of functions that define how `text` should be transformed. Executed in order.
+            If `None`, then will process based on a general pipeline of
+
+                `[str.lower, tokenize, remove_stop_words]`
     """
     if pipeline is None:
-        pipeline = [str.lower, tokenize, remove_stop]
+        pipeline = [str.lower, tokenize, remove_stop_words]
     tokens = text
     for transform in pipeline:
         tokens = transform(tokens)
