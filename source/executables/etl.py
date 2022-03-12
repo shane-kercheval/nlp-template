@@ -2,6 +2,7 @@ import click
 import pandas as pd
 
 from helpers.utilities import get_logger, Timer
+from source.executables.helpers.text_processing import prepare
 
 
 @click.group()
@@ -33,11 +34,13 @@ def transform():
         un_debates['speaker'].fillna('<unknown>', inplace=True)
         un_debates['position'].fillna('<unknown>', inplace=True)
         assert not un_debates.isna().any().any()
+        un_debates['tokens'] = un_debates['text'].apply(prepare)
+        un_debates['num_tokens'] = un_debates['tokens'].map(len)
         un_debates['text_length'] = un_debates['text'].str.len()
-    
+
+    assert not un_debates.isna().any().any()
     with Timer("Saving processed UN Debate dataset to /artifacts/data/processed/un-general-debates-blueprint.pkl"):
         un_debates.to_pickle('artifacts/data/processed/un-general-debates-blueprint.pkl')
-
 
 if __name__ == '__main__':
     main()
