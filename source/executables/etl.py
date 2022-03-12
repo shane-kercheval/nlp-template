@@ -2,7 +2,7 @@ import click
 import pandas as pd
 
 from helpers.utilities import get_logger, Timer
-from source.executables.helpers.text_processing import prepare
+from helpers.text_processing import prepare
 
 
 @click.group()

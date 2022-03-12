@@ -1,7 +1,7 @@
 #################################################################################
 # File adapted from https://github.com/drivendata/cookiecutter-data-science
 #################################################################################
-.PHONY: clean_python clean environment_python environment tests data_extract data_transform data_training_test data exploration_nlp exploration experiments experiments_eval final_model final_eval all
+.PHONY: clean_python clean environment_python environment tests data_extract data_transform data exploration_nlp exploration all
 
 #################################################################################
 # GLOBALS
@@ -31,20 +31,33 @@ data_transform: environment_python
 	@echo $(call FORMAT_MESSAGE,"data_transform","Transforming data.")
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/executables/etl.py transform
 
-data_training_test: environment_python
-	@echo $(call FORMAT_MESSAGE,"data_training_test","Creating training & test sets.")
-	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/executables/etl.py create-training-test
-
-data: data_extract data_transform data_training_test
+data: data_extract data_transform
 	@echo $(call FORMAT_MESSAGE,"data","Finished running local ETL.")
 
-exploration_nlp: environment_python data_training_test
+exploration_nlp: environment_python
 	@echo $(call FORMAT_MESSAGE,"exploration_nlp","Running exploratory jupyter notebooks and converting to .html files.")
-	. .venv/bin/activate && jupyter nbconvert --execute --to html source/executables/data-profile.ipynb
-	mv source/executables/data-profile.html docs/data/data-profile.html
+	. .venv/bin/activate && jupyter nbconvert --execute --to html source/executables/text_eda.ipynb
+	mv source/executables/text_eda.html docs/data/text_eda.html
 
 exploration: exploration_nlp
 	@echo $(call FORMAT_MESSAGE,"exploration","Finished running exploration notebooks.")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+data_training_test: environment_python
+	@echo $(call FORMAT_MESSAGE,"data_training_test","Creating training & test sets.")
+	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/executables/etl.py create-training-test
 
 experiments: environment_python
 	@echo $(call FORMAT_MESSAGE,"experiments","Running Hyper-parameters experiments based on BayesianSearchCV.")
