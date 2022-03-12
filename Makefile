@@ -106,7 +106,7 @@ else
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) -m pip install --upgrade pip
 	. .venv/bin/activate && pip install -r requirements.txt
 	. .venv/bin/activate && brew install libomp
-	@echo $(call FORMAT_MESSAGE,"environment_python","Installing NLTK (https://www.nltk.org) corpora packages which will create a folder in your home directory `nltk_data/corpora`.")
+	@echo $(call FORMAT_MESSAGE,"environment_python","Installing NLTK (https://www.nltk.org) corpora packages which will create a folder in your home directory 'nltk_data/corpora'.")
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/executables/nltk_download.py
 endif
 
