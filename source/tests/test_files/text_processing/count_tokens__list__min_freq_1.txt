@@ -1,0 +1,9 @@
+             frequency
+token                 
+sentence             2
+numbers              2
+punctuation          1
+etc                  1
+also                 1
+nevermind            1
+dumb                 1
