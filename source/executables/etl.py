@@ -34,8 +34,7 @@ def transform():
         un_debates['position'].fillna('<unknown>', inplace=True)
         assert not un_debates.isna().any().any()
         un_debates['text_length'] = un_debates['text'].str.len()
-
-
+    
     with Timer("Saving processed UN Debate dataset to /artifacts/data/processed/un-general-debates-blueprint.pkl"):
         un_debates.to_pickle('artifacts/data/processed/un-general-debates-blueprint.pkl')
 

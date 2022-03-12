@@ -31,30 +31,3 @@ class TestUtilities(unittest.TestCase):
             time.sleep(0.1)
 
         self.assertIsNotNone(timer._interval)
-
-    def test__classification_search_space(self):
-        pipeline = css.create_pipeline(pd.DataFrame({
-            'a': [1, 2],
-            'b': [True, False],
-            'c': ['Value1', 'Value2'],
-        }))
-        # this test mainly makes sure that the function runs, and outputs the result to a file so we can
-        # track changes in github
-        self.assertIsNotNone(pipeline)
-
-        with open(get_test_file_path('classification_create_pipeline.txt'), 'w') as file:
-            file.write(TestUtilities.to_string(pipeline))
-
-        search_space = css.create_search_space(iterations=23, random_state=99)
-        # this test mainly makes sure that the function runs, and outputs the result to a file so we can
-        # track changes in github
-        self.assertIsNotNone(search_space)
-        with open(get_test_file_path('classification_create_search_space.txt'), 'w') as file:
-            file.write(TestUtilities.to_string(search_space))
-
-        mappings = css.get_search_space_mappings()
-        # this test mainly makes sure that the function runs, and outputs the result to a file so we can
-        # track changes in github
-        self.assertIsNotNone(mappings)
-        with open(get_test_file_path('classification_get_search_space_mappings.txt'), 'w') as file:
-            file.write(TestUtilities.to_string(mappings))
