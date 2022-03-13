@@ -92,7 +92,7 @@ def prepare(text: str, pipeline: List[Callable] = None) -> list:
     return tokens
 
 
-def count_tokens(tokens: Union[pd.Series, list], min_frequency: int = 2) -> pd.DataFrame:
+def count_tokens(tokens: Union[pd.Series, list], min_frequency: int = 2) -> pd.DataFrame:  # noqa
     """
     Counts tokens, returns the results as a DataFrame with 'token' and 'frequency' columns.
 

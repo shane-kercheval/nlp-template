@@ -15,13 +15,13 @@ def get_logger(config="source/config/logging/local.conf", logger_name='app', leg
 
 
 def open_dict_like_file(file_name):
-    with open(file_name, "r") as f:
+    with open(file_name, "r") as handle:
         if file_name.endswith("json"):
-            result = yaml.load(f)
+            result = yaml.load(handle)  # noqa
         elif file_name.endswith("yaml") or file_name.endswith("yml"):
-            result = yaml.load(f)
+            result = yaml.load(handle)  # noqa
         elif file_name.endswith("xml"):
-            result = xmltodict.parse(f.read())
+            result = xmltodict.parse(handle.read())
         else:
             logging.warning("%s not a known dictionary-like file type", file_name)
     return result
