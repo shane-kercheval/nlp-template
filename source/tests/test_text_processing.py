@@ -1,9 +1,9 @@
-import os
 import unittest
 
 import pandas as pd
 
-from source.executables.helpers.text_processing import tokenize, remove_stop_words, prepare, count_tokens, term_frequency, inverse_document_frequency
+from source.executables.helpers.text_processing import tokenize, remove_stop_words, prepare, count_tokens, term_frequency, inverse_document_frequency, \
+    tf_idf
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 
 
@@ -133,3 +133,20 @@ class TestTextProcessing(unittest.TestCase):
         dataframe_to_text_file(idf,
                                get_test_file_path('text_processing/inverse_document_frequency__un_debates__min_freq_2.txt'))
 
+    def test__tf_idf(self):
+        tf_idf_df = tf_idf(df=self.un_debates, tokens_column='tokens')
+        self.assertFalse(tf_idf_df.isna().any().any())
+        dataframe_to_text_file(tf_idf_df,
+                               get_test_file_path('text_processing/tf_idf__un_debates__default.txt'))
+
+        tf_idf_df = tf_idf(df=self.un_debates, tokens_column='tokens', segment_columns='year',
+                           min_frequency_document=10, min_frequency_corpus=10)
+        self.assertFalse(tf_idf_df.isna().any().any())
+        dataframe_to_text_file(tf_idf_df,
+                               get_test_file_path('text_processing/tf_idf__un_debates__by_year.txt'))
+
+        tf_idf_df = tf_idf(df=self.un_debates, tokens_column='tokens', segment_columns=['year', 'country'],
+                           min_frequency_document=5, min_frequency_corpus=10)
+        self.assertFalse(tf_idf_df.isna().any().any())
+        dataframe_to_text_file(tf_idf_df,
+                               get_test_file_path('text_processing/tf_idf__un_debates__by_year_country.txt'))

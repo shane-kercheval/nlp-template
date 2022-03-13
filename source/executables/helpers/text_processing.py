@@ -212,3 +212,67 @@ def inverse_document_frequency(documents: Union[pd.Series, list],
     idf = np.log(num_documents / document_frequency) + constant
     idf.rename(columns={'frequency': 'inverse document frequency'}, inplace=True)
     return idf
+
+
+def tf_idf(df: pd.DataFrame,
+           tokens_column: str = None,
+           segment_columns: Union[str, list] = None,
+           min_frequency_document: int = 1,
+           min_frequency_corpus: int = 2,
+           constant: float = 0.1) -> pd.DataFrame:
+    """
+    This function returns the term-frequency inverse-document-frequency values for a given set of documents,
+    or by segment/slice.
+
+    Args:
+        df:
+            dataframe with columns of tokens, and optionally a column to slice/segment by.
+        tokens_column:
+            the name of the column containing the tokens.
+        segment_columns:
+            the name(s) of the column(s) to segment term-frequencies by. Either a string or a list of strings.
+        min_frequency_document:
+            The minimum times the token has to appear in the document in order to be returned
+        min_frequency_corpus:
+            The minimum times the token has to appear in the corpus (across all docs) in order to be returned
+        constant:
+            "Note that idf(t)=0 for terms that appear in all documents. To not completely ignore those term,
+            some libraries add a constant to the whole term." - Blueprints for Text Analytics Using Python,
+            pg. 21
+    """
+    # calculate the term-frequencies by segment (if applicable) but inverse-document-frequencies across
+    # entire dataset
+
+    term_freq = term_frequency(
+        df=df,
+        tokens_column=tokens_column,
+        min_frequency=min_frequency_document,
+        segment_columns=segment_columns
+    )
+    inverse_doc_freq = inverse_document_frequency(
+        documents=df[tokens_column],
+        min_frequency=min_frequency_corpus,
+        constant=constant
+    )
+    tf_idf_df = term_freq['frequency'] * inverse_doc_freq['inverse document frequency']
+    tf_idf_df.dropna(inplace=True)
+    tf_idf_df.name='tf-idf'
+
+    result = term_freq.join(pd.DataFrame(tf_idf_df.sort_values(ascending=False)), how='inner')
+    assert result.shape[0] == len(tf_idf_df)
+    sort_by = []
+    ascending = []
+    if segment_columns is not None:
+        if isinstance(segment_columns, str):
+            segment_columns = [segment_columns]
+        sort_by = segment_columns
+        ascending = [True] * len(sort_by)
+    sort_by += ['tf-idf']
+    ascending += [False]
+    result.sort_values(ascending=ascending, by=sort_by, inplace=True)
+    return result
+
+
+
+
+
