@@ -42,5 +42,6 @@ def transform():
     with Timer("Saving processed UN Debate dataset to /artifacts/data/processed/un-general-debates-blueprint.pkl"):
         un_debates.to_pickle('artifacts/data/processed/un-general-debates-blueprint.pkl')
 
+
 if __name__ == '__main__':
     main()
