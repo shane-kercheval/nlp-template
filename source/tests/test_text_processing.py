@@ -59,13 +59,20 @@ class TestTextProcessing(unittest.TestCase):
 
         dataframe_to_text_file(count_tokens(tokens, min_frequency=1),
                                get_test_file_path('text_processing/count_tokens__list__min_freq_1.txt'))
+
+        self.assertTrue((count_tokens(tokens, min_frequency=1, count_once_per_doc=True)['frequency'] == 1).all())
+
         dataframe_to_text_file(count_tokens(tokens, min_frequency=2),
                                get_test_file_path('text_processing/count_tokens__list__min_freq_2.txt'))
+
+        self.assertEqual(count_tokens(tokens, min_frequency=2, count_once_per_doc=True).shape, (0, 1))
 
         dataframe_to_text_file(count_tokens([tokens, tokens], min_frequency=1),
                                get_test_file_path('text_processing/count_tokens__list_of_lists__min_freq_1.txt'))
         dataframe_to_text_file(count_tokens([tokens, tokens], min_frequency=2),
                                get_test_file_path('text_processing/count_tokens__list_of_lists__min_freq_2.txt'))
+
+        self.assertTrue((count_tokens([tokens, tokens], min_frequency=1, count_once_per_doc=True)['frequency'] == 2).all())
 
         dataframe_to_text_file(count_tokens(pd.Series(tokens), min_frequency=1),
                                get_test_file_path('text_processing/count_tokens__series_strings__min_freq_1.txt'))
@@ -77,8 +84,18 @@ class TestTextProcessing(unittest.TestCase):
         dataframe_to_text_file(count_tokens(pd.Series([tokens, tokens]), min_frequency=2),
                                get_test_file_path('text_processing/count_tokens__series_list__min_freq_2.txt'))
 
+        self.assertTrue((count_tokens(pd.Series([tokens, tokens]), min_frequency=1, count_once_per_doc=True)['frequency'] == 2).all())
+
         dataframe_to_text_file(count_tokens(self.un_debates['tokens'], min_frequency=2),
                                get_test_file_path('text_processing/count_tokens__un_debates.txt'))
+
+        example = [['a', 'b', 'b'], ['b', 'c', 'c']]
+        self.assertEqual(count_tokens(example, min_frequency=1).to_dict(), {'frequency': {'b': 3, 'c': 2, 'a': 1}})
+        self.assertEqual(count_tokens(example, min_frequency=2).to_dict(), {'frequency': {'b': 3, 'c': 2}})
+        self.assertEqual(count_tokens(example, min_frequency=1, count_once_per_doc=True).to_dict(),
+                         {'frequency': {'b': 2, 'a': 1, 'c': 1}})
+        self.assertEqual(count_tokens(example, min_frequency=2, count_once_per_doc=True).to_dict(),
+                         {'frequency': {'b': 2}})
 
     def test__term_frequency(self):
         term_freq = term_frequency(df=self.un_debates, tokens_column='tokens', min_frequency=3)

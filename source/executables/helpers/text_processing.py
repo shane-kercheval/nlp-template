@@ -92,7 +92,7 @@ def prepare(text: str, pipeline: List[Callable] = None) -> list:
     return tokens
 
 
-def count_tokens(tokens: Union[pd.Series, list], min_frequency: int = 2) -> pd.DataFrame:  # noqa
+def count_tokens(tokens: Union[pd.Series, list], min_frequency: int = 2, count_once_per_doc=False) -> pd.DataFrame:  # noqa
     """
     Counts tokens, returns the results as a DataFrame with 'token' and 'frequency' columns.
 
@@ -105,14 +105,33 @@ def count_tokens(tokens: Union[pd.Series, list], min_frequency: int = 2) -> pd.D
     Args:
         tokens:
             either
-                - a pandas Series (with strings or a list of strings)
-                - a list of strings
-                - a list of lists of strings
+                - a pandas Series (with strings or a list of strings); each item in the Series is a 'document'
+                - a list of strings; a single 'document'
+                - a list of lists of strings; each sublist is a 'document'
         min_frequency:
             The minimum times the token has to appear in order to be returned
+        count_once_per_doc:
+            If True, counts each token once per document. This is synonymous with Document Frequency.
+
+            e.g. True:
+                [['a', 'b', 'b'], ['b', 'c', 'c']]
+
+                'b' | 2
+                'a' | 1
+                'c' | 1
+
+            e.g. False:
+                 [['a', 'b', 'b'], ['b', 'c', 'c']]
+
+                'b' | 3
+                'c' | 2
+                'a' | 1
     """
     if isinstance(tokens, list):
-        tokens = pd.Series(tokens)
+        if isinstance(tokens[0], list):
+            tokens = pd.Series(tokens)
+        else:
+            tokens = pd.Series([tokens])
 
     # create counter and run through all data
     counter = Counter()
@@ -121,6 +140,8 @@ def count_tokens(tokens: Union[pd.Series, list], min_frequency: int = 2) -> pd.D
         # if we pass a string it will count characters, which is not the intent
         if isinstance(x, str):
             x = [x]
+        if count_once_per_doc:
+            x = set(x)
         counter.update(x)
 
     _ = tokens.map(count)
@@ -158,10 +179,9 @@ def term_frequency(df: pd.DataFrame,
 
     return term_freq
 
-def tf_idf(df: pd.DataFrame,
-                   tokens_column: str = None,
-                   segment_column: str = None,
-                   min_frequency: int = 2) -> pd.DataFrame:
+
+def inverse_document_frequency(tokens_column: str = None,
+                               min_frequency: int = 2) -> pd.DataFrame:
     """
     This function is similar to `count_tokens()`, but calculates term-frequency across different
     segments/slices.
@@ -171,8 +191,6 @@ def tf_idf(df: pd.DataFrame,
             dataframe with columns of tokens, and optionally a column to slice/segment by.
         tokens_column:
             the name of the column containing the tokens.
-        segment_column:
-            the name of the column to segment term-frequencies by.
         min_frequency:
             The minimum times the token has to appear in order to be returned
     """
