@@ -3,7 +3,7 @@ import unittest
 
 import pandas as pd
 
-from source.executables.helpers.text_processing import tokenize, remove_stop_words, prepare, count_tokens, term_frequency
+from source.executables.helpers.text_processing import tokenize, remove_stop_words, prepare, count_tokens, term_frequency, inverse_document_frequency
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 
 
@@ -84,7 +84,9 @@ class TestTextProcessing(unittest.TestCase):
         dataframe_to_text_file(count_tokens(pd.Series([tokens, tokens]), min_frequency=2),
                                get_test_file_path('text_processing/count_tokens__series_list__min_freq_2.txt'))
 
-        self.assertTrue((count_tokens(pd.Series([tokens, tokens]), min_frequency=1, count_once_per_doc=True)['frequency'] == 2).all())
+        counts = count_tokens(pd.Series([tokens, tokens]), min_frequency=1, count_once_per_doc=True)
+        self.assertTrue((counts['frequency'] == 2).all())
+        self.assertFalse(counts.index.duplicated().any())
 
         dataframe_to_text_file(count_tokens(self.un_debates['tokens'], min_frequency=2),
                                get_test_file_path('text_processing/count_tokens__un_debates.txt'))
@@ -99,6 +101,7 @@ class TestTextProcessing(unittest.TestCase):
 
     def test__term_frequency(self):
         term_freq = term_frequency(df=self.un_debates, tokens_column='tokens', min_frequency=3)
+        self.assertFalse(term_freq.index.duplicated().any())
         self.assertTrue((term_freq['frequency'] >= 3).all())
         self.assertEqual(term_freq.index[0], 'nations')
         self.assertEqual(term_freq.index[1], 'united')
@@ -106,6 +109,7 @@ class TestTextProcessing(unittest.TestCase):
                                get_test_file_path('text_processing/term_frequency__un_debates__min_freq_3.txt'))
 
         term_freq = term_frequency(df=self.un_debates, tokens_column='tokens', segment_columns='year', min_frequency=3)
+        self.assertFalse(term_freq.index.duplicated().any())
         self.assertTrue((term_freq['frequency'] >= 3).all())
         self.assertEqual(term_freq.index[0], (1970, 'united'))
         self.assertEqual(term_freq.index[1], (1970, 'nations'))
@@ -113,8 +117,19 @@ class TestTextProcessing(unittest.TestCase):
                                get_test_file_path('text_processing/term_frequency__un_debates__by_year__min_freq_3.txt'))
 
         term_freq = term_frequency(df=self.un_debates, tokens_column='tokens', segment_columns=['year', 'country'], min_frequency=20)
+        self.assertFalse(term_freq.index.duplicated().any())
         self.assertTrue((term_freq['frequency'] >= 20).all())
         self.assertEqual(term_freq.index[0], (1970, 'AUS', 'nations'))
         self.assertEqual(term_freq.index[1], (1970, 'AUS', 'united'))
         dataframe_to_text_file(term_freq,
                                get_test_file_path('text_processing/term_frequency__un_debates__by_year_country__min_freq_3.txt'))
+
+    def test__inverse_document_frequency(self):
+        idf = inverse_document_frequency(self.un_debates['tokens'])
+        self.assertFalse(idf.index.duplicated().any())
+        counts = count_tokens(self.un_debates['tokens'], min_frequency=2, count_once_per_doc=True)
+        self.assertEqual(set(idf.index), set(counts.index))
+
+        dataframe_to_text_file(idf,
+                               get_test_file_path('text_processing/inverse_document_frequency__un_debates__min_freq_2.txt'))
+

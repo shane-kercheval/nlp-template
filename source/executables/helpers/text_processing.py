@@ -1,6 +1,7 @@
 from collections import Counter
 from typing import List, Callable, Union
 import nltk
+import numpy as np
 import pandas as pd
 import regex as re
 
@@ -180,17 +181,34 @@ def term_frequency(df: pd.DataFrame,
     return term_freq
 
 
-def inverse_document_frequency(tokens_column: str = None,
-                               min_frequency: int = 2) -> pd.DataFrame:
+def inverse_document_frequency(documents: Union[pd.Series, list],
+                               min_frequency: int = 2,
+                               constant: float = 0.1) -> pd.DataFrame:
     """
-    This function is similar to `count_tokens()`, but calculates term-frequency across different
-    segments/slices.
+    This function calculates the inverse document frequency (IDF)
+
+    Modified from:
+        Blueprints for Text Analytics Using Python
+        by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
+        (O'Reilly, 2021), 978-1-492-07408-3.
+         https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch01/First_Insights.ipynb
 
     Args:
-        df:
-            dataframe with columns of tokens, and optionally a column to slice/segment by.
-        tokens_column:
-            the name of the column containing the tokens.
+        documents:
+            either a Pandas series, each element containing a list of tokens/words;
+            or a list of lists (of tokens/words)
         min_frequency:
             The minimum times the token has to appear in order to be returned
+        constant:
+            "Note that idf(t)=0 for terms that appear in all documents. To not completely ignore those term,
+            some libraries add a constant to the whole term." - Blueprints for Text Analytics Using Python,
+            pg. 21
     """
+    document_frequency = count_tokens(tokens=documents, min_frequency=min_frequency, count_once_per_doc=True)
+    num_documents = len(documents)
+    # if any frequencies are greater than the number of documents, something is wrong, because we are only
+    # counting once per document
+    assert (document_frequency['frequency'] <= num_documents).all()
+    idf = np.log(num_documents / document_frequency) + constant
+    idf.rename(columns={'frequency': 'inverse document frequency'}, inplace=True)
+    return idf
