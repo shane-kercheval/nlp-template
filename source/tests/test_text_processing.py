@@ -3,7 +3,7 @@ import unittest
 
 import pandas as pd
 
-from source.executables.helpers.text_processing import tokenize, remove_stop_words, prepare, count_tokens
+from source.executables.helpers.text_processing import tokenize, remove_stop_words, prepare, count_tokens, term_frequency
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 
 
@@ -80,8 +80,27 @@ class TestTextProcessing(unittest.TestCase):
         dataframe_to_text_file(count_tokens(self.un_debates['tokens'], min_frequency=2),
                                get_test_file_path('text_processing/count_tokens__un_debates.txt'))
 
-
-
     def test__tf_idf(self):
-        self.un_debates
+
+        term_freq = term_frequency(df=self.un_debates, tokens_column='tokens', min_frequency=3)
+        self.assertTrue((term_freq['frequency'] >= 3).all())
+        self.assertEqual(term_freq.index[0], 'nations')
+        self.assertEqual(term_freq.index[1], 'united')
+        dataframe_to_text_file(term_freq,
+                               get_test_file_path('text_processing/term_frequency__un_debates__min_freq_3.txt'))
+
+        term_freq = term_frequency(df=self.un_debates, tokens_column='tokens', segment_columns='year', min_frequency=3)
+        self.assertTrue((term_freq['frequency'] >= 3).all())
+        self.assertEqual(term_freq.index[0], (1970, 'united'))
+        self.assertEqual(term_freq.index[1], (1970, 'nations'))
+        dataframe_to_text_file(term_freq,
+                               get_test_file_path('text_processing/term_frequency__un_debates__by_year__min_freq_3.txt'))
+
+        term_freq.head()
+
+
+        term_freq = term_frequency(df=self.un_debates, tokens_column='tokens', segment_columns=['year', 'country'], min_frequency=20)
+        self.assertTrue((term_freq['frequency'] >= 20).all())
+
+
 
