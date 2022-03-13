@@ -45,6 +45,19 @@ This project requires Python 3.9 (but the python version can be configured in th
 
 ---
 
+- Text Processing is done in the etl.py script. 
+
+`python source/executables/etl.py extract`
+`make data_extract` which also gets ran with `make data`
+
+`python source/executables/etl.py transform`
+`make data_transform` which also gets ran with `make data`
+
+
+
+
+---
+
 To activate virtual environment run `source .venv/bin/activate`; for example:
 
 ```commandline
