@@ -547,8 +547,8 @@ year country token
              relations                   5    2.509856
              necessary                   5    2.487485
              middle                      5    2.450420
-             respect                     7    2.412358
              first                       7    2.412358
+             respect                     7    2.412358
              community                  13    2.412253
              many                        9    2.394491
              part                        6    2.191611
@@ -1180,8 +1180,8 @@ year country token
              principles                 12    5.142049
              independence                7    5.104637
              understanding               5    4.982441
-             right                      11    4.851911
              resources                  11    4.851911
+             right                      11    4.851911
              contribute                  6    4.663643
              interests                   7    4.622562
              third                       5    4.593552
@@ -1256,8 +1256,8 @@ year country token
              problem                     7    4.102931
              must                       21    3.782647
              taken                       7    3.640499
-             every                       6    3.497318
              could                       6    3.497318
+             every                       6    3.497318
              resolution                  7    3.472070
              way                         9    3.417425
              one                        18    3.320445
@@ -1289,8 +1289,8 @@ year country token
              organization                5    0.916908
              people                      5    0.793445
              new                         5    0.693704
-             countries                   5    0.626589
              assembly                    5    0.626589
+             countries                   5    0.626589
              also                        5    0.555305
      GIN     guinea                     50  140.153133
              portuguese                 24   74.297575
@@ -1337,8 +1337,8 @@ year country token
              recall                      5    8.497438
              military                   12    8.287087
              southern                    7    8.251668
-             purpose                     6    8.237794
              occupation                  6    8.237794
+             purpose                     6    8.237794
              elements                    5    7.892048
              government                 31    7.595799
              territories                 6    7.306771
@@ -1414,8 +1414,8 @@ year country token
              rights                      6    1.638982
              peace                      12    1.466947
              states                     10    1.449974
-             order                       5    1.330273
              many                        5    1.330273
+             order                       5    1.330273
              development                 9    1.276778
              years                       5    1.150543
              human                       5    1.133488
@@ -1538,8 +1538,8 @@ year country token
              peace                      18    2.200421
              countries                  17    2.130403
              global                      5    2.128651
-             east                        5    2.073554
              cannot                      5    2.073554
+             east                        5    2.073554
              us                         11    2.029161
              united                     20    2.020010
              years                       8    1.840869
@@ -1781,8 +1781,8 @@ year country token
              involved                    5    6.260065
              governments                 7    6.258512
              committee                   5    5.850124
-             said                        5    5.706436
              case                        5    5.706436
+             said                        5    5.706436
              secretary-general          14    4.950439
              south                       8    4.741267
              meeting                     7    4.659437
@@ -2142,8 +2142,8 @@ year country token
              relations                   5    2.509856
              council                    10    2.496608
              therefore                   6    2.398528
-             republic                    5    2.384388
              believe                     5    2.384388
+             republic                    5    2.384388
              countries                  19    2.381038
              ensure                      5    2.261992
              peaceful                    5    2.198387
@@ -2343,8 +2343,8 @@ year country token
              development                 7    0.993049
              support                     5    0.966062
              general                     7    0.963913
-             countries                   7    0.877225
              assembly                    7    0.877225
+             countries                   7    0.877225
              also                        5    0.555305
      CAN     canadian                    7   32.936191
              canada                      5   15.579675
@@ -2497,8 +2497,8 @@ year country token
              large                       5    4.897384
              united                     47    4.747024
              third                       5    4.593552
-             concerned                   6    4.500526
              african                     6    4.500526
+             concerned                   6    4.500526
              principle                   5    4.470365
              world                      42    4.452759
              second                      5    4.426312
@@ -3038,8 +3038,8 @@ year country token
              different                   5    5.821054
              changes                     5    5.444307
              say                         5    4.945810
-             disarmament                 6    4.734931
              arms                        6    4.734931
+             disarmament                 6    4.734931
              mankind                     5    4.685088
              indeed                      6    4.581530
              south                       7    4.148608
@@ -3061,8 +3061,8 @@ year country token
              great                       7    2.201021
              hope                        6    1.923880
              member                      5    1.872184
-             made                        7    1.804769
              like                        7    1.804769
+             made                        7    1.804769
              efforts                    10    1.693501
              progress                    5    1.659660
              towards                     5    1.647066
@@ -3925,8 +3925,8 @@ year country token
              agreements                  8    8.519647
              called                      8    8.436096
              words                       6    8.131597
-             september                   7    8.068783
              asia                        7    8.068783
+             september                   7    8.068783
              non-aligned                 5    8.002918
              said                        7    7.989011
              diplomatic                  6    7.945053
@@ -4002,8 +4002,8 @@ year country token
              peace                      22    2.689403
              resources                   6    2.646497
              without                     7    2.602661
-             us                         14    2.582568
              one                        14    2.582568
+             us                         14    2.582568
              relations                   5    2.509856
              countries                  20    2.506356
              east                        6    2.488264
@@ -4013,8 +4013,8 @@ year country token
              today                       8    2.358393
              well                        8    2.338975
              continue                    8    2.309937
-             place                       5    2.297681
              may                         5    2.297681
+             place                       5    2.297681
              social                      7    2.270760
              war                         5    2.149470
              states                     14    2.029963
@@ -4027,8 +4027,8 @@ year country token
              would                      10    1.714960
              general                    12    1.652422
              rights                      6    1.638982
-             order                       6    1.596328
              many                        6    1.596328
+             order                       6    1.596328
              also                       13    1.443792
              must                        8    1.441008
              development                10    1.418642
@@ -4569,8 +4569,8 @@ year country token
              importance                  5    3.363505
              particularly                6    3.353195
              nations                    31    3.224249
-             see                         5    3.189271
              question                    5    3.189271
+             see                         5    3.189271
              still                       7    3.166789
              together                    5    3.045802
              global                      7    2.980111
@@ -4954,8 +4954,8 @@ year country token
              year                        6    1.631852
              great                       5    1.572158
              important                   5    1.510581
-             us                          8    1.475753
              one                         8    1.475753
+             us                          8    1.475753
              rights                      5    1.365818
              political                   7    1.344807
              many                        5    1.330273
@@ -4993,8 +4993,8 @@ year country token
              states                      7    1.014982
              security                    7    0.927662
              organization                5    0.916908
-             world                       6    0.636108
              international               6    0.636108
+             world                       6    0.636108
      GHA     guinea-bissau              21   66.761392
              ghana                      11   45.291219
              algeria                     7   22.103254
@@ -5033,8 +5033,8 @@ year country token
              middle                      7    3.430588
              weapons                     6    3.420022
              achieved                    5    3.408029
-             east                        8    3.317686
              cannot                      8    3.317686
+             east                        8    3.317686
              foreign                     6    3.231030
              people                     20    3.173780
              conference                  7    2.845676
@@ -5273,8 +5273,8 @@ year country token
              assembly                    5    0.626589
      LKA     cyprus                     16   27.511812
              opec                        5   23.049300
-             sri                         5   18.748294
              lanka                       5   18.748294
+             sri                         5   18.748294
              indian                      7   16.150924
              industrialized              8   13.285182
              ocean                       7   12.781802
@@ -5319,8 +5319,8 @@ year country token
              right                       7    3.087580
              present                     5    3.087573
              must                       17    3.062143
-             principles                  7    2.999528
              members                     7    2.999528
+             principles                  7    2.999528
              held                        5    2.898250
              law                         6    2.861266
              republic                    6    2.861266
@@ -5382,8 +5382,8 @@ year country token
              world                      15    1.590271
              international              11    1.166199
              countries                   9    1.127860
-             us                          5    0.922346
              one                         5    0.922346
+             us                          5    0.922346
              nations                     8    0.832064
              peace                       6    0.733474
              united                      7    0.707004
@@ -5631,8 +5631,8 @@ year country token
              economic                   19    2.854583
              weapons                     5    2.850018
              session                    14    2.828458
-             implementation              5    2.770651
              force                       5    2.770651
+             implementation              5    2.770651
              nations                    26    2.704209
              africa                      6    2.654942
              right                       6    2.646497
@@ -5769,8 +5769,8 @@ year country token
              peace                      12    1.466947
              state                       5    1.431648
              take                        5    1.389656
-             us                          7    1.291284
              one                         7    1.291284
+             us                          7    1.291284
              like                        5    1.289120
              security                    9    1.192709
              world                      11    1.166199
@@ -5793,8 +5793,8 @@ year country token
              struggle                    5    4.861369
              people                     29    4.601981
              third                       5    4.593552
-             independence                6    4.375403
              history                     6    4.375403
+             independence                6    4.375403
              power                       5    4.253881
              peoples                    10    4.119748
              south                       6    3.555950
@@ -6110,16 +6110,16 @@ year country token
              activities                  5    4.437289
              foreign                     8    4.308040
              republic                    9    4.291899
-             taking                      5    4.285763
              results                     5    4.285763
+             taking                      5    4.285763
              principles                 10    4.285041
              sovereignty                 5    4.159440
              ensure                      9    4.071585
              spirit                      5    3.985776
              whole                       5    3.866723
              new                        27    3.746002
-             positive                    5    3.655559
              establishment               5    3.655559
+             positive                    5    3.655559
              effective                   8    3.562489
              conditions                  5    3.553230
              united                     35    3.535018
@@ -6484,8 +6484,8 @@ year country token
              coastal                     5   13.941238
              co-operation               11   13.497129
              republic                   25   11.921941
-             regular                     5   11.314116
              black                       5   11.314116
+             regular                     5   11.314116
              third                      12   11.024525
              delegation                 13    9.553418
              information                 5    9.186356
@@ -6543,8 +6543,8 @@ year country token
              adopted                     5    3.223636
              see                         5    3.189271
              another                     5    3.180717
-             financial                   5    3.163652
              developed                   5    3.163652
+             financial                   5    3.163652
              president                  12    3.150227
              nations                    30    3.120241
              resources                   7    3.087580
@@ -7051,14 +7051,14 @@ year country token
              states                      9    1.304976
              session                     6    1.212196
              us                          6    1.106815
-             countries                   8    1.002542
              assembly                    8    1.002542
+             countries                   8    1.002542
              general                     7    0.963913
              security                    6    0.795139
              development                 5    0.709321
              also                        5    0.555305
-     MLI     tel                         5   19.583564
-             aviv                        5   19.583564
+     MLI     aviv                        5   19.583564
+             tel                         5   19.583564
              viet                        6   15.047674
              nam                         6   14.981375
              division                    7   14.874673
@@ -7324,8 +7324,8 @@ year country token
              nations                     8    0.832064
              countries                   6    0.751907
              united                      7    0.707004
-             world                       6    0.636108
              international               6    0.636108
+             world                       6    0.636108
      RUS     soviet                     62   96.516443
              union                      57   47.063211
              favor                       9   25.781585
@@ -7416,8 +7416,8 @@ year country token
              powers                      5    4.861369
              every                       8    4.663090
              possible                    9    4.571714
-             legitimate                  5    4.570928
              done                        5    4.570928
+             legitimate                  5    4.570928
              necessary                   9    4.477472
              principle                   5    4.470365
              among                      13    4.446930
@@ -7426,8 +7426,8 @@ year country token
              including                   9    4.318176
              strengthening               5    4.275113
              become                      8    4.039722
-             resolutions                 5    4.015988
              forward                     5    4.015988
+             resolutions                 5    4.015988
              right                       9    3.969746
              major                       7    3.967661
              peace                      32    3.911859
@@ -7446,8 +7446,8 @@ year country token
              united                     35    3.535018
              special                     7    3.524270
              people                     22    3.491158
-             number                      5    3.480102
              greater                     5    3.480102
+             number                      5    3.480102
              continues                   5    3.452953
              recent                      7    3.451298
              nations                    33    3.432265
@@ -7494,8 +7494,8 @@ year country token
              progress                    5    1.659660
              years                       7    1.610761
              development                11    1.560506
-             made                        6    1.546945
              like                        6    1.546945
+             made                        6    1.546945
              make                        5    1.516705
              security                   11    1.457755
              country                     8    1.380566
@@ -7675,8 +7675,8 @@ year country token
              two                         8    2.880535
              opportunity                 6    2.878784
              world                      27    2.862488
-             republic                    6    2.861266
              law                         6    2.861266
+             republic                    6    2.861266
              conflicts                   5    2.858025
              peace                      23    2.811649
              take                       10    2.779312
@@ -7687,8 +7687,8 @@ year country token
              new                        19    2.636076
              towards                     8    2.635305
              made                       10    2.578241
-             east                        6    2.488264
              cannot                      6    2.488264
+             east                        6    2.488264
              recent                      5    2.465213
              development                17    2.411691
              time                       11    2.307964
@@ -7832,8 +7832,8 @@ year country token
              whose                       6    4.855659
              right                      11    4.851911
              military                    7    4.834134
-             already                     7    4.771241
              achieved                    7    4.771241
+             already                     7    4.771241
              disarmament                 6    4.734931
              national                   16    4.658568
              rights                     17    4.643782
@@ -7921,8 +7921,8 @@ year country token
              time                        6    1.258889
              efforts                     7    1.185451
              development                 8    1.134914
-             us                          6    1.106815
              one                         6    1.106815
+             us                          6    1.106815
      BLR     detente                    17   33.393613
              socialist                  14   29.855811
              soviet                     18   28.020903
@@ -8155,8 +8155,8 @@ year country token
              two                         6    2.160401
              world                      20    2.120361
              important                   7    2.114813
-             east                        5    2.073554
              cannot                      5    2.073554
+             east                        5    2.073554
              countries                  15    1.879767
              however                     5    1.865610
              new                        13    1.803631
@@ -8280,8 +8280,8 @@ year country token
              countries                  19    2.381038
              role                        6    2.342114
              place                       5    2.297681
-             still                       5    2.261992
              ensure                      5    2.261992
+             still                       5    2.261992
              conflict                    5    2.184362
              principles                  5    2.142520
              assembly                   17    2.130403
@@ -8351,8 +8351,8 @@ year country token
              thus                        8    5.381608
              concern                     9    5.363433
              problem                     8    4.689064
-             position                    5    4.360952
              ever                        5    4.360952
+             position                    5    4.360952
              certain                     5    4.296435
              taking                      5    4.285763
              international              38    4.028687
@@ -9323,8 +9323,8 @@ year country token
              peace                       9    1.100210
              security                    8    1.060186
              assembly                    8    1.002542
-             us                          5    0.922346
              one                         5    0.922346
+             us                          5    0.922346
              also                        8    0.888488
      RUS     soviet                     46   71.608974
              detente                    34   66.787226
@@ -9332,8 +9332,8 @@ year country token
              union                      36   29.724133
              nuclear                    38   24.696694
              socialist                  11   23.458138
-             soviet-american             5   22.214030
              brezhnev                    5   22.214030
+             soviet-american             5   22.214030
              limitation                  7   18.207252
              co-operation               14   17.178165
              race                       14   16.669018
@@ -9397,8 +9397,8 @@ year country token
              say                         6    5.934972
              benefit                     5    5.692292
              number                      8    5.568164
-             military                    8    5.524725
              areas                       8    5.524725
+             military                    8    5.524725
              still                      12    5.428781
              principle                   6    5.364439
              complete                    5    5.351095
@@ -9483,8 +9483,8 @@ year country token
              work                        8    2.118997
              process                     6    2.106173
              end                         6    2.083081
-             east                        5    2.073554
              cannot                      5    2.073554
+             east                        5    2.073554
              first                       6    2.067735
              us                         11    2.029161
              continue                    7    2.021195
@@ -10956,8 +10956,8 @@ year country token
              peace                       8    0.977965
              general                     7    0.963913
              people                      6    0.952134
-             countries                   7    0.877225
              assembly                    7    0.877225
+             countries                   7    0.877225
              development                 6    0.851185
              international               8    0.848145
              efforts                     5    0.846750
@@ -11057,8 +11057,8 @@ year country token
              new                         5    0.693704
 1979 CHL     chile                      11   31.167048
              holiness                    5   22.214030
-             legal                       7    8.589082
              co-operation                7    8.589082
+             legal                       7    8.589082
              industrialized              5    8.303239
              disputes                    6    7.705021
              principles                 14    5.999057
@@ -11149,8 +11149,8 @@ year country token
              peoples                     5    2.059874
              must                       11    1.981386
              government                  8    1.960206
-             world                      16    1.696289
              international              16    1.696289
+             world                      16    1.696289
              order                       6    1.596328
              made                        6    1.546945
              need                        5    1.437676
@@ -11436,8 +11436,8 @@ year country token
              right                       5    2.205414
              charter                     5    2.191369
              future                      6    2.175986
-             order                       8    2.128437
              many                        8    2.128437
+             order                       8    2.128437
              economic                   14    2.103377
              system                      5    2.094144
              rights                      7    1.912145
@@ -11531,8 +11531,8 @@ year country token
              self-determination          5    5.580555
              led                         5    5.498362
              face                        7    5.290960
-             independence                7    5.104637
              history                     7    5.104637
+             independence                7    5.104637
              assistance                  9    5.029793
              conditions                  7    4.974522
              resolutions                 6    4.819185
@@ -11540,8 +11540,8 @@ year country token
              far                         7    4.622562
              interests                   7    4.622562
              responsibility              8    4.598521
-             third                       5    4.593552
              israel                      5    4.593552
+             third                       5    4.593552
              state                      16    4.581273
              various                     6    4.477582
              central                     5    4.371786
@@ -11597,8 +11597,8 @@ year country token
              one                        11    2.029161
              last                        5    1.978571
              member                      5    1.872184
-             order                       7    1.862382
              many                        7    1.862382
+             order                       7    1.862382
              new                        13    1.803631
              must                        9    1.621134
              years                       7    1.610761
@@ -11718,8 +11718,8 @@ year country token
              unifil                      6   25.047252
              africa                     36   15.929651
              armaments                   5   10.817841
-             peace-keeping               5   10.366407
              federal                     5   10.366407
+             peace-keeping               5   10.366407
              civilian                    5    9.662907
              exploitation                5    8.936997
              billion                     5    8.673779
@@ -11971,8 +11971,8 @@ year country token
              countries                  26    3.258263
              justice                     5    3.258238
              social                     10    3.243943
-             place                       7    3.216753
              may                         7    3.216753
+             place                       7    3.216753
              economic                   21    3.155066
              united                     31    3.131016
              taken                       6    3.120428
@@ -12000,8 +12000,8 @@ year country token
              time                       11    2.307964
              way                         6    2.278283
              one                        12    2.213630
-             right                       5    2.205414
              resources                   5    2.205414
+             right                       5    2.205414
              assembly                   17    2.130403
              work                        8    2.118997
              president                   8    2.100151
@@ -12093,8 +12093,8 @@ year country token
              united                      9    0.909005
              must                        5    0.900630
              efforts                     5    0.846750
-     STP     tome                       16   63.411725
-             sao                        16   63.411725
+     STP     sao                        16   63.411725
+             tome                       16   63.411725
              principe                   14   55.485260
              liberation                 13   17.988591
              struggle                   15   14.584108
@@ -12175,8 +12175,8 @@ year country token
              needs                       5    3.489185
              president                  13    3.412746
              achieved                    5    3.408029
-             yet                         5    3.372378
              life                        5    3.372378
+             yet                         5    3.372378
              importance                  5    3.363505
              particularly                6    3.353195
              future                      9    3.263979
@@ -12437,12 +12437,12 @@ year country token
              issues                      7    3.923146
              areas                       5    3.452953
              government                 13    3.185335
-             still                       6    2.714390
              ensure                      6    2.714390
+             still                       6    2.714390
              problems                    7    2.430261
              development                16    2.269827
-             right                       5    2.205414
              resources                   5    2.205414
+             right                       5    2.205414
              must                       12    2.161513
              international              20    2.120361
              cannot                      5    2.073554
@@ -12973,8 +12973,8 @@ year country token
              people                     14    2.221646
              process                     6    2.106173
              efforts                    12    2.032201
-             since                       5    1.985296
              action                      5    1.985296
+             since                       5    1.985296
              last                        5    1.978571
              situation                   6    1.968937
              developing                  5    1.931748
@@ -13427,8 +13427,8 @@ year country token
              conflict                    5    2.184362
              system                      5    2.094144
              first                       6    2.067735
-             made                        8    2.062593
              like                        8    2.062593
+             made                        8    2.062593
              conference                  5    2.032626
              situation                   6    1.968937
              developing                  5    1.931748
@@ -13638,8 +13638,8 @@ year country token
              charter                     5    2.191369
              problems                    6    2.083081
              state                       7    2.004307
-             since                       5    1.985296
              action                      5    1.985296
+             since                       5    1.985296
              last                        5    1.978571
              government                  8    1.960206
              developing                  5    1.931748
@@ -13654,8 +13654,8 @@ year country token
              today                       5    1.473995
              organization                8    1.467053
              country                     8    1.380566
-             us                          7    1.291284
              one                         7    1.291284
+             us                          7    1.291284
              time                        6    1.258889
              council                     5    1.248304
              session                     5    1.010164
@@ -13765,8 +13765,8 @@ year country token
              state                      10    2.863296
              believe                     6    2.861266
              problems                    8    2.777441
-             respect                     8    2.756981
              first                       8    2.756981
+             respect                     8    2.756981
              still                       6    2.714390
              particular                  5    2.646228
              peaceful                    6    2.638064
@@ -14194,8 +14194,8 @@ year country token
              force                       7    3.878912
              negotiations                6    3.684987
              country                    21    3.623985
-             solution                    7    3.598010
              means                       7    3.598010
+             solution                    7    3.598010
              conditions                  5    3.553230
              high                        5    3.516532
              believe                     7    3.338144
@@ -14296,8 +14296,8 @@ year country token
              system                     14    5.863603
              committee                   5    5.850124
              crisis                      8    4.926705
-             natural                     5    4.685088
              mankind                     5    4.685088
+             natural                     5    4.685088
              means                       9    4.626013
              negotiations                7    4.299152
              result                      5    3.740869
@@ -14351,8 +14351,8 @@ year country token
              policy                      6    3.526562
              conflict                    8    3.494979
              members                     8    3.428033
-             particularly                6    3.353195
              assistance                  6    3.353195
+             particularly                6    3.353195
              peoples                     8    3.295798
              government                 13    3.185335
              people                     19    3.015091
@@ -14380,8 +14380,8 @@ year country token
              human                       6    1.360186
              economic                    9    1.352171
              work                        5    1.324373
-             made                        5    1.289120
              like                        5    1.289120
+             made                        5    1.289120
              country                     7    1.207995
              political                   6    1.152692
              united                     11    1.111006
@@ -15297,8 +15297,8 @@ year country token
              south                       9    5.333925
              increase                    5    4.616279
              african                     6    4.500526
-             disarmament                 5    3.945776
              arms                        5    3.945776
+             disarmament                 5    3.945776
              become                      7    3.534757
              policy                      6    3.526562
              situation                  10    3.281561
@@ -15364,8 +15364,8 @@ year country token
              resources                   7    3.087580
              solution                    6    3.084009
              cooperation                 5    2.810177
-             recent                      5    2.465213
              full                        5    2.465213
+             recent                      5    2.465213
              problems                    7    2.430261
              last                        6    2.374285
              must                       13    2.341639
@@ -16084,8 +16084,8 @@ year country token
              must                        5    0.900630
              economic                    5    0.751206
      STP     principe                    5   19.816164
-             tome                        5   19.816164
              sao                         5   19.816164
+             tome                        5   19.816164
              troops                      5    7.083841
              occupation                  5    6.864828
              palestinian                 7    6.305127
@@ -16882,8 +16882,8 @@ year country token
              development                 5    0.709321
              assembly                    5    0.626589
      IRQ     iraq                       28   37.172315
-             tel                         9   35.250415
              aviv                        9   35.250415
+             tel                         9   35.250415
              zionist                    12   34.762577
              blackmail                   9   30.818127
              iranian                     8   27.851158
@@ -16970,8 +16970,8 @@ year country token
              efforts                     6    1.016100
              assembly                    8    1.002542
              general                     6    0.826211
-     LKA     sri                        21   78.742834
-             lanka                      21   78.742834
+     LKA     lanka                      21   78.742834
+             sri                        21   78.742834
              language                    6   15.461631
              ocean                       7   12.781802
              indian                      5   11.536375
@@ -17296,8 +17296,8 @@ year country token
              always                      6    5.041433
              union                       6    4.954022
              one                        26    4.796198
-             yet                         7    4.721330
              come                        7    4.721330
+             yet                         7    4.721330
              interests                   7    4.622562
              second                      5    4.426312
              democracy                   5    4.350141
@@ -17616,8 +17616,8 @@ year country token
              system                      5    2.094144
              developing                  5    1.931748
              future                      5    1.813322
-             world                      17    1.802307
              international              17    1.802307
+             world                      17    1.802307
              national                    6    1.746963
              respect                     5    1.723113
              progress                    5    1.659660
@@ -18833,8 +18833,8 @@ year country token
              mutual                      7    7.027077
              strategic                   5    6.973136
              struggle                    7    6.805917
-             disarmament                 8    6.313241
              arms                        8    6.313241
+             disarmament                 8    6.313241
              weapons                    11    6.270040
              republic                   13    6.199409
              peaceful                   14    6.155483
@@ -19078,8 +19078,8 @@ year country token
              war                         5    2.149470
              mr                          7    2.131970
              countries                  17    2.130403
-             problems                    6    2.083081
              end                         6    2.083081
+             problems                    6    2.083081
              without                     5    1.859044
              economic                   12    1.802895
              today                       6    1.768794
@@ -19275,8 +19275,8 @@ year country token
              therefore                   6    2.398528
              order                       9    2.394491
              last                        6    2.374285
-             right                       5    2.205414
              resources                   5    2.205414
+             right                       5    2.205414
              future                      6    2.175986
              time                       10    2.098149
              community                  11    2.041137
@@ -19494,8 +19494,8 @@ year country token
              also                        8    0.888488
              general                     6    0.826211
              assembly                    5    0.626589
-     LKA     sri                        22   82.492492
-             lanka                      22   82.492492
+     LKA     lanka                      22   82.492492
+             sri                        22   82.492492
              indian                      6   13.843649
              ocean                       7   12.781802
              non-aligned                 6    9.603501
@@ -19686,8 +19686,8 @@ year country token
              would                       9    1.543464
              united                     14    1.414007
              country                     8    1.380566
-             order                       5    1.330273
              many                        5    1.330273
+             order                       5    1.330273
              time                        6    1.258889
              community                   6    1.113347
              also                       10    1.110609
@@ -20554,8 +20554,8 @@ year country token
              organization                7    1.283671
              would                       7    1.200472
              support                     6    1.159274
-             world                      10    1.060181
              international              10    1.060181
+             world                      10    1.060181
              efforts                     6    1.016100
              new                         7    0.971186
              nations                     9    0.936072
@@ -20750,8 +20750,8 @@ year country token
              taken                       5    2.600356
              would                      15    2.572440
              become                      5    2.524826
-             republic                    5    2.384388
              believe                     5    2.384388
+             republic                    5    2.384388
              way                         6    2.278283
              still                       5    2.261992
              security                   17    2.252894
@@ -20858,8 +20858,8 @@ year country token
              major                       9    5.101279
              independent                 5    4.970201
              negotiations                8    4.913316
-             struggle                    5    4.861369
              powers                      5    4.861369
+             struggle                    5    4.861369
              despite                     6    4.843477
              act                         5    4.448290
              threat                      6    4.375403
@@ -21341,8 +21341,8 @@ year country token
              years                       8    1.840869
              economic                   11    1.652653
              year                        6    1.631852
-             order                       6    1.596328
              many                        6    1.596328
+             order                       6    1.596328
              important                   5    1.510581
              new                        10    1.387408
              world                      13    1.378235
@@ -21461,8 +21461,8 @@ year country token
              nations                     7    0.728056
              united                      7    0.707004
              general                     5    0.688509
-             world                       6    0.636108
              international               6    0.636108
+             world                       6    0.636108
              peace                       5    0.611228
              also                        5    0.555305
      CHN     china                      22   38.620601
@@ -21530,8 +21530,8 @@ year country token
              government                 12    2.940309
              peace                      24    2.933895
              international              27    2.862488
-             parties                     5    2.858025
              conflicts                   5    2.858025
+             parties                     5    2.858025
              nations                    27    2.808217
              end                         8    2.777441
              effective                   6    2.671867
@@ -22217,8 +22217,8 @@ year country token
              end                         8    2.777441
              developing                  7    2.704447
              africa                      6    2.654942
-             solution                    5    2.570007
              means                       5    2.570007
+             solution                    5    2.570007
              opportunity                 5    2.398987
              role                        6    2.342114
              economic                   15    2.253618
@@ -22403,8 +22403,8 @@ year country token
              order                       7    1.862382
              community                  10    1.855579
              two                         5    1.800335
-             problems                    5    1.735901
              end                         5    1.735901
+             problems                    5    1.735901
              world                      16    1.696289
              hope                        5    1.603233
              many                        6    1.596328
@@ -22964,8 +22964,8 @@ year country token
              world                      19    2.014343
              action                      5    1.985296
              development                13    1.844235
-             respect                     5    1.723113
              first                       5    1.723113
+             respect                     5    1.723113
              would                      10    1.714960
              time                        8    1.678519
              progress                    5    1.659660
@@ -23165,8 +23165,8 @@ year country token
              central                     5    4.371786
              problem                     7    4.102931
              despite                     5    4.036231
-             growth                      5    4.015988
              declaration                 5    4.015988
+             growth                      5    4.015988
              problems                   11    3.818981
              negotiations                6    3.684987
              countries                  29    3.634216
@@ -24068,8 +24068,8 @@ year country token
              session                     5    1.010164
              development                 7    0.993049
              general                     7    0.963913
-             us                          5    0.922346
              one                         5    0.922346
+             us                          5    0.922346
              economic                    6    0.901447
              assembly                    7    0.877225
              people                      5    0.793445
@@ -24231,8 +24231,8 @@ year country token
              united                     23    2.323012
              effective                   5    2.226556
              africa                      5    2.212452
-             right                       5    2.205414
              resources                   5    2.205414
+             right                       5    2.205414
              government                  9    2.205232
              region                      6    2.199439
              war                         5    2.149470
@@ -24331,8 +24331,8 @@ year country token
              support                     7    1.352487
              order                       5    1.330273
              community                   7    1.298905
-             made                        5    1.289120
              like                        5    1.289120
+             made                        5    1.289120
              organization                7    1.283671
              must                        6    1.080756
              economic                    6    0.901447
@@ -24492,8 +24492,8 @@ year country token
              like                        6    1.546945
              efforts                     9    1.524151
              council                     6    1.497965
-             us                          8    1.475753
              one                         8    1.475753
+             us                          8    1.475753
              would                       8    1.371968
              human                       6    1.360186
              peace                      11    1.344702
@@ -24544,8 +24544,8 @@ year country token
              united                     11    1.111006
              support                     5    0.966062
              nations                     9    0.936072
-             us                          5    0.922346
              one                         5    0.922346
+             us                          5    0.922346
              country                     5    0.862853
              people                      5    0.793445
              new                         5    0.693704
@@ -24779,8 +24779,8 @@ year country token
              great                       7    2.201021
              support                    11    2.125336
              made                        8    2.062593
-             us                         10    1.844692
              one                        10    1.844692
+             us                         10    1.844692
              among                       5    1.710358
              nations                    16    1.664128
              organization                9    1.650434
@@ -25478,8 +25478,8 @@ year country token
              states                      6    0.869984
              security                    6    0.795139
              assembly                    6    0.751907
-     BFA     faso                       10   46.098600
-             burkina                    10   46.098600
+     BFA     burkina                    10   46.098600
+             faso                       10   46.098600
              billion                     6   10.408534
              decade                      6    7.588513
              poor                        6    7.306771
@@ -25711,8 +25711,8 @@ year country token
              weight                      6   16.818376
              responsibility             29   16.669640
              unity                      16   16.141099
-             safeguarding                6   14.122770
              ending                      6   14.122770
+             safeguarding                6   14.122770
              east-west                   5   13.941238
              division                    6   12.749720
              federal                     6   12.439688
@@ -25933,8 +25933,8 @@ year country token
              economic                   11    1.652653
              one                         8    1.475753
              state                       5    1.431648
-             order                       5    1.330273
              many                        5    1.330273
+             order                       5    1.330273
              council                     5    1.248304
              would                       7    1.200472
              us                          6    1.106815
@@ -26035,8 +26035,8 @@ year country token
              settlement                  6    4.466142
              thus                        6    4.036206
              within                      9    3.585654
-             framework                   5    3.310595
              change                      5    3.310595
+             framework                   5    3.310595
              become                      6    3.029791
              relations                   6    3.011827
              political                  12    2.305383
@@ -27187,8 +27187,8 @@ year country token
              country                     8    1.380566
              international              13    1.378235
              year                        5    1.359876
-             order                       5    1.330273
              many                        5    1.330273
+             order                       5    1.330273
              organization                7    1.283671
              would                       7    1.200472
              us                          6    1.106815
@@ -27243,8 +27243,8 @@ year country token
              development                 8    1.134914
              peace                       8    0.977965
              world                       9    0.954163
-             us                          5    0.922346
              one                         5    0.922346
+             us                          5    0.922346
              countries                   7    0.877225
              also                        7    0.777427
              assembly                    6    0.751907
@@ -27355,8 +27355,8 @@ year country token
              general                     5    0.688509
              world                       6    0.636108
              nations                     5    0.520040
-     BFA     faso                        9   41.488740
-             burkina                     9   41.488740
+     BFA     burkina                     9   41.488740
+             faso                        9   41.488740
              summit                      6    5.649883
              cent                        5    5.636111
              per                         5    5.131705
@@ -28032,8 +28032,8 @@ year country token
              economic                   12    1.802895
              international              17    1.802307
              process                     5    1.755144
-             problems                    5    1.735901
              end                         5    1.735901
+             problems                    5    1.735901
              first                       5    1.723113
              political                   8    1.536922
              world                      14    1.484253
@@ -28530,8 +28530,8 @@ year country token
              people                      9    1.428201
              years                       6    1.380652
              general                    10    1.377019
-             countries                   8    1.002542
              assembly                    8    1.002542
+             countries                   8    1.002542
              world                       9    0.954163
              nations                     9    0.936072
              would                       5    0.857480
@@ -28921,8 +28921,8 @@ year country token
              changes                     7    7.622030
              europe                      7    7.603238
              prevent                     7    7.510028
-             integration                 5    7.254636
              becoming                    5    7.254636
+             integration                 5    7.254636
              required                    5    7.009766
              greater                    10    6.960205
              accept                      5    6.954921
@@ -29262,8 +29262,8 @@ year country token
              states                     13    1.884966
              countries                  15    1.879767
              future                      5    1.813322
-             made                        7    1.804769
              like                        7    1.804769
+             made                        7    1.804769
              situation                   5    1.640780
              one                         8    1.475753
              security                   11    1.457755
@@ -29441,8 +29441,8 @@ year country token
              national                    5    1.455803
              continue                    5    1.443711
              work                        5    1.324373
-             made                        5    1.289120
              like                        5    1.289120
+             made                        5    1.289120
              people                      8    1.269512
              general                     9    1.239317
              support                     6    1.159274
@@ -29864,8 +29864,8 @@ year country token
              make                        6    1.820046
              countries                  14    1.754449
              states                     12    1.739968
-             world                      16    1.696289
              international              16    1.696289
+             world                      16    1.696289
              state                       5    1.431648
              year                        5    1.359876
              would                       7    1.200472
@@ -30298,8 +30298,8 @@ year country token
              years                       5    1.150543
              organization                6    1.100290
              would                       6    1.028976
-             countries                   8    1.002542
              assembly                    8    1.002542
+             countries                   8    1.002542
              support                     5    0.966062
              political                   5    0.960576
              development                 6    0.851185
@@ -30458,8 +30458,8 @@ year country token
              us                          5    0.922346
              peace                       7    0.855719
              development                 5    0.709321
-             world                       6    0.636108
              international               6    0.636108
+             world                       6    0.636108
              also                        5    0.555305
      SWZ     swaziland                  26  119.856360
              kingdom                    19   33.354155
@@ -30601,8 +30601,8 @@ year country token
              human                       6    1.360186
              many                        5    1.330273
              years                       5    1.150543
-             countries                   9    1.127860
              assembly                    9    1.127860
+             countries                   9    1.127860
              political                   5    0.960576
              people                      6    0.952134
              community                   5    0.927789
@@ -30793,8 +30793,8 @@ year country token
              development                24    3.404741
              national                   11    3.202766
              south                       5    2.963292
-             conflicts                   5    2.858025
              common                      5    2.858025
+             conflicts                   5    2.858025
              foreign                     5    2.692525
              world                      25    2.650452
              regional                    5    2.600356
@@ -30805,8 +30805,8 @@ year country token
              united                     21    2.121011
              international              20    2.120361
              important                   7    2.114813
-             respect                     6    2.067735
              first                       6    2.067735
+             respect                     6    2.067735
              towards                     6    1.976479
              peace                      16    1.955930
              social                      6    1.946366
@@ -30873,8 +30873,8 @@ year country token
              social                      7    2.270760
              human                       9    2.040279
              development                13    1.844235
-             world                      15    1.590271
              international              15    1.590271
+             world                      15    1.590271
              like                        6    1.546945
              today                       5    1.473995
              time                        7    1.468704
@@ -31458,8 +31458,8 @@ year country token
              peace                       7    0.855719
              efforts                     5    0.846750
              general                     6    0.826211
-             countries                   6    0.751907
              assembly                    6    0.751907
+             countries                   6    0.751907
      RUS     russia                     13   36.833784
              peace-keeping               5   10.366407
              standards                   5    7.451512
@@ -31706,8 +31706,8 @@ year country token
              last                        5    1.978571
              one                        10    1.844692
              world                      17    1.802307
-             problems                    5    1.735901
              end                         5    1.735901
+             problems                    5    1.735901
              progress                    5    1.659660
              assembly                   13    1.629132
              social                      5    1.621972
@@ -32618,8 +32618,8 @@ year country token
              efforts                     7    1.185451
              must                        6    1.080756
              security                    8    1.060186
-             countries                   8    1.002542
              assembly                    8    1.002542
+             countries                   8    1.002542
              support                     5    0.966062
              general                     7    0.963913
              also                        6    0.666366
@@ -33787,8 +33787,8 @@ year country token
              international              10    1.060181
              general                     7    0.963913
              must                        5    0.900630
-             countries                   7    0.877225
              assembly                    7    0.877225
+             countries                   7    0.877225
              states                      6    0.869984
              also                        5    0.555305
      NOR     norway                      8   27.619258
@@ -34106,8 +34106,8 @@ year country token
              put                         5    3.408029
              policy                      5    2.938802
              within                      7    2.788842
-             place                       6    2.757217
              may                         6    2.757217
+             place                       6    2.757217
              council                    11    2.746269
              peace                      19    2.322667
              way                         6    2.278283
@@ -34517,8 +34517,8 @@ year country token
              like                        6    1.546945
              states                     10    1.449974
              development                 9    1.276778
-             countries                  10    1.253178
              assembly                   10    1.253178
+             countries                  10    1.253178
              new                         9    1.248667
              would                       6    1.028976
              country                     5    0.862853
@@ -34917,8 +34917,8 @@ year country token
              must                        5    0.900630
              states                      6    0.869984
              also                        5    0.555305
-     SLE     sierra                     28   86.126030
-             leone                      28   86.126030
+     SLE     leone                      28   86.126030
+             sierra                     28   86.126030
              junta                      11   47.296756
              forest                      9   33.746929
              ecomog                      6   27.659160
@@ -34945,8 +34945,8 @@ year country token
              continue                    5    1.443711
              people                      9    1.428201
              one                         7    1.291284
-             made                        5    1.289120
              like                        5    1.289120
+             made                        5    1.289120
              council                     5    1.248304
              peace                      10    1.222456
              us                          6    1.106815
@@ -35454,8 +35454,8 @@ year country token
              realization                 6   10.108472
              refugees                    5    7.411512
              land                        5    7.391631
-             return                      6    7.215722
              achievement                 6    7.215722
+             return                      6    7.215722
              millennium                  5    5.879364
              middle                     10    4.900840
              resolutions                 6    4.819185
@@ -35631,8 +35631,8 @@ year country token
              general                     7    0.963913
              united                      9    0.909005
              country                     5    0.862853
-             world                       8    0.848145
              international               8    0.848145
+             world                       8    0.848145
              security                    5    0.662616
      VEN     venezuela                  26   86.949034
              venezuelan                  7   31.659940
@@ -36752,8 +36752,8 @@ year country token
              united                     32    3.232016
              security                   23    3.048033
              view                        5    2.866044
-             republic                    6    2.861266
              believe                     6    2.861266
+             republic                    6    2.861266
              conflicts                   5    2.858025
              international              26    2.756470
              democratic                  5    2.715835
@@ -37304,8 +37304,8 @@ year country token
              day                         5    5.182467
              say                         5    4.945810
              struggle                    5    4.861369
-             life                        7    4.721330
              come                        7    4.721330
+             life                        7    4.721330
              must                       19    3.422395
              poverty                     5    3.354648
              year                       12    3.263703
@@ -37827,8 +37827,8 @@ year country token
              would                       6    1.028976
              must                        5    0.900630
      VCT     taiwan                      7   19.415541
-             vincent                     5   18.559592
              grenadines                  5   18.559592
+             vincent                     5   18.559592
              corruption                  6   16.141603
              saint                       5   13.586479
              public                      6    6.663608
@@ -38434,8 +38434,8 @@ year country token
              nations                     5    0.520040
              united                      5    0.505003
      STP     principe                    7   27.742630
-             tome                        7   27.742630
              sao                         7   27.742630
+             tome                        7   27.742630
              taiwan                      7   19.415541
              democracy                   6    5.220169
              violence                    5    4.650565
@@ -38451,8 +38451,8 @@ year country token
              united                      9    0.909005
              would                       5    0.857480
              nations                     8    0.832064
-             world                       7    0.742127
              international               7    0.742127
+             world                       7    0.742127
              states                      5    0.724987
              security                    5    0.662616
      TUR     turkey                     11   34.275285
@@ -38707,8 +38707,8 @@ year country token
              would                       6    1.028976
              development                 7    0.993049
              support                     5    0.966062
-             countries                   6    0.751907
              assembly                    6    0.751907
+             countries                   6    0.751907
              general                     5    0.688509
      DNK     denmark                    12   56.462042
              millennium                  7    8.231110
@@ -38812,8 +38812,8 @@ year country token
              security                    6    0.795139
              assembly                    6    0.751907
              nations                     7    0.728056
-             world                       6    0.636108
              international               6    0.636108
+             world                       6    0.636108
      GUY     guyana                     10   32.465552
              globalization               6   10.408534
              small                       5    3.627443
@@ -38982,8 +38982,8 @@ year country token
              state                       5    1.431648
              people                      8    1.269512
              community                   6    1.113347
-             world                       8    0.848145
              international               8    0.848145
+             world                       8    0.848145
      MAR     morocco                     9   28.418469
              multilateral                5    5.093969
              system                     10    4.188288
@@ -39499,8 +39499,8 @@ year country token
              needs                       5    3.489185
              countries                  27    3.383581
              cooperation                 6    3.372213
-             particularly                6    3.353195
              assistance                  6    3.353195
+             particularly                6    3.353195
              interests                   5    3.301830
              another                     5    3.180717
              council                    12    2.995929
@@ -39584,8 +39584,8 @@ year country token
              peace                       9    1.100210
              security                    7    0.927662
              development                 5    0.709321
-             countries                   5    0.626589
              assembly                    5    0.626589
+             countries                   5    0.626589
      GIN     guinea                      8   22.424501
              parties                     9    5.144444
              delegation                  6    4.409270
@@ -40173,8 +40173,8 @@ year country token
              national                    7    2.038124
              year                        7    1.903827
              human                       8    1.813581
-             world                      15    1.590271
              international              15    1.590271
+             world                      15    1.590271
              government                  6    1.470155
              rights                      5    1.365818
              countries                  10    1.253178
@@ -40242,8 +40242,8 @@ year country token
              development                 8    1.134914
              peace                       8    0.977965
              efforts                     5    0.846750
-             world                       7    0.742127
              international               7    0.742127
+             world                       7    0.742127
      PSE     palestine                   7    8.418342
              palestinian                 9    8.106592
              negotiations                7    4.299152
@@ -40288,8 +40288,8 @@ year country token
              economic                    5    0.751206
              peace                       6    0.733474
              international               5    0.530090
-     SLE     sierra                     12   36.911156
-             leone                      12   36.911156
+     SLE     leone                      12   36.911156
+             sierra                     12   36.911156
              peacebuilding               6   17.187723
              commission                 11   14.234247
              reform                      6    5.155722
@@ -40507,8 +40507,8 @@ year country token
              world                      34    3.604614
              means                       7    3.598010
              without                     7    2.602661
-             us                         10    1.844692
              one                        10    1.844692
+             us                         10    1.844692
              people                     11    1.745579
              nations                    16    1.664128
              peace                      13    1.589193
@@ -40609,8 +40609,8 @@ year country token
              united                      9    0.909005
              peace                       6    0.733474
              world                       6    0.636108
-     LKA     sri                        11   41.246246
-             lanka                      11   41.246246
+     LKA     lanka                      11   41.246246
+             sri                        11   41.246246
              terrorism                  12   11.411655
              programmes                  6    7.783970
              rights                     12    3.277963
@@ -41621,8 +41621,8 @@ year country token
              session                     7    1.414229
              work                        5    1.324373
              community                   7    1.298905
-             made                        5    1.289120
              like                        5    1.289120
+             made                        5    1.289120
              people                      7    1.110823
              security                    8    1.060186
              states                      7    1.014982
@@ -42533,8 +42533,8 @@ year country token
              council                     5    1.248304
              states                      8    1.159979
              general                     7    0.963913
-             countries                   6    0.751907
              assembly                    6    0.751907
+             countries                   6    0.751907
              international               7    0.742127
              development                 5    0.709321
              world                       5    0.530090
@@ -43381,8 +43381,8 @@ year country token
              international               6    0.636108
      VCT     winds                       8   29.997270
              descent                     5   23.525851
-             vincent                     6   22.271510
              grenadines                  6   22.271510
+             vincent                     6   22.271510
              saint                       6   16.303775
              global                     14    5.960222
              crisis                      7    4.310867
@@ -43452,8 +43452,8 @@ year country token
              west                        5    6.519864
              want                        5    6.135059
              issue                       7    6.060025
-             sovereign                   5    5.894048
              economies                   5    5.894048
+             sovereign                   5    5.894048
              republic                   12    5.722532
              example                     5    5.580555
              matter                      6    5.525883
@@ -43526,8 +43526,8 @@ year country token
              council                     6    1.497965
              world                      13    1.378235
              rights                      5    1.365818
-             order                       5    1.330273
              many                        5    1.330273
+             order                       5    1.330273
              community                   7    1.298905
              would                       7    1.200472
              states                      8    1.159979
@@ -43854,8 +43854,8 @@ year country token
              people                     10    1.586890
              development                11    1.560506
              support                     8    1.545699
-             world                      13    1.378235
              international              13    1.378235
+             world                      13    1.378235
              economic                    9    1.352171
              nations                    13    1.352104
              united                     13    1.313007
@@ -43927,8 +43927,8 @@ year country token
              security                    9    1.192709
              peace                       8    0.977965
              people                      6    0.952134
-             countries                   5    0.626589
              assembly                    5    0.626589
+             countries                   5    0.626589
              world                       5    0.530090
      IRQ     iraq                       23   30.534401
              syrian                      6   16.222141
@@ -44870,8 +44870,8 @@ year country token
              years                       5    1.150543
              peace                       6    0.733474
              security                    5    0.662616
-             world                       5    0.530090
              international               5    0.530090
+             world                       5    0.530090
      NRU     nauru                       7   26.522156
              sustainable                14   15.168993
              climate                    13   11.423166
@@ -44992,8 +44992,8 @@ year country token
              country                     5    0.862853
              would                       5    0.857480
              security                    6    0.795139
-             countries                   6    0.751907
              assembly                    6    0.751907
+             countries                   6    0.751907
              economic                    5    0.751206
              nations                     7    0.728056
      SLV     salvador                   10   27.882476
@@ -45322,8 +45322,8 @@ year country token
      CPV     verde                      15   56.244881
              post-2015                   5   15.379648
              climate                     8    7.029641
-             goals                       7    5.223845
              agenda                      7    5.223845
+             goals                       7    5.223845
              change                      7    4.634832
              african                     5    3.750438
              global                      7    2.980111
@@ -45473,8 +45473,8 @@ year country token
              union                       7    5.779693
              supports                    5    5.068969
              threat                      5    3.646169
-             welcome                     5    3.087573
              agreement                   5    3.087573
+             welcome                     5    3.087573
              solution                    5    2.570007
              relations                   5    2.509856
              global                      5    2.128651
@@ -45909,8 +45909,8 @@ year country token
              must                        6    1.080756
              countries                   8    1.002542
              development                 7    0.993049
-     VCT     vincent                    14   51.966858
-             grenadines                 14   51.966858
+     VCT     grenadines                 14   51.966858
+             vincent                    14   51.966858
              saint                      14   38.042142
              caribbean                   8   15.361272
              borders                     8   11.890355
@@ -46536,8 +46536,8 @@ year country token
              children                    6    6.746597
              believe                    14    6.676287
              history                     9    6.563105
-             matter                      7    6.446864
              america                     7    6.446864
+             matter                      7    6.446864
              people                     38    6.030182
              cannot                     14    5.805950
              see                         8    5.102834

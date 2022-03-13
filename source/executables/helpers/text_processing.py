@@ -267,7 +267,7 @@ def tf_idf(df: pd.DataFrame,
             segment_columns = [segment_columns]
         sort_by = segment_columns
         ascending = [True] * len(sort_by)
-    sort_by += ['tf-idf']
-    ascending += [False]
+    sort_by += ['tf-idf', 'token']
+    ascending += [False, True]
     result.sort_values(ascending=ascending, by=sort_by, inplace=True)
     return result
