@@ -35,7 +35,7 @@ def remove_stop_words(tokens: list,
                       exclude_stop_words: Union[list, set] = None,
                       source: str = 'nltk') -> list:
     """
-    Remove stop-words from `tokens` in a list of tokens.
+    Remove stop-words from a list of tokens.
 
     From:
         Blueprints for Text Analytics Using Python
@@ -44,7 +44,7 @@ def remove_stop_words(tokens: list,
          https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch01/First_Insights.ipynb
 
     Args:
-        tokens: string of text
+        tokens: list of strings
         include_stop_words: list/set of stop-words to include
         exclude_stop_words: list/set of stop-words to exclude
         source: source of the stop-words to use
