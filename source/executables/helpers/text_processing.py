@@ -271,8 +271,3 @@ def tf_idf(df: pd.DataFrame,
     ascending += [False]
     result.sort_values(ascending=ascending, by=sort_by, inplace=True)
     return result
-
-
-
-
-
