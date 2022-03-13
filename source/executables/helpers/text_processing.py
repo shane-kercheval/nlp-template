@@ -111,7 +111,7 @@ def count_tokens(tokens: Union[pd.Series, list], min_frequency: int = 2, count_o
         min_frequency:
             The minimum times the token has to appear in order to be returned
         count_once_per_doc:
-            If True, counts each token once per document. This is synonymous with Document Frequency.
+            If True, counts each token once per document. This is synonymous with 'Document Frequency'.
 
             e.g. True:
                 [['a', 'b', 'b'], ['b', 'c', 'c']]
