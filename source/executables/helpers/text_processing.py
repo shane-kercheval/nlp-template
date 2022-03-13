@@ -131,3 +131,48 @@ def count_tokens(tokens: Union[pd.Series, list], min_frequency: int = 2) -> pd.D
     freq_df.index.name = 'token'
     
     return freq_df.sort_values('frequency', ascending=False)
+
+
+def term_frequency(df: pd.DataFrame,
+                   tokens_column: str = None,
+                   segment_columns: Union[str, list] = None,
+                   min_frequency: int = 2) -> pd.DataFrame:
+    """
+    This function is similar to `count_tokens()`, but calculates term-frequency across different
+    segments/slices.
+
+    Args:
+        df:
+            dataframe with columns of tokens, and optionally a column to slice/segment by.
+        tokens_column:
+            the name of the column containing the tokens.
+        segment_columns:
+            the name(s) of the column(s) to segment term-frequencies by. Either a string or a list of strings.
+        min_frequency:
+            The minimum times the token has to appear in order to be returned
+    """
+    if segment_columns is None:
+        term_freq = count_tokens(df[tokens_column], min_frequency=min_frequency)
+    else:
+        term_freq = df.groupby(segment_columns)[tokens_column].apply(count_tokens, min_frequency=min_frequency)
+
+    return term_freq
+
+def tf_idf(df: pd.DataFrame,
+                   tokens_column: str = None,
+                   segment_column: str = None,
+                   min_frequency: int = 2) -> pd.DataFrame:
+    """
+    This function is similar to `count_tokens()`, but calculates term-frequency across different
+    segments/slices.
+
+    Args:
+        df:
+            dataframe with columns of tokens, and optionally a column to slice/segment by.
+        tokens_column:
+            the name of the column containing the tokens.
+        segment_column:
+            the name of the column to segment term-frequencies by.
+        min_frequency:
+            The minimum times the token has to appear in order to be returned
+    """
