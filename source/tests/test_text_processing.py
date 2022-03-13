@@ -77,6 +77,11 @@ class TestTextProcessing(unittest.TestCase):
         dataframe_to_text_file(count_tokens(pd.Series([tokens, tokens]), min_frequency=2),
                                get_test_file_path('text_processing/count_tokens__series_list__min_freq_2.txt'))
 
+        dataframe_to_text_file(count_tokens(self.un_debates['tokens'], min_frequency=2),
+                               get_test_file_path('text_processing/count_tokens__un_debates.txt'))
+
+
+
     def test__tf_idf(self):
         self.un_debates
 
