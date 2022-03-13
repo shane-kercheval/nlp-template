@@ -10,6 +10,7 @@ import json
 import random
 import pprint as pp
 import textwrap
+import wordcloud
 
 from pathlib import Path
 import helpsk as hlp
