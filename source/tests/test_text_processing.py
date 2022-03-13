@@ -80,7 +80,7 @@ class TestTextProcessing(unittest.TestCase):
         dataframe_to_text_file(count_tokens(self.un_debates['tokens'], min_frequency=2),
                                get_test_file_path('text_processing/count_tokens__un_debates.txt'))
 
-    def test__tf_idf(self):
+    def test__term_frequency(self):
 
         term_freq = term_frequency(df=self.un_debates, tokens_column='tokens', min_frequency=3)
         self.assertTrue((term_freq['frequency'] >= 3).all())
