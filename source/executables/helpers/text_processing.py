@@ -1,5 +1,5 @@
 from collections import Counter
-from typing import List, Callable, Union
+from typing import List, Callable, Union, Set
 from textacy.extract.kwic import keyword_in_context
 import nltk
 import numpy as np
@@ -7,7 +7,7 @@ import pandas as pd
 import regex as re
 
 
-def tokenize(text: str) -> list:
+def tokenize(text: str) -> List[str]:
     """
     Transform `text` in a list of tokens.
 
@@ -24,8 +24,8 @@ def tokenize(text: str) -> list:
 
 
 def get_stop_words(source: str = 'nltk',
-                   include_stop_words: Union[set, list] = None,
-                   exclude_stop_words: Union[set, list] = None) -> set:
+                   include_stop_words: Union[Set[str], List[str]] = None,
+                   exclude_stop_words: Union[Set[str], List[str]] = None) -> Set[str]:
     """
 
     Args:
@@ -54,8 +54,8 @@ def get_stop_words(source: str = 'nltk',
     return stop_words
 
 
-def remove_stop_words(tokens: list,
-                      stop_words: Union[list, set] = None) -> list:
+def remove_stop_words(tokens: List[str],
+                      stop_words: Union[List[str], Set[str]] = None) -> List[str]:
     """
     Remove stop-words from a list of tokens.
 
@@ -79,9 +79,13 @@ def remove_stop_words(tokens: list,
     return [t for t in tokens if t.lower() not in stop_words]
 
 
-def prepare(text: str, pipeline: List[Callable] = None) -> list:
+def prepare(text: str, pipeline: List[Callable] = None) -> List[str]:
     """
-    Transform `text` according to the pipeline, which is a list of functions to be called on text.
+    Transforms `text` according to the pipeline, which is a list of functions to be called on text.
+
+    By default (and by design), it returns a list of strings (because `tokenize()` is part of the pipeline
+    if no `pipeline` is specified. However, it is possible to return something other than a list of strings
+    if `tokenize()` or an equivalent is not part of the pipeline.
 
     From:
         Blueprints for Text Analytics Using Python
@@ -106,9 +110,12 @@ def prepare(text: str, pipeline: List[Callable] = None) -> list:
     return tokens
 
 
-def get_n_grams(documents: pd.Series, n: int = 2, separator: str = ' ', stop_words: Union[list, set] = None):
+def get_n_grams(tokens: List[str],
+                n: int = 2,
+                separator: str = ' ',
+                stop_words: Union[List[str], Set[str]] = None) -> List[str]:
     """
-    Transform `text` according to the pipeline, which is a list of functions to be called on text.
+    Takes a list of tokens/strings and transforms that list into an n-gram list of strings.
 
     From:
         Blueprints for Text Analytics Using Python
@@ -117,7 +124,7 @@ def get_n_grams(documents: pd.Series, n: int = 2, separator: str = ' ', stop_wor
         https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch01/First_Insights.ipynb
 
     Args:
-        documents:
+        tokens:
             pandas Series that is a document (text) per element
         n:
             the number of n-grams
@@ -132,10 +139,13 @@ def get_n_grams(documents: pd.Series, n: int = 2, separator: str = ' ', stop_wor
     if stop_words is None:
         stop_words = set()
 
-    return [separator.join(ngram) for ngram in zip(*[documents[i:] for i in range(n)])
+    return [separator.join(ngram) for ngram in zip(*[tokens[i:] for i in range(n)])
             if len([t for t in ngram if t in stop_words]) == 0]
 
-def count_tokens(tokens: Union[pd.Series, list], min_frequency: int = 2, count_once_per_doc=False) -> pd.DataFrame:  # noqa
+
+def count_tokens(tokens: Union[pd.Series, List[list], List[str]],
+                 min_frequency: int = 2,  # noqa
+                 count_once_per_doc=False) -> pd.DataFrame:
     """
     Counts tokens, returns the results as a DataFrame with 'token' and 'frequency' columns.
 
@@ -199,7 +209,7 @@ def count_tokens(tokens: Union[pd.Series, list], min_frequency: int = 2, count_o
 
 def term_frequency(df: pd.DataFrame,
                    tokens_column: str = None,
-                   segment_columns: Union[str, list] = None,
+                   segment_columns: Union[str, List[str]] = None,
                    min_frequency: int = 2) -> pd.DataFrame:
     """
     This function is similar to `count_tokens()`, but calculates term-frequency across different
@@ -223,7 +233,7 @@ def term_frequency(df: pd.DataFrame,
     return term_freq
 
 
-def inverse_document_frequency(documents: Union[pd.Series, list],
+def inverse_document_frequency(documents: Union[pd.Series, List[list]],
                                min_frequency: int = 2,
                                constant: float = 0.1) -> pd.DataFrame:
     """
@@ -258,7 +268,7 @@ def inverse_document_frequency(documents: Union[pd.Series, list],
 
 def tf_idf(df: pd.DataFrame,
            tokens_column: str = None,
-           segment_columns: Union[str, list] = None,
+           segment_columns: Union[str, List[str]] = None,
            min_frequency_document: int = 1,
            min_frequency_corpus: int = 2,
            constant: float = 0.1) -> pd.DataFrame:
@@ -376,3 +386,27 @@ def get_context_from_keyword(documents: pd.Series,
                 return contexts_found
 
     return contexts_found
+
+
+def count_keywords(tokens: List[str], keywords: List[str]) -> List[int]: 
+    """
+    This function counts the number of times each keyword appears in the list of tokens.
+    It returns a list the same length as keywords and the number of occurances, for each respective
+    keyword (in order of the keywords passed in).
+
+    Copied from:
+        Blueprints for Text Analytics Using Python
+        by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
+        (O'Reilly, 2021), 978-1-492-07408-3.
+         https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch01/First_Insights.ipynb
+
+    Args:
+        tokens:
+            tokens from a single document; i.e. a list of strings/tokens
+        keywords:
+            a list of keywords to get counts for
+    """
+    from collections import Counter
+    tokens = [t for t in tokens if t in keywords]
+    counter = Counter(tokens)
+    return [counter.get(k, 0) for k in keywords]

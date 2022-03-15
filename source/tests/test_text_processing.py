@@ -3,7 +3,7 @@ import unittest
 import pandas as pd
 
 from source.executables.helpers.text_processing import tokenize, remove_stop_words, prepare, count_tokens, \
-    term_frequency, inverse_document_frequency, tf_idf, get_context_from_keyword, get_stop_words, get_n_grams
+    term_frequency, inverse_document_frequency, tf_idf, get_context_from_keyword, get_stop_words, get_n_grams, count_keywords
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 
 
@@ -217,6 +217,15 @@ class TestTextProcessing(unittest.TestCase):
             handle.writelines([x + "\n" for x in context_list])
 
     def test__get_n_grams(self):
+        tokens = prepare(text=self.dumb_sentence, pipeline=[str.lower, tokenize])
+        n_grams_list = get_n_grams(tokens=tokens)
+        with open(get_test_file_path('text_processing/get_n_grams__sentence_no_stopwords_removed.txt'), 'w') as handle:
+            handle.writelines([str(x) + "\n" for x in n_grams_list])
+
+        n_grams_list = get_n_grams(tokens=tokens, stop_words=get_stop_words())
+        with open(get_test_file_path('text_processing/get_n_grams__sentence_stopwords_removed.txt'), 'w') as handle:
+            handle.writelines([str(x) + "\n" for x in n_grams_list])
+
         n_gram_series = self.un_debates['text'].\
             apply(prepare, pipeline=[str.lower, tokenize]).\
             apply(get_n_grams, n=2, stop_words=get_stop_words())
@@ -226,3 +235,12 @@ class TestTextProcessing(unittest.TestCase):
 
         with open(get_test_file_path('text_processing/get_n_grams__un_debates.txt'), 'w') as handle:
             handle.writelines([str(x) + "\n" for x in n_gram_series])
+
+    def test__count_keywords(self):
+        tokens = ['this', 'is', 'a', 'list', 'of', 'keywords', 'to', 'count', 'all', 'of', 'the', 'keywords']
+        keyword_count = count_keywords(tokens=tokens, keywords=['keywords', 'count', 'of', 'does not exist'])
+        self.assertEqual(keyword_count, [2, 1, 2, 0])
+
+        keyword_count = count_keywords(tokens=tokens,
+                                       keywords=['does not exist'])
+        self.assertEqual(keyword_count, [0])
