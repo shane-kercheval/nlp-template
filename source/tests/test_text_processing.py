@@ -150,10 +150,8 @@ class TestTextProcessing(unittest.TestCase):
                                get_test_file_path('text_processing/tf_idf__un_debates__by_year_country.txt'))
 
     def test__get_context_from_keyword(self):
-
-        documents = pd.Series(self.dumb_sentence)
         context_list = get_context_from_keyword(
-            documents=documents,
+            documents=pd.Series([]),
             keyword='sentence',
             pad_context=False,
             num_samples=10,
@@ -161,6 +159,46 @@ class TestTextProcessing(unittest.TestCase):
             keyword_wrap='||',
             random_seed=42
         )
+        self.assertEqual(context_list, [])
 
+        documents = pd.Series(self.dumb_sentence)
+        context_list = get_context_from_keyword(
+            documents=documents,
+            keyword='sentence',
+            pad_context=False,
+            num_samples=100,
+            window_width=35,
+            keyword_wrap='||',
+            random_seed=42
+        )
+        self.assertEqual(len(context_list), 2)
         with open(get_test_file_path('text_processing/get_context_from_keyword__sentence.txt'), 'w') as handle:
+            handle.writelines([x + "\n" for x in context_list])
+
+        context_list = get_context_from_keyword(
+            documents=self.un_debates['text'],
+            keyword='During',
+            pad_context=True,
+            num_samples=100,
+            window_width=50,
+            keyword_wrap='||',
+            random_seed=42
+        )
+
+        self.assertEqual(len(context_list), 100)
+        with open(get_test_file_path('text_processing/get_context_from_keyword__un_debates__during.txt'), 'w') as handle:
+            handle.writelines([x + "\n" for x in context_list])
+
+        context_list = get_context_from_keyword(
+            documents=self.un_debates['text'],
+            keyword='united',
+            pad_context=True,
+            num_samples=100,
+            window_width=50,
+            keyword_wrap='||',
+            random_seed=42
+        )
+
+        self.assertEqual(len(context_list), 100)
+        with open(get_test_file_path('text_processing/get_context_from_keyword__un_debates__united.txt'), 'w') as handle:
             handle.writelines([x + "\n" for x in context_list])
