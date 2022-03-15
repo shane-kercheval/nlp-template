@@ -3,7 +3,7 @@ import unittest
 import pandas as pd
 
 from source.executables.helpers.text_processing import tokenize, remove_stop_words, prepare, count_tokens, \
-    term_frequency, inverse_document_frequency, tf_idf, get_context_from_keyword, get_stop_words
+    term_frequency, inverse_document_frequency, tf_idf, get_context_from_keyword, get_stop_words, get_n_grams
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 
 
@@ -217,7 +217,12 @@ class TestTextProcessing(unittest.TestCase):
             handle.writelines([x + "\n" for x in context_list])
 
     def test__get_n_grams(self):
-        pass
-        # self.un_debates
-        # .progress_apply(prepare, pipeline=[str.lower, tokenize]) \
-        #     .progress_apply(ngrams, n=2, stopwords=stopwords)
+        n_gram_series = self.un_debates['text'].\
+            apply(prepare, pipeline=[str.lower, tokenize]).\
+            apply(get_n_grams, n=2, stop_words=get_stop_words())
+
+        self.assertIsInstance(n_gram_series, pd.Series)
+        self.assertEqual(len(n_gram_series), len(self.un_debates['text']))
+
+        with open(get_test_file_path('text_processing/get_n_grams__un_debates.txt'), 'w') as handle:
+            handle.writelines([str(x) + "\n" for x in n_gram_series])
