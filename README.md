@@ -56,6 +56,15 @@ This project requires Python 3.9 (but the python version can be configured in th
 
 
 
+- `source/executables/text_eda.ipynb`
+    - basic exploratory analysis 
+        - descriptive statistics & trends
+        - word frequencies
+        - tf-idf
+        - word-clouds
+        - context search
+
+
 ---
 
 To activate virtual environment run `source .venv/bin/activate`; for example:
