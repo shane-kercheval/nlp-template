@@ -1,5 +1,6 @@
 from collections import Counter
 from typing import List, Callable, Union
+from textacy.extract.kwic import keyword_in_context
 import nltk
 import numpy as np
 import pandas as pd
@@ -256,7 +257,7 @@ def tf_idf(df: pd.DataFrame,
     )
     tf_idf_df = term_freq['frequency'] * inverse_doc_freq['inverse document frequency']
     tf_idf_df.dropna(inplace=True)
-    tf_idf_df.name='tf-idf'
+    tf_idf_df.name = 'tf-idf'
 
     result = term_freq.join(pd.DataFrame(tf_idf_df.sort_values(ascending=False)), how='inner')
     assert result.shape[0] == len(tf_idf_df)
@@ -271,3 +272,66 @@ def tf_idf(df: pd.DataFrame,
     ascending += [False, True]
     result.sort_values(ascending=ascending, by=sort_by, inplace=True)
     return result
+
+
+def get_context_from_keyword(documents: pd.Series,
+                             keyword: str,
+                             num_samples: int = 10,
+                             window_width: int = 35,
+                             keyword_wrap: str = '|',
+                             pad_context: bool = False,
+                             ignore_case: bool = True,
+                             shuffle_data: bool = True,
+                             random_seed: int = None) -> list:
+    """
+    Search documents for specific keyword and return matches/context in list.
+
+    Wrapper around https://textacy.readthedocs.io/en/0.11.0/_modules/textacy/extract/kwic.html
+    Args:
+        documents:
+            pandas Series that is a document (text) per element
+        keyword:
+            keyword to search for
+        num_samples:
+            the number of samples to return
+        window_width:
+            Number of characters on either side of ``keyword`` to include as "context".
+        keyword_wrap:
+            Character/text to prepend/append (i.e. wrap around) the keyword
+        pad_context:
+            pad_context: If True, pad pre- and post-context strings to ``window_width``
+            chars in length; otherwise, us as many chars as are found in the text,
+            up to the specified width.
+        ignore_case: If True, ignore letter case in ``keyword`` matching; otherwise,
+            use case-sensitive matching. Note that this argument is only used if
+            ``keyword`` is a string; for pre-compiled regular expressions,
+            the ``re.IGNORECASE`` flag is left as-is.
+        shuffle_data:
+            If True, shuffle the data before searching for context, in order to generate a random sample.
+        random_seed:
+            Random state if shuffle_data is True.
+    """
+    num_contexts_found = 0
+    contexts_found = []
+
+    if shuffle_data:
+        documents = documents.sample(len(documents), random_state=random_seed)
+    # iterate through documents and generator until the number of samples is found
+    # the list could get quite large and we could run out of memory if we converted the generators
+    # to lists and built one large list.
+    for doc in documents:
+        context_gen = keyword_in_context(
+            doc=doc,
+            keyword=keyword,
+            ignore_case=ignore_case,
+            window_width=window_width,
+            pad_context=pad_context)
+        for context in context_gen:
+            before = re.sub(r'[\n\t]', ' ', context[0])
+            after = re.sub(r'[\n\t]', ' ', context[2])
+            contexts_found += [f"{before} {keyword_wrap}{context[1]}{keyword_wrap} {after}"]
+            num_contexts_found += 1
+            if num_contexts_found >= num_samples:
+                return contexts_found
+
+    return contexts_found

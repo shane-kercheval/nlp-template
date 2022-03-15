@@ -2,8 +2,8 @@ import unittest
 
 import pandas as pd
 
-from source.executables.helpers.text_processing import tokenize, remove_stop_words, prepare, count_tokens, term_frequency, inverse_document_frequency, \
-    tf_idf
+from source.executables.helpers.text_processing import tokenize, remove_stop_words, prepare, count_tokens, \
+    term_frequency, inverse_document_frequency, tf_idf, get_context_from_keyword
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 
 
@@ -15,12 +15,13 @@ class TestTextProcessing(unittest.TestCase):
         un_debates['tokens'] = un_debates['text'].map(prepare)
         cls.un_debates = un_debates
 
+        cls.dumb_sentence = "This is a sentence; it has punctuation, etc.. It also has numbers. It's a dumb sentence."
+
     def test__open_dict_like_file(self):
         self.assertTrue(True)
 
     def test__tokenize(self):
-        sentence = "This is a sentence; it has punctuation, etc.. It also has numbers. It's a dumb sentence."
-        tokens = tokenize(sentence)
+        tokens = tokenize(self.dumb_sentence)
 
         with open(get_test_file_path('text_processing/tokenize__simple.txt'), 'w') as file:
             file.write('|'.join(tokens))
@@ -31,21 +32,18 @@ class TestTextProcessing(unittest.TestCase):
             file.write('\n'.join(token_list))
 
     def test__remove_stop_words(self):
-        sentence = "This is a sentence; it has punctuation, etc.. It also has numbers. It's a dumb sentence."
-        tokens = tokenize(sentence)
+        tokens = tokenize(self.dumb_sentence)
         tokens = remove_stop_words(tokens)
         with open(get_test_file_path('text_processing/remove_stop_words__simple.txt'), 'w') as file:
             file.write('|'.join(tokens))
 
-        sentence = "This is a sentence; it has punctuation, etc.. It also has numbers. It's a dumb sentence."
-        tokens = tokenize(sentence)
+        tokens = tokenize(self.dumb_sentence)
         tokens = remove_stop_words(tokens, include_stop_words=['sentence'], exclude_stop_words=['a'])
         with open(get_test_file_path('text_processing/remove_stop_words__include_exclude.txt'), 'w') as file:
             file.write('|'.join(tokens))
 
     def test__prepare(self):
-        sentence = "This is a sentence; it has punctuation, etc.. It also has numbers. It's a dumb sentence."
-        tokens = prepare(sentence)
+        tokens = prepare(self.dumb_sentence)
         with open(get_test_file_path('text_processing/prepare__simple.txt'), 'w') as file:
             file.write('|'.join(tokens))
 
@@ -150,3 +148,19 @@ class TestTextProcessing(unittest.TestCase):
         self.assertFalse(tf_idf_df.isna().any().any())
         dataframe_to_text_file(tf_idf_df,
                                get_test_file_path('text_processing/tf_idf__un_debates__by_year_country.txt'))
+
+    def test__get_context_from_keyword(self):
+
+        documents = pd.Series(self.dumb_sentence)
+        context_list = get_context_from_keyword(
+            documents=documents,
+            keyword='sentence',
+            pad_context=False,
+            num_samples=10,
+            window_width=35,
+            keyword_wrap='||',
+            random_seed=42
+        )
+
+        with open(get_test_file_path('text_processing/get_context_from_keyword__sentence.txt'), 'w') as handle:
+            handle.writelines([x + "\n" for x in context_list])
