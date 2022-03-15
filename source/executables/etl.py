@@ -2,7 +2,7 @@ import click
 import pandas as pd
 
 from helpers.utilities import get_logger, Timer
-from helpers.text_processing import prepare
+from helpers.text_processing import prepare, get_n_grams, get_stop_words, tokenize
 
 
 @click.group()
@@ -34,9 +34,15 @@ def transform():
         un_debates['speaker'].fillna('<unknown>', inplace=True)
         un_debates['position'].fillna('<unknown>', inplace=True)
         assert not un_debates.isna().any().any()
+        un_debates['text_length'] = un_debates['text'].str.len()
+        logger.info("Generating tokens a.k.a uni-grams.")
         un_debates['tokens'] = un_debates['text'].apply(prepare)
         un_debates['num_tokens'] = un_debates['tokens'].map(len)
-        un_debates['text_length'] = un_debates['text'].str.len()
+        logger.info("Generating bi-grams.")
+        un_debates['bi_grams'] = un_debates['text'].\
+            apply(prepare, pipeline=[str.lower, tokenize]).\
+            apply(get_n_grams, n=2, stop_words=get_stop_words())
+        un_debates['num_bi_grams'] = un_debates['bi_grams'].map(len)
 
     assert not un_debates.isna().any().any()
     with Timer("Saving processed UN Debate dataset to /artifacts/data/processed/un-general-debates-blueprint.pkl"):
