@@ -23,36 +23,23 @@ def tokenize(text: str) -> list:
     return re.findall(r'[\w-]*\p{L}[\w-]*', text)
 
 
-def get_stop_words(source: str = 'nltk') -> set:
+def get_stop_words(source: str = 'nltk',
+                   include_stop_words: Union[set, list] = None,
+                   exclude_stop_words: Union[set, list] = None) -> set:
+    """
+
+    Args:
+        source:
+            the source of the stop-words; currently only `nltk` is supported
+        include_stop_words:
+            list/set of stop-words to include
+        exclude_stop_words:
+            list/set of stop-words to exclude
+    """
     if source == 'nltk':
         stop_words = set(nltk.corpus.stopwords.words('english'))
     else:
         raise ValueError("Only 'nlkt' source supported for stopwords.")
-
-    return stop_words
-
-
-def remove_stop_words(tokens: list,
-                      include_stop_words: Union[list, set] = None,
-                      exclude_stop_words: Union[list, set] = None,
-                      source: str = 'nltk') -> list:
-    """
-    Remove stop-words from a list of tokens.
-
-    From:
-        Blueprints for Text Analytics Using Python
-        by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
-        (O'Reilly, 2021), 978-1-492-07408-3.
-         https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch01/First_Insights.ipynb
-
-    Args:
-        tokens: list of strings
-        include_stop_words: list/set of stop-words to include
-        exclude_stop_words: list/set of stop-words to exclude
-        source: source of the stop-words to use
-
-    """
-    stop_words = get_stop_words(source=source)
 
     if include_stop_words is not None:
         if isinstance(include_stop_words, list):
@@ -63,6 +50,31 @@ def remove_stop_words(tokens: list,
         if isinstance(exclude_stop_words, list):
             exclude_stop_words = set(exclude_stop_words)
         stop_words -= exclude_stop_words
+
+    return stop_words
+
+
+def remove_stop_words(tokens: list,
+                      stop_words: Union[list, set] = None) -> list:
+    """
+    Remove stop-words from a list of tokens.
+
+    From:
+        Blueprints for Text Analytics Using Python
+        by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
+        (O'Reilly, 2021), 978-1-492-07408-3.
+         https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch01/First_Insights.ipynb
+
+    Args:
+        tokens:
+            list of strings
+        stop_words:
+            the stop words to remove; if `None`, then remove stop-words from `nltk`.
+    """
+    if stop_words is None:
+        stop_words = get_stop_words(source='nltk')
+    elif isinstance(stop_words, list):
+        stop_words = set(stop_words)
 
     return [t for t in tokens if t.lower() not in stop_words]
 
@@ -93,6 +105,35 @@ def prepare(text: str, pipeline: List[Callable] = None) -> list:
         tokens = transform(tokens)
     return tokens
 
+
+def get_n_grams(documents: pd.Series, n: int = 2, separator: str = ' ', stop_words: Union[list, set] = None):
+    """
+    Transform `text` according to the pipeline, which is a list of functions to be called on text.
+
+    From:
+        Blueprints for Text Analytics Using Python
+        by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
+        (O'Reilly, 2021), 978-1-492-07408-3.
+        https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch01/First_Insights.ipynb
+
+    Args:
+        documents:
+            pandas Series that is a document (text) per element
+        n:
+            the number of n-grams
+        separator:
+            string to separate the n-grams
+        stop_words:
+            a list or set of stop-stop
+    """
+    if stop_words is not None and isinstance(stop_words, list):
+        stop_words = set(stop_words)
+
+    if stop_words is None:
+        stop_words = set()
+
+    return [separator.join(ngram) for ngram in zip(*[documents[i:] for i in range(n)])
+            if len([t for t in ngram if t in stop_words]) == 0]
 
 def count_tokens(tokens: Union[pd.Series, list], min_frequency: int = 2, count_once_per_doc=False) -> pd.DataFrame:  # noqa
     """

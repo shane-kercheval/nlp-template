@@ -3,7 +3,7 @@ import unittest
 import pandas as pd
 
 from source.executables.helpers.text_processing import tokenize, remove_stop_words, prepare, count_tokens, \
-    term_frequency, inverse_document_frequency, tf_idf, get_context_from_keyword
+    term_frequency, inverse_document_frequency, tf_idf, get_context_from_keyword, get_stop_words
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 
 
@@ -16,6 +16,18 @@ class TestTextProcessing(unittest.TestCase):
         cls.un_debates = un_debates
 
         cls.dumb_sentence = "This is a sentence; it has punctuation, etc.. It also has numbers. It's a dumb sentence."
+
+    def test__get_stop_words(self):
+        stop_words = get_stop_words()
+        self.assertIsInstance(stop_words, set)
+        self.assertTrue(len(stop_words) > 1)
+        self.assertTrue('am' in stop_words)
+        self.assertFalse('stop' in stop_words)
+        stop_words = get_stop_words(include_stop_words=['stop'], exclude_stop_words=['am'])
+        self.assertIsInstance(stop_words, set)
+        self.assertTrue(len(stop_words) > 1)
+        self.assertFalse('am' in stop_words)
+        self.assertTrue('stop' in stop_words)
 
     def test__open_dict_like_file(self):
         self.assertTrue(True)
@@ -38,7 +50,8 @@ class TestTextProcessing(unittest.TestCase):
             file.write('|'.join(tokens))
 
         tokens = tokenize(self.dumb_sentence)
-        tokens = remove_stop_words(tokens, include_stop_words=['sentence'], exclude_stop_words=['a'])
+        tokens = remove_stop_words(tokens,
+                                   stop_words=get_stop_words(include_stop_words=['sentence'], exclude_stop_words=['a']))
         with open(get_test_file_path('text_processing/remove_stop_words__include_exclude.txt'), 'w') as file:
             file.write('|'.join(tokens))
 
@@ -202,3 +215,9 @@ class TestTextProcessing(unittest.TestCase):
         self.assertEqual(len(context_list), 100)
         with open(get_test_file_path('text_processing/get_context_from_keyword__un_debates__united.txt'), 'w') as handle:
             handle.writelines([x + "\n" for x in context_list])
+
+    def test__get_n_grams(self):
+        pass
+        # self.un_debates
+        # .progress_apply(prepare, pipeline=[str.lower, tokenize]) \
+        #     .progress_apply(ngrams, n=2, stopwords=stopwords)
