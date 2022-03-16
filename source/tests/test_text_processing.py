@@ -3,7 +3,8 @@ import unittest
 import pandas as pd
 
 from source.executables.helpers.text_processing import tokenize, remove_stop_words, prepare, count_tokens, \
-    term_frequency, inverse_document_frequency, tf_idf, get_context_from_keyword, get_stop_words, get_n_grams, count_keywords
+    term_frequency, inverse_document_frequency, tf_idf, get_context_from_keyword, get_stop_words, get_n_grams, \
+    count_keywords, count_keywords_by
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 
 
@@ -244,3 +245,33 @@ class TestTextProcessing(unittest.TestCase):
         keyword_count = count_keywords(tokens=tokens,
                                        keywords=['does not exist'])
         self.assertEqual(keyword_count, [0])
+
+    def test__count_keywords_by(self):
+        keywords = ['united', 'nuclear', 'terrorism', 'climate']
+        keyword_counts_per_year = count_keywords_by(df=self.un_debates,
+                                                    by='year',
+                                                    tokens='tokens',
+                                                    keywords=keywords)
+
+        dataframe_to_text_file(keyword_counts_per_year,
+                               get_test_file_path('text_processing/count_keywords_by__un_debates__year.txt'))
+
+        # get the total number of documents per year; when we count once per document, we should not go over
+        # this number
+        num_speeches_per_year = self.un_debates.groupby('year').size()
+        self.assertEqual(num_speeches_per_year.index.tolist(),
+                         keyword_counts_per_year['united'].index.tolist())
+        self.assertTrue((keyword_counts_per_year['united'] > num_speeches_per_year).all())  # noqa
+
+        keyword_counts_per_year = count_keywords_by(df=self.un_debates,
+                                                    by='year',
+                                                    tokens='tokens',
+                                                    keywords=keywords,
+                                                    count_once_per_doc=True)
+
+        self.assertEqual(num_speeches_per_year.index.tolist(),
+                         keyword_counts_per_year['united'].index.tolist())
+        self.assertTrue((keyword_counts_per_year['united'] <= num_speeches_per_year).all())  # noqa
+
+        dataframe_to_text_file(keyword_counts_per_year,
+                               get_test_file_path('text_processing/count_keywords_by__un_debates__year__count_once.txt'))

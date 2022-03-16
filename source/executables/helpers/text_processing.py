@@ -145,7 +145,7 @@ def get_n_grams(tokens: List[str],
 
 def count_tokens(tokens: Union[pd.Series, List[list], List[str]],
                  min_frequency: int = 2,  # noqa
-                 count_once_per_doc=False) -> pd.DataFrame:
+                 count_once_per_doc: bool = False) -> pd.DataFrame:
     """
     Counts tokens, returns the results as a DataFrame with 'token' and 'frequency' columns.
 
@@ -388,7 +388,8 @@ def get_context_from_keyword(documents: pd.Series,
     return contexts_found
 
 
-def count_keywords(tokens: List[str], keywords: List[str]) -> List[int]: 
+def count_keywords(tokens: Union[List[str], Set[str]],
+                   keywords: Union[List[str], Set[str]]) -> List[int]:
     """
     This function counts the number of times each keyword appears in the list of tokens.
     It returns a list the same length as keywords and the number of occurances, for each respective
@@ -406,7 +407,47 @@ def count_keywords(tokens: List[str], keywords: List[str]) -> List[int]:
         keywords:
             a list of keywords to get counts for
     """
-    from collections import Counter
     tokens = [t for t in tokens if t in keywords]
     counter = Counter(tokens)
     return [counter.get(k, 0) for k in keywords]
+
+
+def count_keywords_by(df, by, tokens, keywords, count_once_per_doc: bool = False):
+    """
+    This function is used to count the number of times keywords are used across one or more groups (e.g.
+    across `year`, or across `year and country`, etc.).
+
+    This function takes a dataframe that has a column containing tokens (the column name is passed to
+    `tokens`) and additional columns to group by (i.e. `by`).
+
+    Copied from:
+        Blueprints for Text Analytics Using Python
+        by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
+        (O'Reilly, 2021), 978-1-492-07408-3.
+         https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch01/First_Insights.ipynb
+
+    Args:
+        df:
+            the data.frame
+        tokens:
+            the column name in `df` containing the tokens
+        keywords:
+            a list of keywords to get counts for
+        count_once_per_doc:
+            If False, the counts contain the total number of occurrences summed across all documents for the
+                given group (for each keyword).
+            If True, each keyword count is only counted once per once per document. In other words, it tells
+                you the amount of documents the keyword appears in for the given groups.
+    """
+    def count_keywords_adjusted(x, keywords):  # noqa
+        if count_once_per_doc:
+            return count_keywords(tokens=set(x), keywords=keywords)
+        else:
+            return count_keywords(tokens=x, keywords=keywords)
+
+    df = df.reset_index(drop=True)  # if the supplied dataframe has gaps in the index
+    freq_matrix = df[tokens].apply(count_keywords_adjusted, keywords=keywords)
+    freq_df = pd.DataFrame.from_records(freq_matrix, columns=keywords)
+    freq_df[by] = df[by]  # copy the grouping column(s)
+
+    return freq_df.groupby(by=by).sum().sort_values(by)
