@@ -333,7 +333,7 @@ def get_context_from_keyword(documents: pd.Series,
                              pad_context: bool = False,
                              ignore_case: bool = True,
                              shuffle_data: bool = True,
-                             random_seed: int = None) -> list:
+                             random_seed: int = None) -> List[str]:
     """
     Search documents for specific keyword and return matches/context in list.
 
@@ -392,7 +392,7 @@ def count_keywords(tokens: Union[List[str], Set[str]],
                    keywords: Union[List[str], Set[str]]) -> List[int]:
     """
     This function counts the number of times each keyword appears in the list of tokens.
-    It returns a list the same length as keywords and the number of occurances, for each respective
+    It returns a list the same length as keywords and the number of occurrences, for each respective
     keyword (in order of the keywords passed in).
 
     Copied from:
@@ -412,7 +412,11 @@ def count_keywords(tokens: Union[List[str], Set[str]],
     return [counter.get(k, 0) for k in keywords]
 
 
-def count_keywords_by(df, by, tokens, keywords, count_once_per_doc: bool = False):
+def count_keywords_by(df: pd.DataFrame,
+                      by: Union[str, List[str]],
+                      tokens: str,
+                      keywords: List[str],
+                      count_once_per_doc: bool = False) -> pd.DataFrame:
     """
     This function is used to count the number of times keywords are used across one or more groups (e.g.
     across `year`, or across `year and country`, etc.).
@@ -429,6 +433,8 @@ def count_keywords_by(df, by, tokens, keywords, count_once_per_doc: bool = False
     Args:
         df:
             the data.frame
+        by:
+            the column(s) to group by
         tokens:
             the column name in `df` containing the tokens
         keywords:
