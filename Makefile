@@ -1,7 +1,7 @@
 #################################################################################
 # File adapted from https://github.com/drivendata/cookiecutter-data-science
 #################################################################################
-.PHONY: clean_python clean environment_python environment tests data_extract data_transform data exploration_nlp exploration all
+.PHONY: clean_python clean environment_python environment tests data_extract data_transform data exploration_basic exploration all
 
 #################################################################################
 # GLOBALS
@@ -18,28 +18,33 @@ FORMAT_MESSAGE =  "\n[MAKE "$(1)"] >>>" $(2)
 #################################################################################
 # Project-specific Commands
 #################################################################################
+## Run unit-tests.
 tests: environment_python
 	@echo $(call FORMAT_MESSAGE,"tests", "Running python unit tests.")
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) -m unittest discover source/tests
 
-## Make Dataset
+## Extract Data
 data_extract: environment_python
 	@echo $(call FORMAT_MESSAGE,"data_extract","Extracting data.")
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/executables/etl.py extract
 
+## Clean and pre-process text data.
 data_transform: environment_python
 	@echo $(call FORMAT_MESSAGE,"data_transform","Transforming data.")
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/executables/etl.py transform
 
+## Extract data and clean/pre-process.
 data: data_extract data_transform
 	@echo $(call FORMAT_MESSAGE,"data","Finished running local ETL.")
 
-exploration_nlp: environment_python
-	@echo $(call FORMAT_MESSAGE,"exploration_nlp","Running exploratory jupyter notebooks and converting to .html files.")
+## Run the basic exploration notebook(s).
+exploration_basic: environment_python
+	@echo $(call FORMAT_MESSAGE,"exploration_basic","Running exploratory jupyter notebooks and converting to .html files.")
 	. .venv/bin/activate && jupyter nbconvert --execute --to html source/executables/text_eda.ipynb
 	mv source/executables/text_eda.html docs/data/text_eda.html
 
-exploration: exploration_nlp
+## Run all the NLP notebooks.
+exploration: exploration_basic
 	@echo $(call FORMAT_MESSAGE,"exploration","Finished running exploration notebooks.")
 
 
