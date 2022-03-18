@@ -4,7 +4,7 @@ import pandas as pd
 
 from source.executables.helpers.text_processing import tokenize, remove_stop_words, prepare, count_tokens, \
     term_frequency, inverse_document_frequency, tf_idf, get_context_from_keyword, get_stop_words, get_n_grams, \
-    count_keywords, count_keywords_by
+    count_keywords, count_keywords_by, count_text_patterns
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 
 
@@ -71,7 +71,6 @@ class TestTextProcessing(unittest.TestCase):
 
         dataframe_to_text_file(count_tokens(tokens, min_frequency=1),
                                get_test_file_path('text_processing/count_tokens__list__min_freq_1.txt'))
-
         self.assertTrue((count_tokens(tokens, min_frequency=1, count_once_per_doc=True)['frequency'] == 1).all())
 
         dataframe_to_text_file(count_tokens(tokens, min_frequency=2),
@@ -110,6 +109,31 @@ class TestTextProcessing(unittest.TestCase):
                          {'frequency': {'b': 2, 'a': 1, 'c': 1}})
         self.assertEqual(count_tokens(example, min_frequency=2, count_once_per_doc=True).to_dict(),
                          {'frequency': {'b': 2}})
+
+    def test__count_text_patterns(self):
+        result = count_text_patterns(documents=self.dumb_sentence, pattern=r"\w{5,}")
+        self.assertIsInstance(result, pd.DataFrame)
+        self.assertEqual(result.to_dict()['frequency'], {'sentence': 2, 'punctuation': 1, 'numbers': 1})
+
+        result = count_text_patterns(documents=self.dumb_sentence, pattern=r"\w{5,}", min_frequency=2)
+        self.assertIsInstance(result, pd.DataFrame)
+        self.assertEqual(result.to_dict()['frequency'], {'sentence': 2})
+
+        result = count_text_patterns(documents=[self.dumb_sentence], pattern=r"\w{5,}")
+        self.assertIsInstance(result, pd.DataFrame)
+        self.assertEqual(result.to_dict()['frequency'], {'sentence': 2, 'punctuation': 1, 'numbers': 1})
+
+        result = count_text_patterns(documents=[self.dumb_sentence, self.dumb_sentence], pattern=r"\w{5,}")
+        self.assertIsInstance(result, pd.DataFrame)
+        self.assertEqual(result.to_dict()['frequency'], {'sentence': 4, 'punctuation': 2, 'numbers': 2})
+
+        result = count_text_patterns(documents=pd.Series([self.dumb_sentence, self.dumb_sentence]), pattern=r"\w{5,}", min_frequency=3)
+        self.assertIsInstance(result, pd.DataFrame)
+        self.assertEqual(result.to_dict()['frequency'], {'sentence': 4})
+
+        result = count_text_patterns(documents=pd.Series([self.dumb_sentence, '']), pattern=r"\w{5,}", min_frequency=1)
+        self.assertIsInstance(result, pd.DataFrame)
+        self.assertEqual(result.to_dict()['frequency'], {'sentence': 2, 'punctuation': 1, 'numbers': 1})
 
     def test__term_frequency(self):
         term_freq = term_frequency(df=self.un_debates, tokens_column='tokens', min_frequency=3)

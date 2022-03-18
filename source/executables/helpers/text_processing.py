@@ -1,5 +1,7 @@
 from collections import Counter
 from typing import List, Callable, Union, Set
+
+import regex
 from textacy.extract.kwic import keyword_in_context
 import nltk
 import numpy as np
@@ -204,6 +206,54 @@ def count_tokens(tokens: Union[pd.Series, List[list], List[str]],
     freq_df = freq_df.query('frequency >= @min_frequency')
     freq_df.index.name = 'token'
     
+    return freq_df.sort_values('frequency', ascending=False)
+
+
+def count_text_patterns(documents: Union[pd.Series, List[str], str],
+                        pattern: str,
+                        min_frequency: int = 1  # noqa
+                        ) -> pd.DataFrame:
+    # counts all matches of `regex` across all `documents`
+    # documents is either Series of strings (documents)
+    # or list of strings, a single string
+    """
+    Counts all matches of the regex `pattern` across all `documents`.
+
+    Modified from:
+        Blueprints for Text Analytics Using Python
+        by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
+        (O'Reilly, 2021), 978-1-492-07408-3.
+         https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch01/First_Insights.ipynb
+
+    Args:
+        documents:
+            either
+                - a pandas Series (with strings); each item in the Series is a 'document'
+                - a list of strings; each string item in list is a 'document'
+                - a single string; which represents a single 'document'
+        pattern:
+            The regex containing the pattern to search for.
+        min_frequency:
+            The minimum times the pattern has to appear in order to be returned
+    """
+    if isinstance(documents, str):
+        documents = pd.Series([documents])
+    if isinstance(documents, list):
+        documents = pd.Series(documents)
+
+    # create counter and run through all data
+    counter = Counter()
+
+    def count(text: str):
+        counter.update(regex.findall(pattern, text))
+
+    _ = documents.map(count)
+
+    # transform counter into data frame
+    freq_df = pd.DataFrame.from_dict(counter, orient='index', columns=['frequency'])
+    freq_df = freq_df.query('frequency >= @min_frequency')
+    freq_df.index.name = 'match'
+
     return freq_df.sort_values('frequency', ascending=False)
 
 
