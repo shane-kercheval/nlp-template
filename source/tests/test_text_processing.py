@@ -189,7 +189,7 @@ class TestTextProcessing(unittest.TestCase):
 
     def test__get_context_from_keyword(self):
         context_list = get_context_from_keyword(
-            documents=pd.Series([]),
+            documents=pd.Series([], dtype=object),
             keyword='sentence',
             pad_context=False,
             num_samples=10,
