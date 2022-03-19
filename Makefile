@@ -47,8 +47,8 @@ data: data_extract data_transform
 ## Run the basic exploration notebook(s).
 exploration_basic: environment_python
 	@echo $(call FORMAT_MESSAGE,"exploration_basic","Running exploratory jupyter notebooks and converting to .html files.")
-	. .venv/bin/activate && jupyter nbconvert --execute --to html source/executables/text_eda.ipynb
-	mv source/executables/text_eda.html docs/data/text_eda.html
+	. .venv/bin/activate && jupyter nbconvert --execute --to html source/executables/text_eda_un_debates.ipynb
+	mv source/executables/text_eda_un_debates.html docs/data/text_eda_un_debates.html
 
 ## Run all the NLP notebooks.
 exploration: exploration_basic
