@@ -22,6 +22,11 @@ def extract():
         un_debates = pd.read_csv('artifacts/data/external/un-general-debates-blueprint.csv.zip')
         un_debates.to_pickle('artifacts/data/raw/un-general-debates-blueprint.pkl')
 
+    with Timer("Loading Reddit Dataset - Saving to /artifacts/data/raw/reddit.pkl"):
+        logger.info("This dataset was copied from https://github.com/blueprints-for-text-analytics-python/blueprints-text/tree/master/data/reddit-selfposts")  # noqa
+        reddit = pd.read_csv('artifacts/data/external/reddit.tsv.zip', sep="\t")
+        reddit.to_pickle('artifacts/data/raw/reddit.pkl')
+
 
 @main.command()
 def transform():
