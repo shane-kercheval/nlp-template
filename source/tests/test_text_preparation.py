@@ -7,7 +7,7 @@ from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 from source.library.text_cleaning_simple import tokenize
 
 
-class TestTextPreperation(unittest.TestCase):
+class TestTextPreparation(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
