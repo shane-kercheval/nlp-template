@@ -6,6 +6,7 @@ import pandas as pd
 import regex
 import regex as re
 from textacy.extract.kwic import keyword_in_context
+import source.executables.helpers.regex_patterns as rx
 
 
 def count_tokens(tokens: Union[pd.Series, List[list], List[str]],
@@ -370,3 +371,27 @@ def count_keywords_by(df: pd.DataFrame,
     freq_df[by] = df[by]  # copy the grouping column(s)
 
     return freq_df.groupby(by=by).sum().sort_values(by)
+
+
+def impurity(text: str, pattern: str = rx.SUSPICIOUS, min_length: int = 10):
+    """
+    Returns the percent of characters matching regex_patterns.SUSPICIOUS (or other pattern passed in).
+
+    Args:
+        text:
+            text to search
+        pattern:
+            regex pattern to use to search for suspicious characters; default is regex_patterns.SUSPICIOUS
+        min_length:
+            the minimum length of `text` required to return a score; if `text` is less than the minimum
+            length, then a value of np.nan is returned.
+    Copied from:
+        Blueprints for Text Analytics Using Python
+        by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
+        (O'Reilly, 2021), 978-1-492-07408-3.
+         https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch04/Data_Preparation.ipynb
+    """
+    if text is None or len(text) < min_length:
+        return np.nan
+    else:
+        return len(regex.findall(pattern, text))/len(text)

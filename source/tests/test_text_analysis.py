@@ -1,11 +1,12 @@
 import unittest
 
+import numpy as np
 import pandas as pd
 
 from source.executables.helpers.text_cleaning_simple import prepare
 from source.executables.helpers.text_analysis import count_tokens, term_frequency, \
     inverse_document_frequency, tf_idf, get_context_from_keyword, count_keywords, count_keywords_by, \
-    count_text_patterns
+    count_text_patterns, impurity
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 
 
@@ -18,6 +19,9 @@ class TestTextProcessing(unittest.TestCase):
         cls.un_debates = un_debates
 
         cls.dumb_sentence = "This is a sentence; it has punctuation, etc.. It also has numbers. It's a dumb sentence."
+
+        reddit = pd.read_pickle(get_test_file_path('datasets/reddit__sample.pkl'))
+        cls.reddit = reddit
 
     def test__count_tokens(self):
         sentence = "This is a sentence; it has punctuation, etc.. It also has numbers. Nevermind, it doesn't have numbers. It's a dumb sentence."  # noqa
@@ -233,3 +237,10 @@ class TestTextProcessing(unittest.TestCase):
 
         dataframe_to_text_file(keyword_counts_per_year,
                                get_test_file_path('text_analysis/count_keywords_by__un_debates__year__count_once.txt'))
+
+    def test__impurity(self):
+        text = r'This is a #sentence http:// ###&<>>> {} with suspicious :\/ characters.'
+        impurity(text)
+        self.assertEqual(round(impurity(text), 5), 0.23944)
+        self.assertEqual(impurity(text='word', min_length=4), 0)
+        self.assertTrue(np.isnan(impurity(text='word', min_length=5)))
