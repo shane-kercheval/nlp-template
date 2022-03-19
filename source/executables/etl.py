@@ -2,7 +2,7 @@ import click
 import pandas as pd
 
 from helpers.utilities import get_logger, Timer
-from helpers.text_processing import prepare, get_n_grams, get_stop_words, tokenize
+from helpers.text_cleaning_simple import prepare, get_n_grams, get_stop_words, tokenize
 
 
 @click.group()
@@ -36,7 +36,7 @@ def transform():
     with Timer("Loading UN Generate Debate Dataset"):
         un_debates = pd.read_pickle('artifacts/data/raw/un-general-debates-blueprint.pkl')
 
-    with Timer("Processing Text Data"):
+    with Timer("UN Debate - Processing Text Data"):
         un_debates['speaker'].fillna('<unknown>', inplace=True)
         un_debates['position'].fillna('<unknown>', inplace=True)
         assert not un_debates.isna().any().any()
@@ -53,6 +53,16 @@ def transform():
     assert not un_debates.isna().any().any()
     with Timer("Saving processed UN Debate dataset to /artifacts/data/processed/un-general-debates-blueprint.pkl"):
         un_debates.to_pickle('artifacts/data/processed/un-general-debates-blueprint.pkl')
+
+
+    with Timer("Loading Reddit Dataset"):
+        reddit = pd.read_pickle('artifacts/data/raw/reddit.pkl')
+
+    #with Timer("Reddit - Processing Text Data"):
+        
+    assert not reddit.isna().any().any()
+    with Timer("Saving processed Reddit dataset to /artifacts/data/processed/reddit.pkl"):
+        reddit.to_pickle('artifacts/data/processed/reddit.pkl')
 
 
 if __name__ == '__main__':
