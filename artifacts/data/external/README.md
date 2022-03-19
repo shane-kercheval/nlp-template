@@ -22,3 +22,18 @@ Original download locations:
 Data preparation:
 
 See the [Jupyter notebook](UN_General_Debates_Preparation.ipynb) for details on the used files and data preparation.
+
+# Reddit Self-Post
+
+
+> reddit.csv.zip
+
+This dataset was copied from https://github.com/blueprints-for-text-analytics-python/blueprints-text/tree/master/data/reddit-selfposts
+
+---
+
+> This Dataset contains reddit selfposts from the reddit self-post classification task on Kaggle.
+> 
+> Credits go to Mike Swarbrick Jones, who created this data set.
+> 
+> Link to source  https://www.kaggle.com/mswarbrickjones/reddit-selfposts
