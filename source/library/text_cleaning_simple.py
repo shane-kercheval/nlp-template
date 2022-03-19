@@ -3,6 +3,8 @@ from typing import List, Callable, Union, Set
 import nltk
 import regex as re
 
+import source.library.regex_patterns as rx
+
 
 def tokenize(text: str) -> List[str]:
     """
@@ -17,7 +19,7 @@ def tokenize(text: str) -> List[str]:
     Args:
         text: string of text
     """
-    return re.findall(r'[\w-]*\p{L}[\w-]*', text)
+    return re.findall(rx.TOKENS_SIMPLE, text)
 
 
 def get_stop_words(source: str = 'nltk',

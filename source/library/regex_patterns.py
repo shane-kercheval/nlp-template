@@ -8,3 +8,6 @@ BRACKETS = r'\[[^\[\]]*\]'  # text or code in brackets like [0]
 STANDALONE_SPECIAL_CHARACTERS = r'(?:^|\s)[&#<>{}\[\]+|\\:-]{1,}(?:\s|$)'  # standalone sequences of specials, matches &# but not #cool
 STANDALONE_SEQUENCES = r'(?:^|\s)[\-=\+]{2,}(?:\s|$)'  # standalone sequences of hyphens like --- or ==
 WHITESPACE = r'\s+'  # sequences of white spaces
+
+
+TOKENS_SIMPLE = r'[\w-]*\p{L}[\w-]*'

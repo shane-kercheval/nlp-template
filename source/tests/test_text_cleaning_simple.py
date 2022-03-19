@@ -7,7 +7,7 @@ from source.library.text_cleaning_simple import tokenize, remove_stop_words, pre
 from source.tests.helpers import get_test_file_path
 
 
-class TestTextProcessing(unittest.TestCase):
+class TestTextCleaningSimple(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):

@@ -10,7 +10,7 @@ from source.library.text_analysis import count_tokens, term_frequency, \
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 
 
-class TestTextProcessing(unittest.TestCase):
+class TestTextAnalysis(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
