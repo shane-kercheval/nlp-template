@@ -33,12 +33,12 @@ tests: environment_python
 ## Extract Data
 data_extract: environment_python
 	@echo $(call FORMAT_MESSAGE,"data_extract","Extracting data.")
-	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/executables/etl.py extract
+	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/scripts/etl.py extract
 
 ## Clean and pre-process text data.
 data_transform: environment_python
 	@echo $(call FORMAT_MESSAGE,"data_transform","Transforming data.")
-	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/executables/etl.py transform
+	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/scripts/etl.py transform
 
 ## Extract data and clean/pre-process.
 data: data_extract data_transform
@@ -47,8 +47,8 @@ data: data_extract data_transform
 ## Run the basic exploration notebook(s).
 exploration_basic: environment_python
 	@echo $(call FORMAT_MESSAGE,"exploration_basic","Running exploratory jupyter notebooks and converting to .html files.")
-	. .venv/bin/activate && jupyter nbconvert --execute --to html source/executables/text_eda_un_debates.ipynb
-	mv source/executables/text_eda_un_debates.html docs/data/text_eda_un_debates.html
+	. .venv/bin/activate && jupyter nbconvert --execute --to html source/notebooks/text_eda_un_debates.ipynb
+	mv source/notebooks/text_eda_un_debates.html docs/data/text_eda_un_debates.html
 
 ## Run all the NLP notebooks.
 exploration: exploration_basic
@@ -58,36 +58,8 @@ exploration: exploration_basic
 
 
 
-
-
-
-data_training_test: environment_python
-	@echo $(call FORMAT_MESSAGE,"data_training_test","Creating training & test sets.")
-	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/executables/etl.py create-training-test
-
-experiments: environment_python
-	@echo $(call FORMAT_MESSAGE,"experiments","Running Hyper-parameters experiments based on BayesianSearchCV.")
-	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/executables/experiments.py
-
-experiments_eval: artifacts/models/experiments/new_results.txt
-	@echo $(call FORMAT_MESSAGE,"experiments_eval","Running Evaluation of experiments")
-	@echo $(call FORMAT_MESSAGE,"experiments_eval","Copying experiments template (experiment-template.ipynb) to /artifacts/models/experiments directory.")
-	cp source/executables/templates/experiment-template.ipynb source/executables/$(shell cat artifacts/models/experiments/new_results.txt).ipynb
-	@echo $(call FORMAT_MESSAGE,"experiments_eval","Setting the experiments yaml file name within the ipynb file.")
-	sed -i '' 's/XXXXXXXXXXXXXXXX/$(shell cat artifacts/models/experiments/new_results.txt)/g' source/executables/$(shell cat artifacts/models/experiments/new_results.txt).ipynb
-	@echo $(call FORMAT_MESSAGE,"experiments_eval","Running the notebook and creating html.")
-	. .venv/bin/activate && jupyter nbconvert --execute --to html source/executables/$(shell cat artifacts/models/experiments/new_results.txt).ipynb
-	mv source/executables/$(shell cat artifacts/models/experiments/new_results.txt).html docs/models/experiments/$(shell cat artifacts/models/experiments/new_results.txt).html
-	rm -f artifacts/models/experiments/new_results.txt
-
-final_model: environment
-	@echo $(call FORMAT_MESSAGE,"final_model","Building final model from best model in experiment.")
-
-final_eval: environment
-	@echo $(call FORMAT_MESSAGE,"final_eval","Running evaluation of final model on test set.")
-
 ## Run entire workflow.
-all: environment tests data exploration experiments experiments_eval final_model final_eval
+all: environment tests data exploration
 	@echo $(call FORMAT_MESSAGE,"all","Finished running entire workflow.")
 
 ## Delete all generated files (e.g. virtual environment)
