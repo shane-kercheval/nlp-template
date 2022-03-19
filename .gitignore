@@ -191,4 +191,5 @@ artifacts/data/raw/*
 !artifacts/models/current/*
 !artifacts/models/archive/*.pkl
 
-!source/tests/test_files/*.csv
+!source/tests/test_files/datasets/*.csv
+!source/tests/test_files/datasets/*.pkl
