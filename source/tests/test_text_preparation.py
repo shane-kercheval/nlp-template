@@ -14,6 +14,14 @@ class TestTextPreparation(unittest.TestCase):
         reddit = pd.read_pickle(get_test_file_path('datasets/reddit__sample.pkl'))
         cls.reddit = reddit
 
-    def test__count_tokens(self):
+    def test__clean(self):
         with open(get_test_file_path('text_preparation/clean__reddit.txt'), 'w') as handle:
             handle.writelines([x + "\n" for x in self.reddit['post'].apply(clean)])
+
+        with open(get_test_file_path('text_preparation/example_unclean.txt'), 'r') as handle:
+            text_lines = handle.readlines()
+
+        with open(get_test_file_path('text_preparation/example_clean.txt'), 'w') as handle:
+            handle.writelines([clean(x) + "\n" for x in text_lines])
+
+
