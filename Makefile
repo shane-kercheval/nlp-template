@@ -6,9 +6,16 @@
 #################################################################################
 # GLOBALS
 #################################################################################
+UNAME_M := $(shell uname -m)
+APPLE_M1 = arm64
 PYTHON_VERSION := 3.9
 PYTHON_VERSION_SHORT := $(subst .,,$(PYTHON_VERSION))
 PYTHON_INTERPRETER := python$(PYTHON_VERSION)
+
+# select which type of pipeline spaCy pipeline https://spacy.io/usage
+SPACY_PIPELINE_TYPE := en_core_web_sm  # optimize for efficiency
+#SPACY_PIPELINE_TYPE := en_core_web_trf  # optimize for accuracy
+
 
 # PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
@@ -46,12 +53,6 @@ exploration_basic: environment_python
 ## Run all the NLP notebooks.
 exploration: exploration_basic
 	@echo $(call FORMAT_MESSAGE,"exploration","Finished running exploration notebooks.")
-
-
-
-
-
-
 
 
 
@@ -113,19 +114,34 @@ ifneq ($(wildcard .venv/.*),)
 	. .venv/bin/activate && pip install -q -r requirements.txt
 else
 	@echo $(call FORMAT_MESSAGE,"environment_python","Did not find .venv directory. Creating virtual environment.")
+	@echo $(call FORMAT_MESSAGE,"environment_python","Installing virtualenv.")
 	python -m pip install --upgrade pip
 	python -m pip install -q virtualenv
-	@echo $(call FORMAT_MESSAGE,"environment_python","Installing virtualenv.")
-	virtualenv .venv --python=$(PYTHON_INTERPRETER)
 	@echo $(call FORMAT_MESSAGE,"environment_python","NOTE: Creating environment at .venv.")
 	@echo $(call FORMAT_MESSAGE,"environment_python","NOTE: Run this command to activate virtual environment: 'source .venv/bin/activate'.")
+	virtualenv .venv --python=$(PYTHON_INTERPRETER)
 	@echo $(call FORMAT_MESSAGE,"environment_python","Activating virtual environment.")
+
 	@echo $(call FORMAT_MESSAGE,"environment_python","Installing packages from requirements.txt.")
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) -m pip install --upgrade pip
 	. .venv/bin/activate && pip install -r requirements.txt
 	. .venv/bin/activate && brew install libomp
+
 	@echo $(call FORMAT_MESSAGE,"environment_python","Installing NLTK (https://www.nltk.org) corpora packages which will create a folder in your home directory 'nltk_data/corpora'.")
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/executables/nltk_download.py
+
+	@echo $(call FORMAT_MESSAGE,"environment_python","Installing spaCy - https://spacy.io/usage")
+	. .venv/bin/activate && pip install -U pip setuptools wheel
+ifeq ($(UNAME_M), $(APPLE_M1))
+	@echo $(call FORMAT_MESSAGE,"environment_python","Installing spaCy for Apple M1")
+	# command if apple m1
+	. .venv/bin/activate && pip install -U 'spacy[apple]'
+else
+	# command if not apple m1
+	. .venv/bin/activate && pip install -U spacy
+endif
+	. .venv/bin/activate && python -m spacy download $(SPACY_PIPELINE_TYPE)
+
 endif
 
 ## Set up python/R virtual environments and install dependencies
