@@ -11,7 +11,7 @@ class TestTextProcessing(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        un_debates = pd.read_csv(get_test_file_path('text_cleaning_simple/un-general-debates-blueprint__sample.csv'))
+        un_debates = pd.read_csv(get_test_file_path('un-general-debates-blueprint__sample.csv'))
         un_debates['tokens'] = un_debates['text'].map(prepare)
         cls.un_debates = un_debates
 
