@@ -2,7 +2,7 @@ import unittest
 
 import pandas as pd
 
-from source.executables.helpers.text_cleaning_simple import tokenize, remove_stop_words, prepare, \
+from source.library.text_cleaning_simple import tokenize, remove_stop_words, prepare, \
     get_stop_words, get_n_grams
 from source.tests.helpers import get_test_file_path
 

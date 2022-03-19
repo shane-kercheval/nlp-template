@@ -3,8 +3,8 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from source.executables.helpers.text_cleaning_simple import prepare
-from source.executables.helpers.text_analysis import count_tokens, term_frequency, \
+from source.library.text_cleaning_simple import prepare
+from source.library.text_analysis import count_tokens, term_frequency, \
     inverse_document_frequency, tf_idf, get_context_from_keyword, count_keywords, count_keywords_by, \
     count_text_patterns, impurity
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file

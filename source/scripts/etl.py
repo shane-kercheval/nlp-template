@@ -1,8 +1,8 @@
 import click
 import pandas as pd
 
-from helpers.utilities import get_logger, Timer
-from helpers.text_cleaning_simple import prepare, get_n_grams, get_stop_words, tokenize
+from source.library.utilities import get_logger, Timer
+from source.library.text_cleaning_simple import prepare, get_n_grams, get_stop_words, tokenize
 
 
 @click.group()

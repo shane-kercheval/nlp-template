@@ -6,7 +6,7 @@ import pandas as pd
 import regex
 import regex as re
 from textacy.extract.kwic import keyword_in_context
-import source.executables.helpers.regex_patterns as rx
+import source.library.regex_patterns as rx
 
 
 def count_tokens(tokens: Union[pd.Series, List[list], List[str]],

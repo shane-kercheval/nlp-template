@@ -1,7 +1,7 @@
 import time
 import unittest
 
-from source.executables.helpers.utilities import Timer, get_logger
+from source.library.utilities import Timer, get_logger
 
 
 class TestUtilities(unittest.TestCase):
