@@ -47,16 +47,16 @@ This project requires Python 3.9 (but the python version can be configured in th
 
 - Text Processing is done in the etl.py script. 
 
-`python source/executables/etl.py extract`
+`python source/scripts/etl.py extract`
 `make data_extract` which also gets ran with `make data`
 
-`python source/executables/etl.py transform`
+`python source/scripts/etl.py transform`
 `make data_transform` which also gets ran with `make data`
 
 
 
 
-- `source/executables/text_eda.ipynb`
+- `source/notebooks/text_eda.ipynb`
     - basic exploratory analysis 
         - descriptive statistics & trends
         - word frequencies
@@ -64,6 +64,16 @@ This project requires Python 3.9 (but the python version can be configured in th
         - word-clouds
         - context search
 
+
+
+## Dependencies
+
+- spaCy
+    - used for tokenization and part-of-speech recognitiion
+    - `make environment` installs this and has logic to install specific package for Apple M1 if detected
+- NLTK (https://www.nltk.org)
+    - primary used for stop-words
+    - `make environment` will create a folder in your home directory 'nltk_data/corpora'
 
 ---
 
@@ -97,9 +107,10 @@ jupyter notebook
 │
 ├── source/                    <- All source-code (e.g. SQL, python scripts, notebooks, unit-tests, etc.)
 │   ├── config/                <- Directory for yaml configuration files for model training, scoring, etc
-│   ├── executables/           <- Notebooks, as well as command-line programs that execute the project tasks (e.g. etl & data processing, experiments, model-building, etc.). They typically have outputs that are artifacts (e.g. .pkl models or data).
-│       ├── helpers/           <- Supporting source-code that promotes code reusability and unit-testing. Clients that use this code are notebooks, executables, and tests.
-│       ├── templates/             <- Template notebooks for analysis with useful imports and helper functions. 
+│   ├── library/               <- Supporting source-code that promotes code reusability and unit-testing. Clients that use this code are notebooks, executables, and tests.
+│   ├── scripts/               <- command-line programs that execute the project tasks (e.g. etl & data processing, experiments, model-building, etc.). They typically have outputs that are artifacts (e.g. .pkl models or data).
+│   ├── notebooks/             <- Notebooks (e.g. Jupyter/R-Markdown)
+│   ├── sql/                   <- SQL scripts for querying DWH/lake. 
 │   ├── tests/                 <- Files necessary for running model tests (see documentation below) 
 │       ├── test_files/        <- Files that help run unit tests, e.g. mock yaml files.
 │       ├── test_file.py       <- python unit-test script
