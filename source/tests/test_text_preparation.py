@@ -2,7 +2,8 @@ import unittest
 
 import pandas as pd
 
-from source.library.text_preparation import clean, doc_to_dataframe
+from source.library.text_preparation import clean, doc_to_dataframe, custom_tokenizer, extract_lemmas, extract_noun_phrases, extract_named_entities, \
+    extract_nlp
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 from source.library.text_cleaning_simple import tokenize
 
@@ -48,10 +49,50 @@ class TestTextPreparation(unittest.TestCase):
 
         text = self.reddit['post'].iloc[2]
         text = clean(text=text)
+
+
+
+
+
+        # DEFAULT TOKENIZER
         import spacy
         nlp = spacy.load("en_core_web_sm")
         type(nlp)
         doc = nlp(text)
         type(doc)
 
+        for token in doc:
+            print(token, end="|")
+
+
+        # CUSTOM TOKENIZER
+        nlp = spacy.load('en_core_web_sm')
+        nlp.tokenizer = custom_tokenizer(nlp)
+
+        doc = nlp(text)
+        for token in doc:
+            print(token, end="|")
+
         doc_to_dataframe(doc)
+
+        temp = doc_to_dataframe(doc)
+        lemmas = extract_lemmas(doc, include_part_of_speech=None)
+        for lemma in lemmas:
+            print(lemma, end="|")
+
+        lemmas = extract_lemmas(doc, include_part_of_speech=['ADJ', 'NOUN'])
+        for lemma in lemmas:
+            print(lemma, end="|")
+
+        phrases = extract_noun_phrases(doc)
+        for phrase in phrases:
+            print(phrase, end="|")
+
+        ents = extract_named_entities(doc)
+        for ent in ents:
+            print(ent, end="|")
+
+        extract_nlp(doc)
+
+
+
