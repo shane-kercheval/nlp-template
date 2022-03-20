@@ -119,3 +119,23 @@ class TestTextPreparation(unittest.TestCase):
         # create new column
         langauge_text_df['lang'] = langauge_text_df['text'].apply(predict_language)
         langauge_text_df
+
+        lang_df = pd.read_csv('../resources/language_codes.csv')
+        lang_df = lang_df[['name', '639-1', '639-2']].melt(id_vars=['name'], var_name='iso', value_name='code')
+        iso639_languages = lang_df.set_index('code')['name'].to_dict()
+
+        langauge_text_df['lang_name'] = langauge_text_df['lang'].map(iso639_languages)
+        langauge_text_df
+
+
+        # Not in book: Normalize tokens with a dict
+        token_map = {'U.S.': 'United_States',
+                     'L.A.': 'Los_Angeles'}
+
+        def token_normalizer(tokens):
+            return [token_map.get(t, t) for t in tokens]
+
+        tokens = "L.A. is a city in the U.S.".split()
+        tokens = token_normalizer(tokens)
+
+        print(*tokens, sep='|')
