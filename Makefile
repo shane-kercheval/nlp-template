@@ -115,7 +115,7 @@ else
 endif
 	. .venv/bin/activate && python -m spacy download $(SPACY_PIPELINE_TYPE)
 
-	@echo $(call FORMAT_MESSAGE,"environment_python","Installing fasttext https://fasttext.cc/docs/en/language-identification.html")
+	@echo $(call FORMAT_MESSAGE,"environment_python","Installing fasttext - https://fasttext.cc/docs/en/language-identification.html")
 	brew install wget
 	wget https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz
 
