@@ -77,6 +77,11 @@ This project requires Python 3.9 (but the python version can be configured in th
 - fasttext (https://fasttext.cc/docs/en/language-identification.html)
     - used for language recognitiion
     - installed by `make environment`
+
+- language codes in the `source/resources/lanugage_codes.csv` was copied from https://raw.githubusercontent.com/haliaeetus/iso-639/master/data/iso_639-1.csv
+
+
+
 ---
 
 To activate virtual environment run `source .venv/bin/activate`; for example:

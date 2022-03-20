@@ -77,7 +77,7 @@ clean_python:
 	rm -rf .venv
 	find . \( -name __pycache__ \) -prune -exec rm -rf {} +
 	find . \( -name .ipynb_checkpoints \) -prune -exec rm -rf {} +
-	rm -rm lid.176.ftz
+	rm -rm source/resources/lid.176.ftz
 
 environment_python:
 ifneq ($(wildcard .venv/.*),)
@@ -118,6 +118,7 @@ endif
 	@echo $(call FORMAT_MESSAGE,"environment_python","Installing fasttext - https://fasttext.cc/docs/en/language-identification.html")
 	brew install wget
 	wget https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz
+	mv lid.176.ftz source/resources/lid.176.ftz
 
 endif
 

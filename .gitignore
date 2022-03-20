@@ -182,6 +182,8 @@ vignettes/*.pdf
 renv/*
 .Rprofile
 lid.176.ftz
+!language_codes.csv
+
 
 # exclude data folders by default
 artifacts/data/interim/*
