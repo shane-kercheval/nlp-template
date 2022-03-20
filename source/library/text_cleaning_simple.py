@@ -6,7 +6,7 @@ import regex as re
 import source.library.regex_patterns as rx
 
 
-def tokenize(text: str) -> List[str]:
+def tokenize(text: str, pattern: str = rx.TOKENS_SIMPLE) -> List[str]:
     """
     Transform `text` in a list of tokens.
 
@@ -18,8 +18,9 @@ def tokenize(text: str) -> List[str]:
 
     Args:
         text: string of text
+        pattern: string with regex pattern for extracting tokens
     """
-    return re.findall(rx.TOKENS_SIMPLE, text)
+    return re.findall(pattern, text, re.VERBOSE)
 
 
 def get_stop_words(source: str = 'nltk',

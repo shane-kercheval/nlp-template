@@ -4,6 +4,7 @@ import pandas as pd
 
 from source.library.text_cleaning_simple import tokenize, remove_stop_words, prepare, \
     get_stop_words, get_n_grams
+import source.library.regex_patterns as rx
 from source.tests.helpers import get_test_file_path
 
 
@@ -41,6 +42,11 @@ class TestTextCleaningSimple(unittest.TestCase):
         token_list = self.un_debates.text.map(tokenize)
         token_list = ['|'.join(x) for x in token_list]
         with open(get_test_file_path('text_cleaning_simple/tokenize__un_debates.txt'), 'w') as file:
+            file.write('\n'.join(token_list))
+
+        token_list = self.un_debates.text.apply(tokenize, pattern=rx.TOKENS)
+        token_list = ['|'.join(x) for x in token_list]
+        with open(get_test_file_path('text_cleaning_simple/tokenize__un_debates__pattern.txt'), 'w') as file:
             file.write('\n'.join(token_list))
 
     def test__remove_stop_words(self):

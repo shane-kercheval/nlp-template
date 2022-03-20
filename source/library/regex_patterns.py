@@ -11,3 +11,9 @@ WHITESPACE = r'\s+'  # sequences of white spaces
 
 
 TOKENS_SIMPLE = r'[\w-]*\p{L}[\w-]*'
+TOKENS = r"""
+( [#]?[@\w'’\.\-\:]*\w     # words, hash tags and email adresses
+| [:;<]\-?[\)\(3]          # coarse pattern for basic text emojis
+| [\U0001F100-\U0001FFFF]  # coarse code range for unicode emojis
+)
+"""
