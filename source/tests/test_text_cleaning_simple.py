@@ -89,3 +89,4 @@ class TestTextCleaningSimple(unittest.TestCase):
 
         with open(get_test_file_path('text_cleaning_simple/get_n_grams__un_debates.txt'), 'w') as handle:
             handle.writelines([str(x) + "\n" for x in n_gram_series])
+
