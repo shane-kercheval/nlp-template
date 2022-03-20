@@ -1,7 +1,7 @@
 Hey my name is shane kercheval; my email is shane.kercheval@hotmail.com, and my phone number is 675.633.9467
 Also, 675-633-9467, or 6756339467, or 675.633.9467, (675) 633-9467.
 This is my [github](www.github.com)
-This is this repo https://github.com/shane-kercheval/nlp-template
+This is this repo https://github.com/shane-kercheval/nlp-template?query=example
 These are some brackets <this> <that> [the] [other].
 These   &   are  || some #special $chars and     some   spaces.
 2019-08-10 23:32: @pete/@louis - I don't have a well-designed 
