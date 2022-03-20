@@ -1,6 +1,7 @@
 import html
 from typing import Callable, Union, List
 
+import numpy as np
 import pandas as pd
 import regex
 import spacy.tokens.doc
@@ -239,3 +240,23 @@ def extract_nlp(doc):
     'adj_noun_phrases': extract_noun_phrases(doc, ['ADJ']),
     'entities'        : extract_named_entities(doc, ['PERSON', 'ORG', 'GPE', 'LOC'])
     }
+
+import fasttext
+
+# https://github.com/facebookresearch/fastText/issues/1067
+fasttext.FastText.eprint = lambda x: None
+
+
+def predict_language(text, threshold=0.6, model_path = "../../lid.176.ftz", model=None):
+    # fasttext requires single line input
+    text = text.replace('\n', ' ')
+    if model is None:
+        model = fasttext.load_model(model_path)
+    labels, probabilities = model.predict(text)
+    language = labels[0].replace("__label__", "")
+    score = probabilities[0]
+
+    if score < threshold:
+        return np.nan
+    else:
+        return language

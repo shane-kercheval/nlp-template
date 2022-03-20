@@ -1,9 +1,10 @@
+import os
 import unittest
 
 import pandas as pd
 
 from source.library.text_preparation import clean, doc_to_dataframe, custom_tokenizer, extract_lemmas, extract_noun_phrases, extract_named_entities, \
-    extract_nlp
+    extract_nlp, predict_language
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 from source.library.text_cleaning_simple import tokenize
 
@@ -94,5 +95,27 @@ class TestTextPreparation(unittest.TestCase):
 
         extract_nlp(doc)
 
+        import fasttext
+
+        import os
+        os.getcwd()
+        lang_model = fasttext.load_model("../../lid.176.ftz")
 
 
+        # make a prediction
+        print(lang_model.predict('Good morning', 3))
+
+
+        predict_language(text)
+
+        langauge_text = [
+            "I don't like version 2.0 of Chat4you 😡👎",  # English
+            "Ich mag Version 2.0 von Chat4you nicht 😡👎",  # German
+            "Мне не нравится версия 2.0 Chat4you 😡👎",  # Russian
+            "Não gosto da versão 2.0 do Chat4you 😡👎",  # Portugese
+            "मुझे Chat4you का संस्करण 2.0 पसंद नहीं है 😡👎"]  # Hindi
+        langauge_text_df = pd.Series(langauge_text, name='text').to_frame()
+
+        # create new column
+        langauge_text_df['lang'] = langauge_text_df['text'].apply(predict_language)
+        langauge_text_df
