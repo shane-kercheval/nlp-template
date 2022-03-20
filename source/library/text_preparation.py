@@ -1,8 +1,9 @@
 import html
+
 import regex
+import textacy.preprocessing as prep
+
 import source.library.regex_patterns as rx
-import textacy
-import textacy.preprocessing as tprep
 
 
 def clean(text: str):
@@ -33,17 +34,17 @@ def clean(text: str):
     # sequences of white spaces
     text = regex.sub(rx.WHITESPACE, ' ', text)
 
-    text = tprep.normalize.hyphenated_words(text)
-    text = tprep.normalize.quotation_marks(text)
-    text = tprep.normalize.unicode(text)
-    text = tprep.remove.accents(text)
+    text = prep.normalize.hyphenated_words(text)
+    text = prep.normalize.quotation_marks(text)
+    text = prep.normalize.unicode(text)
+    text = prep.remove.accents(text)
 
-    text = tprep.replace.urls(text)
-    text = tprep.replace.emails(text)
-    text = tprep.replace.hashtags(text)
-    text = tprep.replace.phone_numbers(text)
-    text = tprep.replace.numbers(text)  # needs to come after phone_numbers
-    text = tprep.replace.user_handles(text)
-    text = tprep.replace.emojis(text)
+    text = prep.replace.urls(text)
+    text = prep.replace.emails(text)
+    text = prep.replace.hashtags(text)
+    text = prep.replace.phone_numbers(text)
+    text = prep.replace.numbers(text)  # needs to come after phone_numbers
+    text = prep.replace.user_handles(text)
+    text = prep.replace.emojis(text)
 
     return text.strip()
