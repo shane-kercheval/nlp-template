@@ -181,6 +181,7 @@ vignettes/*.pdf
 
 renv/*
 .Rprofile
+lid.176.ftz
 
 # exclude data folders by default
 artifacts/data/interim/*

@@ -74,7 +74,9 @@ This project requires Python 3.9 (but the python version can be configured in th
 - NLTK (https://www.nltk.org)
     - primary used for stop-words
     - `make environment` will create a folder in your home directory 'nltk_data/corpora'
-
+- fasttext (https://fasttext.cc/docs/en/language-identification.html)
+    - used for language recognitiion
+    - installed by `make environment`
 ---
 
 To activate virtual environment run `source .venv/bin/activate`; for example:
