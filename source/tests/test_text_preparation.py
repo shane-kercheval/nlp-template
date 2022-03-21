@@ -1,15 +1,15 @@
-import os
 import unittest
-from typing import Union
-from spacy.lang.en import English
 
 import pandas as pd
+import spacy
+from spacy.lang.en import English
 
 from source.library.space_language import CustomEnglish
-from source.library.text_preparation import clean, doc_to_dataframe, custom_tokenizer, extract_lemmas, extract_noun_phrases, extract_named_entities, \
-    extract_nlp, predict_language
-from source.tests.helpers import get_test_file_path, dataframe_to_text_file
-from source.library.text_cleaning_simple import tokenize
+from source.library.spacy import create_spacy_pipeline
+from source.library.spacy import doc_to_dataframe, custom_tokenizer, extract_lemmas, extract_noun_phrases, \
+    extract_named_entities, extract_nlp
+from source.library.text_preparation import clean, predict_language
+from source.tests.helpers import get_test_file_path
 
 
 class TestTextPreparation(unittest.TestCase):
@@ -65,12 +65,32 @@ class TestTextPreparation(unittest.TestCase):
         self.assertTrue(doc_df.query("text == 'dear'").is_stop.iloc[0])
         self.assertTrue(doc_df.query("text == 'Regards'").is_stop.iloc[0])
 
+    def test__create_spacy_pipeline(self):
+        text = "This: _is_ _some_ #text down dear regards."
+        nlp = create_spacy_pipeline()
+        self.assertIsInstance(nlp, spacy.lang.en.English)
+        doc = nlp.make_doc(text)
+        default_tokens = [str(x) for x in doc]
+        self.assertEqual(default_tokens,
+                         ['This', ':', '_', 'is', '_', '_', 'some', '_', '#', 'text', 'down', 'dear', 'regards', '.'])
+        default_df = doc_to_dataframe(doc, include_punctuation=True)
+        self.assertTrue(default_df.query("text == 'down'").is_stop.iloc[0])
+        self.assertFalse(default_df.query("text == 'dear'").is_stop.iloc[0])
+        self.assertFalse(default_df.query("text == 'regards'").is_stop.iloc[0])
 
-
-
+        nlp = create_spacy_pipeline(language=CustomEnglish,
+                                    tokenizer=custom_tokenizer)
+        self.assertIsInstance(nlp, CustomEnglish)
+        doc = nlp.make_doc(text)
+        custom_tokens = [str(x) for x in doc]
+        self.assertEqual(custom_tokens,
+                         ['This', ':', '_is_', '_some_', '#text', 'down', 'dear', 'regards', '.'])
+        default_df = doc_to_dataframe(doc, include_punctuation=True)
+        self.assertFalse(default_df.query("text == 'down'").is_stop.iloc[0])
+        self.assertTrue(default_df.query("text == 'dear'").is_stop.iloc[0])
+        self.assertTrue(default_df.query("text == 'regards'").is_stop.iloc[0])
 
     def test__asdf(self):
-        import spacy
 
         text = self.reddit['post'].iloc[2]
         text = clean(text=text)

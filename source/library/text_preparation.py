@@ -1,13 +1,14 @@
 import html
-from typing import Callable, Union, List
+from typing import Union
 
 import numpy as np
-import pandas as pd
 import regex
-import spacy.tokens.doc
 import textacy.preprocessing as prep
-
 import source.library.regex_patterns as rx
+
+import fasttext
+# https://github.com/facebookresearch/fastText/issues/1067
+fasttext.FastText.eprint = lambda x: None
 
 
 def clean(text: str,
@@ -101,153 +102,10 @@ def clean(text: str,
     return text.strip()
 
 
-def create_spacy_pipeline(custom_language, custom_tokenizer: Callable):
-    pass
-
-
-def doc_to_dataframe(doc: spacy.tokens.doc.Doc, include_punctuation: bool = False):
-    """Generate data frame for visualization of spaCy tokens."""
-    rows = []
-    for i, t in enumerate(doc):
-        if not t.is_punct or include_punctuation:
-            row = {'token': i, 'text': t.text, 'lemma_': t.lemma_,
-                   'is_stop': t.is_stop, 'is_alpha': t.is_alpha,
-                   'pos_': t.pos_, 'dep_': t.dep_,
-                   'ent_type_': t.ent_type_, 'ent_iob_': t.ent_iob_}
-            rows.append(row)
-
-    df = pd.DataFrame(rows).set_index('token')
-    df.index.name = None
-    return df
-
-
-import re  ###
-from spacy.tokenizer import Tokenizer
-from spacy.util import compile_prefix_regex, \
-    compile_infix_regex, compile_suffix_regex
-
-
-def custom_tokenizer(nlp):
-    # use default patterns except the ones matched by re.search
-    prefixes = [pattern for pattern in nlp.Defaults.prefixes
-                if pattern not in ['-', '_', '#']]
-    suffixes = [pattern for pattern in nlp.Defaults.suffixes
-                if pattern not in ['_']]
-    infixes = [pattern for pattern in nlp.Defaults.infixes
-               if not re.search(pattern, 'xx-xx')]
-
-    return Tokenizer(vocab=nlp.vocab,  # noqa
-                     rules=nlp.Defaults.tokenizer_exceptions,  # noqa
-                     prefix_search=compile_prefix_regex(prefixes).search,  # noqa
-                     suffix_search=compile_suffix_regex(suffixes).search,  # noqa
-                     infix_finditer=compile_infix_regex(infixes).finditer,  # noqa
-                     token_match=nlp.Defaults.token_match)  # noqa
-
-import textacy
-
-def extract_lemmas(doc,
-                   to_lower: bool = True,
-                   exclude_stopwords: bool = True,
-                   exclude_punctuation: bool = True,
-                   exclude_numbers: bool = False,
-                   include_part_of_speech: Union[List[str], None] = None,
-                   exclude_part_of_speech: Union[List[str], None] = None,
-                   min_frequency: int = 1
-            ):
-    """
-
-    Args:
-        doc:
-        to_lower:
-        exclude_stopwords:
-        exclude_punctuation:
-        exclude_numbers:
-        include_part_of_speech:  e.g. ['ADJ', 'NOUN']
-        exclude_part_of_speech:
-        min_frequency:
-    :return:
-    """
-    words = textacy.extract.words(
-        doc,
-        filter_stops=exclude_stopwords,
-        filter_punct=exclude_punctuation,
-        filter_nums=exclude_numbers,
-        include_pos=include_part_of_speech,
-        exclude_pos=exclude_part_of_speech,
-        min_freq=min_frequency,
-    )
-    if to_lower:
-        return [t.lemma_.lower() for t in words]
-
-    return [t.lemma_ for t in words]
-
-
-def extract_noun_phrases(doc, preceding_pos=None,
-                         subsequent_pos=None,
-                         sep=' ', to_lower: bool = True):
-    if preceding_pos is None:
-        preceding_pos = ['NOUN', 'ADJ', 'VERB']
-    if subsequent_pos is None:
-        subsequent_pos = ['NOUN', 'ADJ', 'VERB']
-
-    patterns = []
-    for pos in preceding_pos:
-        patterns.append(f"POS:{pos} POS:NOUN:+")
-    for pos in subsequent_pos:
-        patterns.append(f"POS:NOUN POS:{pos}:+")
-
-    spans = textacy.extract.matches.token_matches(doc, patterns=patterns)
-
-    if to_lower:
-        return [sep.join([t.lemma_.lower() for t in s]) for s in spans]
-
-    return [sep.join([t.lemma_ for t in s]) for s in spans]
-
-
-def extract_named_entities(doc,
-                           include_types=None,
-                           sep=' ',
-                           to_lower=True,
-                           include_label=True):
-    entities = textacy.extract.entities(doc,
-                                    include_types=include_types,
-                                    exclude_types=None,
-                                    drop_determiners=True,
-                                    min_freq=1)
-
-    def format_named_entity(entity):
-        if to_lower:
-            lemmas = sep.join([t.lemma_.lower() for t in entity])
-        else:
-            lemmas = sep.join([t.lemma_ for t in entity])
-
-        value = lemmas
-        if include_label:
-            value = f'{value} ({entity.label_})'
-        return value
-
-    return [format_named_entity(e) for e in entities]
-
-def extract_nlp(doc):
-    return {
-    'lemmas'          : extract_lemmas(doc,
-                                     exclude_part_of_speech = ['PART', 'PUNCT',
-                                        'DET', 'PRON', 'SYM', 'SPACE'],
-                                     exclude_stopwords = True),
-    'adjs_verbs'      : extract_lemmas(doc, include_part_of_speech = ['ADJ', 'VERB']),
-    'nouns'           : extract_lemmas(doc, include_part_of_speech = ['NOUN', 'PROPN']),
-    'noun_phrases'    : extract_noun_phrases(doc, ['NOUN']),
-    'adj_noun_phrases': extract_noun_phrases(doc, ['ADJ']),
-    'entities'        : extract_named_entities(doc, ['PERSON', 'ORG', 'GPE', 'LOC'])
-    }
-
-import fasttext
-
-# https://github.com/facebookresearch/fastText/issues/1067
-fasttext.FastText.eprint = lambda x: None
-
-
-def predict_language(text, threshold=0.6, model_path = "../../lid.176.ftz", model=None):
+def predict_language(text,
+                     probability_threshold: float = 0.6,
+                     model_path: str = "../../lid.176.ftz",
+                     model: 'fasttext' = None):
     # fasttext requires single line input
     text = text.replace('\n', ' ')
     if model is None:
@@ -256,7 +114,7 @@ def predict_language(text, threshold=0.6, model_path = "../../lid.176.ftz", mode
     language = labels[0].replace("__label__", "")
     score = probabilities[0]
 
-    if score < threshold:
+    if score < probability_threshold:
         return np.nan
     else:
         return language
