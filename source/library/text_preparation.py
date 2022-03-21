@@ -147,7 +147,7 @@ def predict_language(text: str,
         if return_language_code:
             return language
         else:
-            lang_df = pd.read_csv('../resources/language_codes.csv')
+            lang_df = pd.read_csv('source/resources/language_codes.csv')
             lang_df = lang_df[['name', '639-1', '639-2']].melt(id_vars=['name'], var_name='iso', value_name='code')
             iso639_languages = lang_df.set_index('code')['name'].to_dict()
             return iso639_languages[language]

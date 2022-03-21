@@ -122,7 +122,7 @@ class TestTextPreparation(unittest.TestCase):
                 handle.writelines(str(values) + "\n")
 
     def test_predict_language(self):
-        model = fasttext.load_model("../resources/lid.176.ftz")
+        model = fasttext.load_model("source/resources/lid.176.ftz")
         self.assertEqual(predict_language('This is english.', model=model, return_language_code=False),
                          "English")
         self.assertEqual(predict_language('This is english.', model=model, return_language_code=True),
