@@ -226,15 +226,16 @@ def extract_named_entities(doc: spacy.tokens.doc.Doc,
     return [format_named_entity(e) for e in entities]
 
 
-def extract_nlp(doc: spacy.tokens.doc.Doc,
-                include_lemmas: bool = True,
-                include_adjectives_verbs: bool = True,
-                include_nouns: bool = True,
-                include_noun_phrases: bool = True,
-                include_adject_none_phrases: bool = True,
-                include_entities: bool = True
-                ) -> dict:
+def extract_from_doc(doc: spacy.tokens.doc.Doc,
+                     include_lemmas: bool = True,
+                     include_adjectives_verbs: bool = True,
+                     include_nouns: bool = True,
+                     include_noun_phrases: bool = True,
+                     include_adject_none_phrases: bool = True,
+                     include_entities: bool = True) -> dict:
     """
+    This function extracts common types of tokens from a spaCy doc.
+
     This code is modified from:
         Blueprints for Text Analytics Using Python
         by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
@@ -258,6 +259,6 @@ def extract_nlp(doc: spacy.tokens.doc.Doc,
     if include_adject_none_phrases:
         results['adj_noun_phrases'] = extract_noun_phrases(doc, ['ADJ'])
     if include_entities:
-        results['entities'] = extract_named_entities(doc, ['PERSON', 'ORG', 'GPE', 'LOC'])
+        results['entities'] = extract_named_entities(doc)
 
     return results

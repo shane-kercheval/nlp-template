@@ -3,13 +3,13 @@ import unittest
 import pandas as pd
 import spacy
 from spacy.lang.en import English
+from helpsk.utility import redirect_stdout_to_file
 
 from source.library.space_language import CustomEnglish
-from source.library.spacy import create_spacy_pipeline
 from source.library.spacy import doc_to_dataframe, custom_tokenizer, extract_lemmas, extract_noun_phrases, \
-    extract_named_entities, extract_nlp
+    extract_named_entities, create_spacy_pipeline, extract_from_doc
 from source.library.text_preparation import clean, predict_language
-from source.tests.helpers import get_test_file_path
+from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 
 
 class TestTextPreparation(unittest.TestCase):
@@ -90,6 +90,39 @@ class TestTextPreparation(unittest.TestCase):
         self.assertTrue(default_df.query("text == 'dear'").is_stop.iloc[0])
         self.assertTrue(default_df.query("text == 'regards'").is_stop.iloc[0])
 
+    def test_extract_lemmas(self):
+        text = self.reddit['post'].iloc[2]
+        doc = create_spacy_pipeline()(text)
+        lemmas = extract_lemmas(doc)
+        dataframe_to_text_file(pd.DataFrame(lemmas),
+                               get_test_file_path('text_preparation/extract_lemmas.txt'))
+
+    def test_extract_noun_phrases(self):
+        text = self.reddit['post'].iloc[2]
+        doc = create_spacy_pipeline()(text)
+        phrases = extract_noun_phrases(doc)
+        dataframe_to_text_file(pd.DataFrame(phrases),
+                               get_test_file_path('text_preparation/extract_noun_phrases.txt'))
+
+    def test_extract_named_entities(self):
+        text = self.reddit['post'].iloc[2]
+        doc = create_spacy_pipeline()(text)
+        phrases = extract_named_entities(doc)
+        dataframe_to_text_file(pd.DataFrame(phrases),
+                               get_test_file_path('text_preparation/extract_named_entities.txt'))
+
+    def test_extract_from_doc(self):
+        text = self.reddit['post'].iloc[2]
+        doc = create_spacy_pipeline()(text)
+        entities = extract_from_doc(doc)
+        with open(get_test_file_path('text_preparation/extract_from_doc.txt'), 'w') as handle:
+            for key, values in entities.items():
+                handle.writelines(key + "\n")
+                handle.writelines(str(values) + "\n")
+
+
+
+
     def test__asdf(self):
 
         text = self.reddit['post'].iloc[2]
@@ -137,7 +170,7 @@ class TestTextPreparation(unittest.TestCase):
         for ent in ents:
             print(ent, end="|")
 
-        extract_nlp(doc)
+        extract_from_doc(doc)
 
         import fasttext
 

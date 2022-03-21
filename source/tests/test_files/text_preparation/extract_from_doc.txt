@@ -1,0 +1,12 @@
+lemmas
+['1999', 'amg', 'c43', '107k', 'mile', '<', '>', 'mechanic', 'instal', 'new', 'starter', 'motor', 'january', '2016', 'start', 'die', 'take', 'today', 'say', 'starter', 'motor', 'require', 'grease', 'year', 'fail', 'recognize', 'year', 'say', 'january', 'instal', 'legit', 'find', 'new', 'mechanic', 'pretty', 'good', 'lifespan', 'car', 'start', 'wonder']
+adjs_verbs
+['instal', 'new', 'starter', 'start', 'die', 'take', 'say', 'starter', 'require', 'fail', 'recognize', 'say', 'instal', 'find', 'new', 'good', 'start', 'wonder']
+nouns
+['amg', 'c43', '107k', 'mile', 'mechanic', 'motor', 'january', 'today', 'motor', 'grease', 'year', 'year', 'january', 'legit', 'mechanic', 'lifespan', 'car']
+noun_phrases
+['mechanic instal', 'starter motor', 'starter motor', 'motor require', 'require grease', 'new mechanic']
+adj_noun_phrases
+['mechanic instal', 'starter motor', 'starter motor', 'motor require', 'new mechanic']
+entities
+['1999 (DATE)', '107k mile (QUANTITY)', 'january 2016 (DATE)', 'today (DATE)', 'less than a year (DATE)', 'january (DATE)']
