@@ -131,7 +131,7 @@ class TestTextPreparation(unittest.TestCase):
             "I don't like version 2.0 of Chat4you 😡👎",  # English
             "Ich mag Version 2.0 von Chat4you nicht 😡👎",  # German
             "Мне не нравится версия 2.0 Chat4you 😡👎",  # Russian
-            "Não gosto da versão 2.0 do Chat4you 😡👎",  # Portugese
+            "Não gosto da versão 2.0 do Chat4you 😡👎",  # Portuguese
             "मुझे Chat4you का संस्करण 2.0 पसंद नहीं है 😡👎"]  # Hindi
         language_text_df = pd.Series(language_text, name='text').to_frame()
 
