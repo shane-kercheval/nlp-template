@@ -1,14 +1,13 @@
-import os
 import unittest
 
+import fasttext
 import pandas as pd
 import spacy
 from spacy.lang.en import English
-import fasttext
 
-from source.library.space_language import CustomEnglish
 from source.library.spacy import doc_to_dataframe, custom_tokenizer, extract_lemmas, extract_noun_phrases, \
     extract_named_entities, create_spacy_pipeline, extract_from_doc
+from source.library.spacy_language_example import CustomEnglish
 from source.library.text_preparation import clean, predict_language
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 
