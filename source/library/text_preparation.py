@@ -23,6 +23,12 @@ def clean(text: str,
     """
     Applies various functions and regex patterns to clean the string.
 
+    This function is modified from:
+        Blueprints for Text Analytics Using Python
+        by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
+        (O'Reilly, 2021), 978-1-492-07408-3.
+        https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch04/Data_Preparation.ipynb
+
     Args:
         text:
             text to clean
@@ -47,11 +53,6 @@ def clean(text: str,
         replace_emoji:
             If `replace_emoji` contains a string then emoji are replaced with that string value,
             (default is "_EMOJI_"); if None, then emoji are left as is.
-
-    Blueprints for Text Analytics Using Python
-        by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
-        (O'Reilly, 2021), 978-1-492-07408-3.
-        https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch04/Data_Preparation.ipynb
     """
     # convert html escapes like &amp; to characters.
     text = html.unescape(text)
@@ -102,10 +103,31 @@ def clean(text: str,
     return text.strip()
 
 
-def predict_language(text,
+def predict_language(text: str,
                      probability_threshold: float = 0.6,
                      model_path: str = "../../lid.176.ftz",
-                     model: 'fasttext' = None):
+                     model: 'fasttext' = None) -> str:
+    """
+    This functino is a wrapper around fasttext's language prediction model. It will return the most probable
+    language predicted by the model if the probabily is higher than `probability_threshold`.
+
+    This function is modified from:
+        Blueprints for Text Analytics Using Python
+        by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
+        (O'Reilly, 2021), 978-1-492-07408-3.
+        https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch04/Data_Preparation.ipynb
+
+    Args:
+        text:
+            the text to predict the language of
+        probability_threshold:
+            the minimum probability to return the language. If the probability returned by the model is lower
+            than the threshold, np.nan is returned.
+        model_path:
+            the path of the fasttext model; if provided, the model is loaded based on the path.
+        model:
+            you can pass in the model directory to avoid loading each time the function is called.
+    """
     # fasttext requires single line input
     text = text.replace('\n', ' ')
     if model is None:
