@@ -1,9 +1,10 @@
+import os
 import unittest
 
 import pandas as pd
 import spacy
 from spacy.lang.en import English
-from helpsk.utility import redirect_stdout_to_file
+import fasttext
 
 from source.library.space_language import CustomEnglish
 from source.library.spacy import doc_to_dataframe, custom_tokenizer, extract_lemmas, extract_noun_phrases, \
@@ -120,10 +121,33 @@ class TestTextPreparation(unittest.TestCase):
                 handle.writelines(key + "\n")
                 handle.writelines(str(values) + "\n")
 
+    def test_predict_language(self):
+        model = fasttext.load_model("../resources/lid.176.ftz")
+        self.assertEqual(predict_language('This is english.', model=model, return_language_code=False),
+                         "English")
+        self.assertEqual(predict_language('This is english.', model=model, return_language_code=True),
+                         "en")
+
+        language_text = [
+            "I don't like version 2.0 of Chat4you 😡👎",  # English
+            "Ich mag Version 2.0 von Chat4you nicht 😡👎",  # German
+            "Мне не нравится версия 2.0 Chat4you 😡👎",  # Russian
+            "Não gosto da versão 2.0 do Chat4you 😡👎",  # Portugese
+            "मुझे Chat4you का संस्करण 2.0 पसंद नहीं है 😡👎"]  # Hindi
+        language_text_df = pd.Series(language_text, name='text').to_frame()
+
+        # create new column
+        language_text_df['language'] = language_text_df['text'].apply(predict_language, model=model)
+        language_text_df['language_code'] = language_text_df['text'].apply(
+            predict_language,
+            model=model,
+            return_language_code=True
+        )
+        dataframe_to_text_file(language_text_df,
+                               get_test_file_path('text_preparation/predict_language.txt'))
 
 
-
-    def test__asdf(self):
+def test__asdf(self):
 
         text = self.reddit['post'].iloc[2]
         text = clean(text=text)
@@ -172,38 +196,8 @@ class TestTextPreparation(unittest.TestCase):
 
         extract_from_doc(doc)
 
-        import fasttext
-
         import os
         os.getcwd()
-        lang_model = fasttext.load_model("../../lid.176.ftz")
-
-
-        # make a prediction
-        print(lang_model.predict('Good morning', 3))
-
-
-        predict_language(text)
-
-        langauge_text = [
-            "I don't like version 2.0 of Chat4you 😡👎",  # English
-            "Ich mag Version 2.0 von Chat4you nicht 😡👎",  # German
-            "Мне не нравится версия 2.0 Chat4you 😡👎",  # Russian
-            "Não gosto da versão 2.0 do Chat4you 😡👎",  # Portugese
-            "मुझे Chat4you का संस्करण 2.0 पसंद नहीं है 😡👎"]  # Hindi
-        langauge_text_df = pd.Series(langauge_text, name='text').to_frame()
-
-        # create new column
-        langauge_text_df['lang'] = langauge_text_df['text'].apply(predict_language)
-        langauge_text_df
-
-        lang_df = pd.read_csv('../resources/language_codes.csv')
-        lang_df = lang_df[['name', '639-1', '639-2']].melt(id_vars=['name'], var_name='iso', value_name='code')
-        iso639_languages = lang_df.set_index('code')['name'].to_dict()
-
-        langauge_text_df['lang_name'] = langauge_text_df['lang'].map(iso639_languages)
-        langauge_text_df
-
 
         # Not in book: Normalize tokens with a dict
         token_map = {'U.S.': 'United_States',

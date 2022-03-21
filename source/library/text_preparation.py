@@ -2,6 +2,7 @@ import html
 from typing import Union
 
 import numpy as np
+import pandas as pd
 import regex
 import textacy.preprocessing as prep
 import source.library.regex_patterns as rx
@@ -105,10 +106,11 @@ def clean(text: str,
 
 def predict_language(text: str,
                      probability_threshold: float = 0.6,
-                     model_path: str = "../../lid.176.ftz",
+                     return_language_code: bool = False,
+                     model_path: str = "source/resources/lid.176.ftz",
                      model: 'fasttext' = None) -> str:
     """
-    This functino is a wrapper around fasttext's language prediction model. It will return the most probable
+    This function is a wrapper around fasttext's language prediction model. It will return the most probable
     language predicted by the model if the probabily is higher than `probability_threshold`.
 
     This function is modified from:
@@ -123,6 +125,9 @@ def predict_language(text: str,
         probability_threshold:
             the minimum probability to return the language. If the probability returned by the model is lower
             than the threshold, np.nan is returned.
+        return_language_code:
+            if True: return the language code (e.g. en);
+            If False: return the language name (e.g. English)
         model_path:
             the path of the fasttext model; if provided, the model is loaded based on the path.
         model:
@@ -139,4 +144,11 @@ def predict_language(text: str,
     if score < probability_threshold:
         return np.nan
     else:
-        return language
+        if return_language_code:
+            return language
+        else:
+            lang_df = pd.read_csv('../resources/language_codes.csv')
+            lang_df = lang_df[['name', '639-1', '639-2']].melt(id_vars=['name'], var_name='iso', value_name='code')
+            iso639_languages = lang_df.set_index('code')['name'].to_dict()
+            return iso639_languages[language]
+
