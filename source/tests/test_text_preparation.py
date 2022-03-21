@@ -1,8 +1,11 @@
 import os
 import unittest
+from typing import Union
+from spacy.lang.en import English
 
 import pandas as pd
 
+from source.library.space_language import CustomEnglish
 from source.library.text_preparation import clean, doc_to_dataframe, custom_tokenizer, extract_lemmas, extract_noun_phrases, extract_named_entities, \
     extract_nlp, predict_language
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
@@ -43,6 +46,27 @@ class TestTextPreparation(unittest.TestCase):
 
         with open(get_test_file_path('text_preparation/example_clean.txt'), 'w') as handle:
             handle.writelines([clean(x) + "\n" for x in text_lines])
+
+    def test__custom_english(self):
+        language_default = English()
+        stop_words_default = language_default.Defaults.stop_words
+        self.assertTrue('down' in stop_words_default)
+        language_custom = CustomEnglish()
+        stop_words_custom = language_custom.Defaults.stop_words
+
+        self.assertEqual(stop_words_custom - stop_words_default,
+                         {'dear', 'regards'})
+        self.assertEqual(stop_words_default - stop_words_custom,
+                         {'down'})
+
+        doc = language_custom.make_doc("Hey dear I'd like to go down town. Regards")
+        doc_df = doc_to_dataframe(doc)
+        self.assertFalse(doc_df.query("text == 'down'").is_stop.iloc[0])
+        self.assertTrue(doc_df.query("text == 'dear'").is_stop.iloc[0])
+        self.assertTrue(doc_df.query("text == 'Regards'").is_stop.iloc[0])
+
+
+
 
 
     def test__asdf(self):
@@ -139,3 +163,9 @@ class TestTextPreparation(unittest.TestCase):
         tokens = token_normalizer(tokens)
 
         print(*tokens, sep='|')
+
+
+
+class Temp():
+    temp = 1
+
