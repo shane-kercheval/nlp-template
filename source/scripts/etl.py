@@ -5,6 +5,8 @@ import os
 sys.path.append(os.getcwd())
 from source.library.utilities import get_logger, Timer  # noqa
 from source.library.text_cleaning_simple import prepare, get_n_grams, get_stop_words, tokenize  # noqa
+from source.library.text_preparation import clean, predict_language  # noqa
+from source.library.spacy import create_spacy_pipeline, custom_tokenizer, extract_from_doc, doc_to_dataframe  # noqa
 
 
 @click.group()
@@ -56,13 +58,38 @@ def transform():
     with Timer("Saving processed UN Debate dataset to /artifacts/data/processed/un-general-debates-blueprint.pkl"):
         un_debates.to_pickle('artifacts/data/processed/un-general-debates-blueprint.pkl')
 
-
-    with Timer("Loading Reddit Dataset"):
+    with Timer("Loading Reddit Dataset - Sampling 5K rows."):
         reddit = pd.read_pickle('artifacts/data/raw/reddit.pkl')
+        reddit = reddit.sample(5000, random_state=42)
 
-    #with Timer("Reddit - Processing Text Data"):
-        
+    with Timer("Reddit - Cleaning Data"):
+        reddit['post_clean'] = reddit['post'].apply(clean,
+                                                    remove_bracket_content=False)
     assert not reddit.isna().any().any()
+    with Timer("Reddit - Tokenizing & Extracting"):
+        nlp = create_spacy_pipeline(stopwords_to_add={'dear', 'regards'},
+                                    stopwords_to_remove={'down'},
+                                    tokenizer=custom_tokenizer)
+
+        nlp_columns = list(extract_from_doc(nlp.make_doc('')).keys())
+        for col in nlp_columns:
+            reddit[col] = None
+
+        batch_size = 50
+        for i in range(0, len(reddit), batch_size):
+            docs = nlp.pipe(reddit['post_clean'][i:i + batch_size])
+            for j, doc in enumerate(docs):
+                for col, values in extract_from_doc(doc).items():
+                    reddit[col].iloc[i + j] = values
+
+    assert not reddit.isna().any().any()
+
+    import fasttext
+    language_model = fasttext.load_model("source/resources/lid.176.ftz")
+    with Timer("Reddit - Predicting Language"):
+        reddit['language'] = reddit['post'].apply(predict_language, model=language_model)
+        logger.info(f"Language was not able to be determined on {reddit['language'].isna().sum()} records.")
+
     with Timer("Saving processed Reddit dataset to /artifacts/data/processed/reddit.pkl"):
         reddit.to_pickle('artifacts/data/processed/reddit.pkl')
 
