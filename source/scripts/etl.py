@@ -2,13 +2,11 @@ import click
 import pandas as pd
 import sys
 import os
-
 sys.path.append(os.getcwd())
-from source.library.text_analysis import impurity  # noqa
+from source.library.utilities import get_logger, Timer  # noqa
 from source.library.text_cleaning_simple import prepare, get_n_grams, get_stop_words, tokenize  # noqa
 from source.library.text_preparation import clean, predict_language  # noqa
 from source.library.spacy import create_spacy_pipeline, custom_tokenizer, extract_from_doc, doc_to_dataframe  # noqa
-from source.library.utilities import get_logger, Timer  # noqa
 
 
 @click.group()
@@ -65,7 +63,7 @@ def transform():
         reddit = reddit.sample(5000, random_state=42)
 
     with Timer("Loading Reddit Dataset - Calculating Impurity"):
-        reddit['impurity'] = reddit['text'].apply(impurity)
+        reddit['impurity'] = reddit['post'].apply(impurity)
 
     with Timer("Reddit - Cleaning Data"):
         reddit['post_clean'] = reddit['post'].apply(clean,
