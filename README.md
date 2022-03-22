@@ -108,9 +108,6 @@ jupyter notebook
 │       ├── processed/         <- The final, canonical data sets for modeling. (This directory is excluded via .gitignore)
 │       ├── raw/               <- The original, immutable data dump. (This directory is excluded via .gitignore)
 │   ├── models/                <- Trained model objects (TMOs), model predictions, and/or model summaries
-│       ├── archive/           <- Folder that contains old models.
-│       ├── current/           <- The current model being used by the project.
-│       ├── experiments/       <- Contains experimentss and experiments output (e.g. yaml/html showing performance of experiments.)
 │
 ├── source/                    <- All source-code (e.g. SQL, python scripts, notebooks, unit-tests, etc.)
 │   ├── config/                <- Directory for yaml configuration files for model training, scoring, etc
