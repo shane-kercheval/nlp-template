@@ -1,13 +1,13 @@
 import unittest
 
 import fasttext
+import numpy as np
 import pandas as pd
 import spacy
 from spacy.lang.en import English
 
 from source.library.spacy import doc_to_dataframe, custom_tokenizer, extract_lemmas, extract_noun_phrases, \
     extract_named_entities, create_spacy_pipeline, extract_from_doc
-from source.library.spacy_language_example import CustomEnglish
 from source.library.text_preparation import clean, predict_language
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 
@@ -47,29 +47,15 @@ class TestTextPreparation(unittest.TestCase):
         with open(get_test_file_path('text_preparation/example_clean.txt'), 'w') as handle:
             handle.writelines([clean(x) + "\n" for x in text_lines])
 
-    def test__custom_english(self):
-        language_default = English()
-        stop_words_default = language_default.Defaults.stop_words
-        self.assertTrue('down' in stop_words_default)
-        language_custom = CustomEnglish()
-        stop_words_custom = language_custom.Defaults.stop_words
-
-        self.assertEqual(stop_words_custom - stop_words_default,
-                         {'dear', 'regards'})
-        self.assertEqual(stop_words_default - stop_words_custom,
-                         {'down'})
-
-        doc = language_custom.make_doc("Hey dear I'd like to go down town. Regards")
-        doc_df = doc_to_dataframe(doc)
-        self.assertFalse(doc_df.query("text == 'down'").is_stop.iloc[0])
-        self.assertTrue(doc_df.query("text == 'dear'").is_stop.iloc[0])
-        self.assertTrue(doc_df.query("text == 'Regards'").is_stop.iloc[0])
-
     def test__create_spacy_pipeline(self):
         text = "This: _is_ _some_ #text down dear regards."
+
         nlp = create_spacy_pipeline()
         self.assertIsInstance(nlp, spacy.lang.en.English)
-        doc = nlp.make_doc(text)
+        # if we do nlp() rather than make_doc, we should still get lemmas/etc.
+        doc = nlp(text)
+        df = doc_to_dataframe(doc)
+        self.assertFalse(df.drop(columns=['ent_type_', 'ent_iob_']).replace('', np.nan).isna().any().any())
         default_tokens = [str(x) for x in doc]
         self.assertEqual(default_tokens,
                          ['This', ':', '_', 'is', '_', '_', 'some', '_', '#', 'text', 'down', 'dear', 'regards', '.'])
@@ -77,11 +63,17 @@ class TestTextPreparation(unittest.TestCase):
         self.assertTrue(default_df.query("text == 'down'").is_stop.iloc[0])
         self.assertFalse(default_df.query("text == 'dear'").is_stop.iloc[0])
         self.assertFalse(default_df.query("text == 'regards'").is_stop.iloc[0])
+        self.assertTrue((default_df['pos_'] == 'PUNCT').any())
+        self.assertFalse((doc_to_dataframe(doc, include_punctuation=False)['pos_'] == 'PUNCT').any())
 
-        nlp = create_spacy_pipeline(language=CustomEnglish,
+        nlp = create_spacy_pipeline(stopwords_to_add={'dear', 'regards'},
+                                    stopwords_to_remove={'down'},
                                     tokenizer=custom_tokenizer)
-        self.assertIsInstance(nlp, CustomEnglish)
-        doc = nlp.make_doc(text)
+        self.assertIsInstance(nlp, spacy.lang.en.English)
+        # if we do nlp() rather than make_doc, we should still get lemmas/etc.
+        doc = nlp(text)
+        df = doc_to_dataframe(doc)
+        self.assertFalse(df.drop(columns=['ent_type_', 'ent_iob_']).replace('', np.nan).isna().any().any())
         custom_tokens = [str(x) for x in doc]
         self.assertEqual(custom_tokens,
                          ['This', ':', '_is_', '_some_', '#text', 'down', 'dear', 'regards', '.'])
@@ -89,6 +81,7 @@ class TestTextPreparation(unittest.TestCase):
         self.assertFalse(default_df.query("text == 'down'").is_stop.iloc[0])
         self.assertTrue(default_df.query("text == 'dear'").is_stop.iloc[0])
         self.assertTrue(default_df.query("text == 'regards'").is_stop.iloc[0])
+        self.assertTrue((default_df['pos_'] == 'PUNCT').any())
 
     def test_extract_lemmas(self):
         text = self.reddit['post'].iloc[2]

@@ -10,7 +10,9 @@ from spacy.tokenizer import Tokenizer
 from spacy.util import compile_prefix_regex, compile_infix_regex, compile_suffix_regex
 
 
-def create_spacy_pipeline(language=None, tokenizer: Callable = None) -> Language:
+def create_spacy_pipeline(stopwords_to_add: Union[set[str], None] = None,
+                          stopwords_to_remove: Union[set[str], None] = None,
+                          tokenizer: Callable = None) -> Language:
     """
     This code creates a spacy pipeline.
     
@@ -21,14 +23,23 @@ def create_spacy_pipeline(language=None, tokenizer: Callable = None) -> Language
         https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch04/Data_Preparation.ipynb
 
     Args:
-        language: a spaCy language (e.g. see spacy_language.py)
+        stopwords_to_add: words to add to the default set of stopwords
+        stopwords_to_remove: words to remove from the default set of stopwords
         tokenizer: a custom tokenizer function
     :return:
     """
-    if language is None:
-        nlp = spacy.load('en_core_web_sm', disable=[])
-    else:
-        nlp = language()
+    nlp = spacy.load('en_core_web_sm')
+
+    # https://machinelearningknowledge.ai/tutorial-for-stopwords-in-spacy/#i_Stopwords_List_in_Spacy
+    if stopwords_to_add is not None:
+        if isinstance(stopwords_to_add, list):
+            stopwords_to_add = set(stopwords_to_add)
+        nlp.Defaults.stop_words |= stopwords_to_add
+
+    if stopwords_to_remove is not None:
+        if isinstance(stopwords_to_remove, list):
+            stopwords_to_remove = set(stopwords_to_remove)
+        nlp.Defaults.stop_words -= stopwords_to_remove
 
     if tokenizer is not None:
         nlp.tokenizer = tokenizer(nlp)
