@@ -7,7 +7,7 @@ import spacy
 from spacy.lang.en import English
 
 from source.library.spacy import doc_to_dataframe, custom_tokenizer, extract_lemmas, extract_noun_phrases, \
-    extract_named_entities, create_spacy_pipeline, extract_from_doc
+    extract_named_entities, create_spacy_pipeline, extract_from_doc, get_stopwords, extract_n_grams
 from source.library.text_preparation import clean, predict_language
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 
@@ -46,6 +46,10 @@ class TestTextPreparation(unittest.TestCase):
 
         with open(get_test_file_path('text_preparation/example_clean.txt'), 'w') as handle:
             handle.writelines([clean(x) + "\n" for x in text_lines])
+
+    def test__get_stopwords(self):
+        stopwords = get_stopwords()
+        self.assertTrue(len(stopwords) > 300)
 
     def test__create_spacy_pipeline(self):
         text = "This: _is_ _some_ #text down dear regards."
@@ -103,6 +107,13 @@ class TestTextPreparation(unittest.TestCase):
         phrases = extract_named_entities(doc)
         dataframe_to_text_file(pd.DataFrame(phrases),
                                get_test_file_path('text_preparation/extract_named_entities.txt'))
+
+    def test_extract_bi_grams(self):
+        text = self.reddit['post'].iloc[2]
+        doc = create_spacy_pipeline()(text)
+        grams = extract_n_grams(doc)
+        dataframe_to_text_file(pd.DataFrame(grams),
+                               get_test_file_path('text_preparation/extract_bi_grams.txt'))
 
     def test_extract_from_doc(self):
         text = self.reddit['post'].iloc[2]

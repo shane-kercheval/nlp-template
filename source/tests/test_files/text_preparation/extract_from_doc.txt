@@ -1,5 +1,7 @@
 lemmas
 ['1999', 'amg', 'c43', '107k', 'mile', '<', '>', 'mechanic', 'instal', 'new', 'starter', 'motor', 'january', '2016', 'start', 'die', 'take', 'today', 'say', 'starter', 'motor', 'require', 'grease', 'year', 'fail', 'recognize', 'year', 'say', 'january', 'instal', 'legit', 'find', 'new', 'mechanic', 'pretty', 'good', 'lifespan', 'car', 'start', 'wonder']
+bi_grams
+['1999 amg', 'amg c43', 'c43 107k', '107k mile', 'mile <', '< lb', 'lb >', 'mechanic instal', 'new starter', 'starter motor', 'january 2016', 'starter motor', 'motor require', 'require grease', 'new mechanic', 'pretty good']
 adjs_verbs
 ['instal', 'new', 'starter', 'start', 'die', 'take', 'say', 'starter', 'require', 'fail', 'recognize', 'say', 'instal', 'find', 'new', 'good', 'start', 'wonder']
 nouns

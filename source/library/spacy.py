@@ -10,6 +10,18 @@ from spacy.tokenizer import Tokenizer
 from spacy.util import compile_prefix_regex, compile_infix_regex, compile_suffix_regex
 
 
+def get_stopwords(nlp: Union[Language, None] = None):
+    """This function doesn't seem to work as expected. If an nlp is created via `spacy.load('en_core_web_sm')`
+     and then nlp.Defaults.stop_words is modified, `spacy.load('en_core_web_sm').Defaults.stop_words` will
+     still have those modifications. I.e the modifications seem global, so passing None to nlp in this
+     function will still contain those modifications and will not return the original list.
+    is"""
+    if nlp is None:
+        nlp = spacy.load('en_core_web_sm')
+
+    return nlp.Defaults.stop_words
+
+
 def create_spacy_pipeline(stopwords_to_add: Union[set[str], None] = None,
                           stopwords_to_remove: Union[set[str], None] = None,
                           tokenizer: Callable = None) -> Language:
@@ -144,6 +156,51 @@ def extract_lemmas(doc: spacy.tokens.doc.Doc,
     return [t.lemma_ for t in words]
 
 
+def extract_n_grams(doc: spacy.tokens.doc.Doc,
+                    n=2,
+                    sep: str = ' ',
+                    to_lower: bool = True,
+                    exclude_stopwords: bool = True,
+                    exclude_punctuation: bool = True,
+                    exclude_numbers: bool = False,
+                    include_part_of_speech: Union[List[str], None] = None,
+                    exclude_part_of_speech: Union[List[str], None] = None,
+                    ):
+    """
+    This function extracts n_grams from the `doc`.
+
+    Note that exclude_punctuation and exclude_numbers does not seem to work; punctuation and numbers are being
+    returned.
+
+
+    Args:
+        doc: the doc to extract from
+        n: the number of grams to return
+        sep: the string that will separate the n grams.
+        to_lower: if True, call `lower()` on the lemma
+        exclude_stopwords: if True, exclude stopwords
+        exclude_punctuation: if True, exclude punctuation
+        exclude_numbers: if True, exclude numbers
+        include_part_of_speech:  e.g. ['ADJ', 'NOUN']
+        exclude_part_of_speech: e.g. ['ADJ', 'NOUN']
+    """
+
+    spans = textacy.extract.basics.ngrams(  # noqa
+        doc,
+        n=n,
+        filter_stops=exclude_stopwords,
+        filter_punct=exclude_punctuation,
+        filter_nums=exclude_numbers,
+        include_pos=include_part_of_speech,
+        exclude_pos=exclude_part_of_speech,
+    )
+
+    if to_lower:
+        return [sep.join([t.lemma_.lower() for t in s]) for s in spans]
+
+    return [sep.join([t.lemma_ for t in s]) for s in spans]
+
+
 def extract_noun_phrases(doc: spacy.tokens.doc.Doc,
                          preceding_part_of_speech: Union[List[str], None] = None,
                          subsequent_part_of_speech: Union[List[str], None] = None,
@@ -204,16 +261,11 @@ def extract_named_entities(doc: spacy.tokens.doc.Doc,
         https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch04/Data_Preparation.ipynb
 
     Args:
-        doc:
-            the doc to extract from
-        include_types: 
-            Part of Speech to filter to include.
-        sep:
-            the separator to join the lemmas on.
-        include_label:
-            if True, include the type (i.e. label) of the named entity.
-        to_lower:
-            if True, call `lower()` on the lemma
+        doc: the doc to extract from
+        include_types:  Part of Speech to filter to include.
+        sep: the separator to join the lemmas on.
+        include_label: if True, include the type (i.e. label) of the named entity.
+        to_lower: if True, call `lower()` on the lemma
     """
     entities = textacy.extract.entities(  # noqa
         doc,
@@ -238,12 +290,13 @@ def extract_named_entities(doc: spacy.tokens.doc.Doc,
 
 
 def extract_from_doc(doc: spacy.tokens.doc.Doc,
-                     include_lemmas: bool = True,
-                     include_adjectives_verbs: bool = True,
-                     include_nouns: bool = True,
-                     include_noun_phrases: bool = True,
-                     include_adject_none_phrases: bool = True,
-                     include_entities: bool = True) -> dict:
+                     lemmas: bool = True,
+                     bi_grams: bool = True,
+                     adjectives_verbs: bool = True,
+                     nouns: bool = True,
+                     noun_phrases: bool = True,
+                     adjective_none_phrases: bool = True,
+                     named_entities: bool = True) -> dict:
     """
     This function extracts common types of tokens from a spaCy doc.
 
@@ -253,23 +306,34 @@ def extract_from_doc(doc: spacy.tokens.doc.Doc,
         (O'Reilly, 2021), 978-1-492-07408-3.
         https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch04/Data_Preparation.ipynb
 
+    Args:
+        doc: the doc to extract from
+        lemmas: if True, return lemmas
+        bi_grams: if True, return bi_grams
+        adjectives_verbs: if True, return adjectives_verbs
+        nouns: if True, return nouns
+        noun_phrases: if True, return noun_phrases
+        adjective_none_phrases: if True, return adjective_none_phrases
+        named_entities: if True, return named_entities
     """
     results = dict()
-    if include_lemmas:
+    if lemmas:
         results['lemmas'] = extract_lemmas(
             doc,
             exclude_part_of_speech=['PART', 'PUNCT', 'DET', 'PRON', 'SYM', 'SPACE'],
             exclude_stopwords=True
         )
-    if include_adjectives_verbs:
+    if bi_grams:
+        results['bi_grams'] = extract_n_grams(doc, n=2)
+    if adjectives_verbs:
         results['adjs_verbs'] = extract_lemmas(doc, include_part_of_speech=['ADJ', 'VERB'])
-    if include_nouns:
+    if nouns:
         results['nouns'] = extract_lemmas(doc, include_part_of_speech=['NOUN', 'PROPN'])
-    if include_noun_phrases:
+    if noun_phrases:
         results['noun_phrases'] = extract_noun_phrases(doc)
-    if include_adject_none_phrases:
+    if adjective_none_phrases:
         results['adj_noun_phrases'] = extract_noun_phrases(doc, ['ADJ'])
-    if include_entities:
+    if named_entities:
         results['entities'] = extract_named_entities(doc)
 
     return results
