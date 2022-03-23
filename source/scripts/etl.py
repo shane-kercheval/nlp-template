@@ -87,6 +87,9 @@ def transform():
                 for col, values in extract_from_doc(doc).items():
                     reddit[col].iloc[i + j] = values
 
+        reddit['post_length'] = reddit['post'].str.len()
+        reddit['num_tokens'] = reddit['lemmas'].map(len)
+
     assert not reddit.isna().any().any()
 
     import fasttext
