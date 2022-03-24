@@ -11,7 +11,8 @@ import source.library.regex_patterns as rx
 
 def count_tokens(tokens: Union[pd.Series, List[list], List[str]],
                  min_frequency: int = 2,  # noqa
-                 count_once_per_doc: bool = False) -> pd.DataFrame:
+                 count_once_per_doc: bool = False,
+                 remove_tokens: Union[Set[str], None] = None) -> pd.DataFrame:
     """
     Counts tokens, returns the results as a DataFrame with 'token' and 'frequency' columns.
 
@@ -31,6 +32,8 @@ def count_tokens(tokens: Union[pd.Series, List[list], List[str]],
             The minimum times the token has to appear in order to be returned
         count_once_per_doc:
             If True, counts each token once per document. This is synonymous with 'Document Frequency'.
+        remove_tokens:
+            remove the set of tokens from the results.
 
             e.g. True:
                 [['a', 'b', 'b'], ['b', 'c', 'c']]
@@ -69,6 +72,11 @@ def count_tokens(tokens: Union[pd.Series, List[list], List[str]],
     freq_df = pd.DataFrame.from_dict(counter, orient='index', columns=['frequency'])
     freq_df = freq_df.query('frequency >= @min_frequency')
     freq_df.index.name = 'token'
+
+    if remove_tokens is not None:
+        if isinstance(remove_tokens, str):
+            remove_tokens = {remove_tokens}
+        freq_df = freq_df[~freq_df.index.isin(remove_tokens)]
     
     return freq_df.sort_values('frequency', ascending=False)
 
@@ -124,7 +132,8 @@ def count_text_patterns(documents: Union[pd.Series, List[str], str],
 def term_frequency(df: pd.DataFrame,
                    tokens_column: str = None,
                    segment_columns: Union[str, List[str]] = None,
-                   min_frequency: int = 2) -> pd.DataFrame:
+                   min_frequency: int = 2,
+                   remove_tokens: Union[Set[str], None] = None) -> pd.DataFrame:
     """
     This function is similar to `count_tokens()`, but calculates term-frequency across different
     segments/slices.
@@ -138,11 +147,14 @@ def term_frequency(df: pd.DataFrame,
             the name(s) of the column(s) to segment term-frequencies by. Either a string or a list of strings.
         min_frequency:
             The minimum times the token has to appear in order to be returned
+        remove_tokens:
+            remove the set of tokens from the results.
     """
     if segment_columns is None:
-        term_freq = count_tokens(df[tokens_column], min_frequency=min_frequency)
+        term_freq = count_tokens(df[tokens_column], min_frequency=min_frequency, remove_tokens=remove_tokens)
     else:
-        term_freq = df.groupby(segment_columns)[tokens_column].apply(count_tokens, min_frequency=min_frequency)
+        term_freq = df.groupby(segment_columns)[tokens_column].\
+            apply(count_tokens, min_frequency=min_frequency, remove_tokens=remove_tokens)
 
     return term_freq
 
@@ -185,6 +197,7 @@ def tf_idf(df: pd.DataFrame,
            segment_columns: Union[str, List[str]] = None,
            min_frequency_document: int = 1,
            min_frequency_corpus: int = 2,
+           remove_tokens: Union[Set[str], None] = None,
            constant: float = 0.1) -> pd.DataFrame:
     """
     This function returns the term-frequency inverse-document-frequency values for a given set of documents,
@@ -201,6 +214,8 @@ def tf_idf(df: pd.DataFrame,
             The minimum times the token has to appear in the document in order to be returned
         min_frequency_corpus:
             The minimum times the token has to appear in the corpus (across all docs) in order to be returned
+        remove_tokens:
+            remove the set of tokens from the results.
         constant:
             "Note that idf(t)=0 for terms that appear in all documents. To not completely ignore those term,
             some libraries add a constant to the whole term." - Blueprints for Text Analytics Using Python,
@@ -213,7 +228,8 @@ def tf_idf(df: pd.DataFrame,
         df=df,
         tokens_column=tokens_column,
         min_frequency=min_frequency_document,
-        segment_columns=segment_columns
+        segment_columns=segment_columns,
+        remove_tokens=remove_tokens
     )
     inverse_doc_freq = inverse_document_frequency(
         documents=df[tokens_column],
@@ -236,6 +252,7 @@ def tf_idf(df: pd.DataFrame,
     sort_by += ['tf-idf', 'token']
     ascending += [False, True]
     result.sort_values(ascending=ascending, by=sort_by, inplace=True)
+
     return result
 
 

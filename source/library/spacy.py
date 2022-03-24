@@ -295,7 +295,6 @@ def extract_from_doc(doc: spacy.tokens.doc.Doc,
                      adjectives_verbs: bool = True,
                      nouns: bool = True,
                      noun_phrases: bool = True,
-                     adjective_none_phrases: bool = True,
                      named_entities: bool = True) -> dict:
     """
     This function extracts common types of tokens from a spaCy doc.
@@ -313,7 +312,6 @@ def extract_from_doc(doc: spacy.tokens.doc.Doc,
         adjectives_verbs: if True, return adjectives_verbs
         nouns: if True, return nouns
         noun_phrases: if True, return noun_phrases
-        adjective_none_phrases: if True, return adjective_none_phrases
         named_entities: if True, return named_entities
     """
     results = dict()
@@ -331,8 +329,8 @@ def extract_from_doc(doc: spacy.tokens.doc.Doc,
         results['nouns'] = extract_lemmas(doc, include_part_of_speech=['NOUN', 'PROPN'])
     if noun_phrases:
         results['noun_phrases'] = extract_noun_phrases(doc)
-    if adjective_none_phrases:
-        results['adj_noun_phrases'] = extract_noun_phrases(doc, ['ADJ'])
+    # if adjective_none_phrases:
+    #     results['adj_noun_phrases'] = extract_noun_phrases(doc, ['ADJ'])
     if named_entities:
         results['entities'] = extract_named_entities(doc)
 
