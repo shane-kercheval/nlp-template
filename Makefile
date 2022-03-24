@@ -79,7 +79,7 @@ clean_python:
 	rm -rf .venv
 	find . \( -name __pycache__ \) -prune -exec rm -rf {} +
 	find . \( -name .ipynb_checkpoints \) -prune -exec rm -rf {} +
-	rm -rm source/resources/lid.176.ftz
+	rm -rf source/resources/lid.176.ftz
 
 environment_python:
 ifneq ($(wildcard .venv/.*),)
