@@ -103,7 +103,7 @@ else
 	. .venv/bin/activate && brew install libomp
 
 	@echo $(call FORMAT_MESSAGE,"environment_python","Installing NLTK (https://www.nltk.org) corpora packages which will create a folder in your home directory 'nltk_data/corpora'.")
-	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/executables/nltk_download.py
+	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/scripts/nltk_download.py
 
 	@echo $(call FORMAT_MESSAGE,"environment_python","Installing spaCy - https://spacy.io/usage")
 	. .venv/bin/activate && pip install -U pip setuptools wheel
