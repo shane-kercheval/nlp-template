@@ -99,6 +99,7 @@ else
 
 	@echo $(call FORMAT_MESSAGE,"environment_python","Installing packages from requirements.txt.")
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) -m pip install --upgrade pip
+	. .venv/bin/activate && pip install -U pip setuptools wheel
 	. .venv/bin/activate && pip install -r requirements.txt
 	. .venv/bin/activate && brew install libomp
 
@@ -106,7 +107,6 @@ else
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/scripts/nltk_download.py
 
 	@echo $(call FORMAT_MESSAGE,"environment_python","Installing spaCy - https://spacy.io/usage")
-	. .venv/bin/activate && pip install -U pip setuptools wheel
 ifeq ($(UNAME_M), $(APPLE_M1))
 	@echo $(call FORMAT_MESSAGE,"environment_python","Installing spaCy for Apple M1")
 	# command if apple m1
