@@ -8,7 +8,5 @@ nouns
 ['amg', 'c43', '107k', 'mile', 'mechanic', 'motor', 'january', 'today', 'motor', 'grease', 'year', 'year', 'january', 'legit', 'mechanic', 'lifespan', 'car']
 noun_phrases
 ['mechanic instal', 'starter motor', 'starter motor', 'motor require', 'require grease', 'new mechanic']
-adj_noun_phrases
-['mechanic instal', 'starter motor', 'starter motor', 'motor require', 'new mechanic']
 entities
 ['1999 (DATE)', '107k mile (QUANTITY)', 'january 2016 (DATE)', 'today (DATE)', 'less than a year (DATE)', 'january (DATE)']
