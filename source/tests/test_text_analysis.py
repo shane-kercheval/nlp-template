@@ -3,10 +3,10 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from source.library.text_cleaning_simple import prepare
 from source.library.text_analysis import count_tokens, term_frequency, \
     inverse_document_frequency, tf_idf, get_context_from_keyword, count_keywords, count_keywords_by, \
     count_text_patterns, impurity
+from source.library.text_cleaning_simple import prepare
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 
 
@@ -68,6 +68,14 @@ class TestTextAnalysis(unittest.TestCase):
         self.assertEqual(count_tokens(example, min_frequency=2, count_once_per_doc=True).to_dict(),
                          {'frequency': {'b': 2}})
 
+        counts = count_tokens(pd.Series([tokens, tokens]),
+                              min_frequency=1,
+                              remove_tokens={'etc'})
+        counts = counts.to_dict()['frequency']
+        self.assertFalse('etc' in counts)
+        self.assertEqual(counts,
+                         {'sentence': 4, 'numbers': 4, 'punctuation': 2, 'also': 2, 'nevermind': 2, 'dumb': 2})
+
     def test__count_text_patterns(self):
         result = count_text_patterns(documents=self.dumb_sentence, pattern=r"\w{5,}")
         self.assertIsInstance(result, pd.DataFrame)
@@ -118,6 +126,17 @@ class TestTextAnalysis(unittest.TestCase):
         dataframe_to_text_file(term_freq,
                                get_test_file_path('text_analysis/term_frequency__un_debates__by_year_country__min_freq_3.txt'))
 
+        self.assertTrue((term_freq.reset_index().token == 'united').sum() > 300)
+        term_freq_remove = term_frequency(df=self.un_debates,
+                                          tokens_column='tokens',
+                                          segment_columns=['year', 'country'],
+                                          min_frequency=20,
+                                          remove_tokens={'united'})
+        self.assertFalse((term_freq_remove.reset_index().token == 'united').any())
+        self.assertFalse(term_freq.index.duplicated().any())
+        self.assertTrue((term_freq['frequency'] >= 20).all())
+        self.assertEqual(term_freq.index[0], (1970, 'AUS', 'nations'))
+
     def test__inverse_document_frequency(self):
         idf = inverse_document_frequency(self.un_debates['tokens'])
         self.assertFalse(idf.index.duplicated().any())
@@ -129,21 +148,45 @@ class TestTextAnalysis(unittest.TestCase):
 
     def test__tf_idf(self):
         tf_idf_df = tf_idf(df=self.un_debates, tokens_column='tokens')
+        self.assertEqual(tf_idf_df.index.name, 'token')
         self.assertFalse(tf_idf_df.isna().any().any())
         dataframe_to_text_file(tf_idf_df,
                                get_test_file_path('text_analysis/tf_idf__un_debates__default.txt'))
 
         tf_idf_df = tf_idf(df=self.un_debates, tokens_column='tokens', segment_columns='year',
                            min_frequency_document=10, min_frequency_corpus=10)
+        self.assertEqual(tf_idf_df.index.names, ['year', 'token'])
         self.assertFalse(tf_idf_df.isna().any().any())
         dataframe_to_text_file(tf_idf_df,
                                get_test_file_path('text_analysis/tf_idf__un_debates__by_year.txt'))
 
         tf_idf_df = tf_idf(df=self.un_debates, tokens_column='tokens', segment_columns=['year', 'country'],
                            min_frequency_document=5, min_frequency_corpus=10)
+        self.assertEqual(tf_idf_df.index.names, ['year', 'country', 'token'])
         self.assertFalse(tf_idf_df.isna().any().any())
         dataframe_to_text_file(tf_idf_df,
                                get_test_file_path('text_analysis/tf_idf__un_debates__by_year_country.txt'))
+
+        self.assertTrue((tf_idf_df.reset_index().token == 'south').any())
+        tf_idf_df = tf_idf(df=self.un_debates, tokens_column='tokens',
+                           remove_tokens={'south'})
+        self.assertFalse((tf_idf_df.reset_index().token == 'south').any())
+
+        self.assertEqual(tf_idf_df.index.name, 'token')
+        self.assertFalse(tf_idf_df.isna().any().any())
+        dataframe_to_text_file(tf_idf_df,
+                               get_test_file_path('text_analysis/tf_idf__un_debates__remove_tokens.txt'))
+
+        tf_idf_df = tf_idf(df=self.un_debates, tokens_column='tokens',
+                           segment_columns=['year', 'country'],
+                           min_frequency_document=5,
+                           min_frequency_corpus=10,
+                           remove_tokens={'south'})
+        self.assertFalse((tf_idf_df.reset_index().token == 'south').any())
+        self.assertEqual(tf_idf_df.index.names, ['year', 'country', 'token'])
+        self.assertFalse(tf_idf_df.isna().any().any())
+        dataframe_to_text_file(tf_idf_df,
+                               get_test_file_path('text_analysis/tf_idf__un_debates__remove_tokens__by_year_country.txt'))
 
     def test__get_context_from_keyword(self):
         context_list = get_context_from_keyword(
