@@ -34,9 +34,14 @@ TBD
 
 
 
+---
 
+NOTE: Including `jinja2==3.0.3` in `requirements.txt` because of 
 
+- https://github.com/microsoft/vscode-jupyter/issues/9468
+- https://github.com/jupyter/nbconvert/issues/1736
 
+---
 
 
 See `Makefile` for additional commands and implicit project DAG.
