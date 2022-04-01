@@ -88,7 +88,7 @@ def transform():
                     reddit[col].iloc[i + j] = values
 
         reddit['post_length'] = reddit['post'].str.len()
-        reddit['num_tokens'] = reddit['lemmas'].map(len)
+        reddit['num_tokens'] = reddit['partial_lemmas'].map(len)
 
     assert not reddit.isna().any().any()
 
