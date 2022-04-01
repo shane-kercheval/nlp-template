@@ -203,6 +203,8 @@ def tf_idf(df: pd.DataFrame,
     This function returns the term-frequency inverse-document-frequency values for a given set of documents,
     or by segment/slice.
 
+    Unlike sci-kit learn TfidfVectorizer, you can calculate tf-idf for different slices/segments.
+
     Args:
         df:
             dataframe with columns of tokens, and optionally a column to slice/segment by.
