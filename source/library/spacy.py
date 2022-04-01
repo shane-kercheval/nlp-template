@@ -290,7 +290,8 @@ def extract_named_entities(doc: spacy.tokens.doc.Doc,
 
 
 def extract_from_doc(doc: spacy.tokens.doc.Doc,
-                     lemmas: bool = True,
+                     all_lemmas: bool = True,
+                     partial_lemmas: bool = True,
                      bi_grams: bool = True,
                      adjectives_verbs: bool = True,
                      nouns: bool = True,
@@ -307,7 +308,10 @@ def extract_from_doc(doc: spacy.tokens.doc.Doc,
 
     Args:
         doc: the doc to extract from
-        lemmas: if True, return lemmas
+        all_lemmas: if True, return all lemmas (lower-case) of every word, also includes punctuation;
+            This is useful if you need to use e.g. scikit-learn TfidfVectorizer and need the raw document.
+            i.e. you can do a `' '.join()` with this data.
+        partial_lemmas: if True, return lemmas (lower-case), excluding stopwords and punctuation
         bi_grams: if True, return bi_grams
         adjectives_verbs: if True, return adjectives_verbs
         nouns: if True, return nouns
@@ -315,8 +319,19 @@ def extract_from_doc(doc: spacy.tokens.doc.Doc,
         named_entities: if True, return named_entities
     """
     results = dict()
-    if lemmas:
-        results['lemmas'] = extract_lemmas(
+    if all_lemmas:
+        results['all_lemmas'] = extract_lemmas(
+            doc,
+            to_lower=True,
+            exclude_stopwords=False,
+            exclude_punctuation=True,
+            exclude_numbers=False,
+            include_part_of_speech=None,
+            exclude_part_of_speech=None,
+            min_frequency=1
+        )
+    if partial_lemmas:
+        results['partial_lemmas'] = extract_lemmas(
             doc,
             exclude_part_of_speech=['PART', 'PUNCT', 'DET', 'PRON', 'SYM', 'SPACE'],
             exclude_stopwords=True
