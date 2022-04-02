@@ -1,5 +1,7 @@
 import numpy
 import pandas as pd
+import plotly_express as px
+from plotly.graph_objs import _figure  # noqa
 
 
 def extract_topic_dictionary(model, features: numpy.ndarray, top_n_tokens: int = 10) -> dict:
@@ -113,25 +115,29 @@ def calculate_topic_sizes(model, dataset) -> numpy.array:
     return topic_totals / topic_predictions.sum()
 
 
-def plot_topics(topics_df):
-    import plotly_express as px
-
+def plot_topics(topics_df,
+                value_column: str = 'value',
+                token_column: str = 'token',
+                topic_label_column: str = 'topic_label',
+                facet_col_wrap: int = 3,
+                facet_col_spacing: float = 0.2,
+                width: int = 900,
+                height: int = 900,
+                title: str = "Topics") -> _figure.Figure:
     fig = px.bar(
         topics_df,
-        x='value',
-        y='tokens',
-        facet_col='label',
-        facet_col_wrap=3,
-        facet_col_spacing=0.2,
+        x=value_column,
+        y=token_column,
+        facet_col=topic_label_column,
+        facet_col_wrap=facet_col_wrap,
+        facet_col_spacing=facet_col_spacing,
         labels={
-            'tokens': '',
-            'label': '',
+            token_column: '',
+            topic_label_column: '',
         },
-        width=900,
-        height=1000,
-        title="Topics in NMF model (Unigrams)"
+        width=width,
+        height=height,
+        title=title,
     )
     fig.update_yaxes(matches=None, showticklabels=True, autorange="reversed")
-    # fig.update_xaxes(matches=None)
-
     return fig

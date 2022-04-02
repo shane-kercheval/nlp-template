@@ -6,7 +6,7 @@ from sklearn.decomposition import NMF, LatentDirichletAllocation
 from spacy.lang.en.stop_words import STOP_WORDS
 
 from source.library.topic_modeling import extract_topic_dictionary, create_topic_labels, \
-    extract_topic_dataframe, calculate_topic_sizes
+    extract_topic_dataframe, calculate_topic_sizes, plot_topics
 from source.tests.helpers import get_test_file_path
 
 
@@ -43,13 +43,11 @@ class TestTextPreparation(unittest.TestCase):
         cls.tfidf_features = tfidf_vectorizer.get_feature_names_out()
 
         nmf_model = NMF(init='nndsvda', n_components=num_topics, random_state=42)
-        nmf_w_matrix = nmf_model.fit_transform(tfidf_vectors)
-        #nmf_h_matrix = nmf_model.components_
+        _ = nmf_model.fit_transform(tfidf_vectors)
         cls.nmf_model = nmf_model
 
         lda_model = LatentDirichletAllocation(n_components=num_topics, random_state=42)
-        lda_w_matrix = lda_model.fit_transform(count_vectors)
-        #lda_h_matrix = lda_model.components_
+        _ = lda_model.fit_transform(count_vectors)
         cls.lda_model = lda_model
 
     def test__extract_topic_dictionary(self):
@@ -155,4 +153,11 @@ class TestTextPreparation(unittest.TestCase):
         self.assertEqual(round(sizes.sum(), 8), 1)
 
     def test__plot_topics(self):
-        pass
+        topics_df = extract_topic_dataframe(
+            model=self.lda_model,
+            features=self.count_features,
+            top_n_tokens=5,
+            num_tokens_in_label=2,
+        )
+        fig = plot_topics(topics_df=topics_df)
+        self.assertIsNotNone(fig)
