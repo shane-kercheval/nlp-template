@@ -22,7 +22,7 @@ class TestTextPreparation(unittest.TestCase):
     def test__clean(self):
         text = "<This> 😩😬 [sentence] [sentence]& a & [link to something](www.hotmail.com) stuff && abc --- -   https://www.google.com/search?q=asdfa; john.doe@gmail.com #remove 445 583.345.7833 @shane"  # noqa
         clean_text = clean(text)
-        expected_text = '_EMOJI_ _EMOJI_ a link to something stuff abc - _URL_ _EMAIL_ _TAG_ _NUMBER_ _PHONE_ _USER_'
+        expected_text = '_EMOJI_ _EMOJI_ a link to something stuff abc - _URL_ _EMAIL_ _TAG_ _NUMBER_ _PHONE_ _USER_'  # noqa
         self.assertEqual(expected_text, clean_text)
 
         clean_text = clean(
@@ -62,7 +62,8 @@ class TestTextPreparation(unittest.TestCase):
         self.assertFalse(df.drop(columns=['ent_type_', 'ent_iob_']).replace('', np.nan).isna().any().any())
         default_tokens = [str(x) for x in doc]
         self.assertEqual(default_tokens,
-                         ['This', ':', '_', 'is', '_', '_', 'some', '_', '#', 'text', 'down', 'dear', 'regards', '.'])
+                         ['This', ':', '_', 'is', '_', '_', 'some', '_',
+                          '#', 'text', 'down', 'dear', 'regards', '.'])
         default_df = doc_to_dataframe(doc, include_punctuation=True)
         self.assertTrue(default_df.query("text == 'down'").is_stop.iloc[0])
         self.assertFalse(default_df.query("text == 'dear'").is_stop.iloc[0])

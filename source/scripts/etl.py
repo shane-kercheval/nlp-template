@@ -1,9 +1,9 @@
-import click
-import pandas as pd
-import sys
 import os
+import sys
 from math import ceil
 
+import click
+import pandas as pd
 import regex
 
 sys.path.append(os.getcwd())
@@ -11,7 +11,7 @@ from source.library.utilities import get_logger, Timer  # noqa
 from source.library.text_analysis import impurity  # noqa
 from source.library.text_cleaning_simple import prepare, get_n_grams, get_stop_words, tokenize  # noqa
 from source.library.text_preparation import clean, predict_language  # noqa
-from source.library.spacy import create_spacy_pipeline, custom_tokenizer, extract_from_doc, doc_to_dataframe, extract_lemmas  # noqa
+from source.library.spacy import create_spacy_pipeline, custom_tokenizer, extract_from_doc  # noqa
 
 
 @click.group()
@@ -26,7 +26,7 @@ def main():
 def extract():
     logger = get_logger()
     logger.info("Extracting Data")
-    with Timer("Loading UN Generate Debate Dataset - Saving to /artifacts/data/raw/un-general-debates-blueprint.pkl"):
+    with Timer("Loading UN Generate Debate Dataset - Saving to /artifacts/data/raw/un-general-debates-blueprint.pkl"):  # noqa
         logger.info("This dataset was copied from https://github.com/blueprints-for-text-analytics-python/blueprints-text/tree/master/data/un-general-debates")  # noqa
         un_debates = pd.read_csv('artifacts/data/external/un-general-debates-blueprint.csv.zip')
         un_debates.to_pickle('artifacts/data/raw/un-general-debates-blueprint.pkl')
@@ -63,7 +63,7 @@ def transform():
         un_debates['num_bi_grams'] = un_debates['bi_grams'].map(len)
 
     assert not un_debates.isna().any().any()
-    with Timer("Saving processed UN Debate dataset to /artifacts/data/processed/un-general-debates-blueprint.pkl"):
+    with Timer("Saving processed UN Debate dataset to /artifacts/data/processed/un-general-debates-blueprint.pkl"):  # noqa
         un_debates.to_pickle('artifacts/data/processed/un-general-debates-blueprint.pkl')
 
     with Timer("Creating UN dataset that is Per Year/Country/Paragraph"):
@@ -72,7 +72,9 @@ def transform():
         un_debates_paragraphs = pd.DataFrame(
             [
                 {"year": year, "country": country, "text": paragraph}
-                for year, country, paragraphs in zip(un_debates["year"], un_debates["country_name"], paragraphs_series)
+                for year, country, paragraphs in zip(un_debates["year"],
+                                                     un_debates["country_name"],
+                                                     paragraphs_series)
                 for paragraph in paragraphs if paragraph
             ]
         )
@@ -112,8 +114,6 @@ def transform():
     #         results = [text_lemmas(x) for x in un_debates_paragraphs['text'][i:i + batch_size]]
     #         for j, result in enumerate(results):
     #             un_debates_paragraphs['clean_text'].iloc[i + j] = result
-
-
 
     with Timer("Saving UN Paragraphs dataset to /artifacts/data/processed/un-general-debates-paragraphs.pkl"):
         un_debates_paragraphs.to_pickle('artifacts/data/processed/un-general-debates-paragraphs.pkl')
