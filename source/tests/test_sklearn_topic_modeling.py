@@ -6,7 +6,7 @@ from sklearn.decomposition import NMF, LatentDirichletAllocation
 from spacy.lang.en.stop_words import STOP_WORDS
 
 from source.library.sklearn_topic_modeling import extract_topic_dictionary, create_topic_labels, \
-    extract_topic_dataframe, calculate_topic_sizes, plot_topics
+    extract_topic_dataframe, calculate_topic_sizes, plot_topics, plot_topic_sizes
 from source.tests.helpers import get_test_file_path
 
 
@@ -153,6 +153,10 @@ class TestSklearnTopicModeling(unittest.TestCase):
         sizes = calculate_topic_sizes(model=self.lda_model, dataset=self.tfidf_vectors)
         self.assertEqual(len(sizes), self.num_topics)
         self.assertEqual(round(sizes.sum(), 8), 1)
+
+    def test__plot_topic_sizes(self):
+        fig = plot_topic_sizes(model=self.nmf_model, dataset=self.count_vectors, features=self.count_features)
+        self.assertIsNotNone(fig)
 
     def test__plot_topics(self):
         fig = plot_topics(

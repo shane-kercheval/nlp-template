@@ -128,7 +128,7 @@ def calculate_topic_sizes(model, dataset) -> numpy.array:
     return topic_totals / topic_predictions.sum()
 
 
-def plot_size_of_topics(model, dataset, features):
+def plot_topic_sizes(model, dataset, features):
     """
     Given a model and a dataset (e.g. output of fit_transform from CountVectorizer or TfidfVectorizer),
     this function plots the relative size of the topics.
@@ -140,7 +140,7 @@ def plot_size_of_topics(model, dataset, features):
             dataset to transform/predict the topics on; e.g. scipy.sparse._csr.csr_matrix
         features:
             a numpy array containing the the features (e.g. tokens/bi-grams that correspond to the fitted
-            model
+            model; This is used to build the labels of the topics.
     """
     topic_sizes = calculate_topic_sizes(model=model, dataset=dataset)
     topic_labels = list(create_topic_labels(model=model, features=features).values())
@@ -201,7 +201,7 @@ def plot_topics(model,
     )
     if title is None:
         title = f"Topics<br><sup>The top {top_n_tokens} tokens are displayed per topic; " \
-                f"the top {num_tokens_in_label} are displayed as the topic name</sup>"
+                f"the top {num_tokens_in_label} tokens are displayed as the topic name</sup>"
     fig = px.bar(
         topics_df,
         x='value',
