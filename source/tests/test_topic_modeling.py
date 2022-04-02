@@ -5,7 +5,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.decomposition import NMF, LatentDirichletAllocation
 from spacy.lang.en.stop_words import STOP_WORDS
 
-from source.library.topic_modeling import extract_topic_dictionary
+from source.library.topic_modeling import extract_topic_dictionary, create_topic_labels, \
+    extract_topic_dataframe, calculate_topic_sizes
 from source.tests.helpers import get_test_file_path
 
 
@@ -28,6 +29,7 @@ class TestTextPreparation(unittest.TestCase):
             max_df=0.7
         )
         count_vectors = count_vectorizer.fit_transform(paragraphs["text"])
+        cls.count_vectors = count_vectors
         cls.count_features = count_vectorizer.get_feature_names_out()
 
         tfidf_vectorizer = TfidfVectorizer(
@@ -37,6 +39,7 @@ class TestTextPreparation(unittest.TestCase):
             max_df=0.7
         )
         tfidf_vectors = tfidf_vectorizer.fit_transform(paragraphs["text"])
+        cls.tfidf_vectors = tfidf_vectors
         cls.tfidf_features = tfidf_vectorizer.get_feature_names_out()
 
         nmf_model = NMF(init='nndsvda', n_components=num_topics, random_state=42)
@@ -92,4 +95,64 @@ class TestTextPreparation(unittest.TestCase):
         # check that all token/value pairs have a float as the second instance
         self.assertTrue(all(flatten([[isinstance(token_tuple[1], float) for token_tuple in token_list] for token_list in topics_dict.values()])))  # noqa
 
+    def test__create_topic_labels(self):
+        topics_dict = extract_topic_dictionary(
+            model=self.nmf_model,
+            features=self.count_features,
+        )
+        labels = create_topic_labels(topic_dictionary=topics_dict, token_separator='|', top_n_tokens=3)
+        self.assertEqual(topics_dict.keys(), labels.keys())
+        self.assertTrue(all([isinstance(x, str) for x in labels.values()]))
+        self.assertTrue(all([len(x.split('|')) == 3 for x in labels.values()]))
 
+        topics_dict = extract_topic_dictionary(
+            model=self.lda_model,
+            features=self.count_features,
+        )
+        labels = create_topic_labels(topic_dictionary=topics_dict, token_separator='|', top_n_tokens=3)
+        self.assertEqual(topics_dict.keys(), labels.keys())
+        self.assertTrue(all([isinstance(x, str) for x in labels.values()]))
+        self.assertTrue(all([len(x.split('|')) == 3 for x in labels.values()]))
+
+    def test__extract_topic_dataframe(self):
+        topics_dict = extract_topic_dictionary(
+            model=self.nmf_model,
+            features=self.count_features,
+        )
+        list(topics_dict.keys())
+
+        top_n_tokens = 7
+        num_tokens_in_label = 3
+        topics_df = extract_topic_dataframe(
+            model=self.nmf_model,
+            features=self.count_features,
+            top_n_tokens=top_n_tokens,
+            num_tokens_in_label=num_tokens_in_label,
+        )
+        self.assertEqual(len(topics_df), self.num_topics * top_n_tokens)
+        self.assertEqual(topics_df['topic'].unique().tolist(), list(topics_dict.keys()))
+        self.assertEqual(topics_df['token_index'].unique().tolist(), list(range(0, top_n_tokens)))
+
+        top_n_tokens = 7
+        num_tokens_in_label = 3
+        topics_df = extract_topic_dataframe(
+            model=self.lda_model,
+            features=self.count_features,
+            top_n_tokens=top_n_tokens,
+            num_tokens_in_label=num_tokens_in_label,
+        )
+        self.assertEqual(len(topics_df), self.num_topics * top_n_tokens)
+        self.assertEqual(topics_df['topic'].unique().tolist(), list(topics_dict.keys()))
+        self.assertEqual(topics_df['token_index'].unique().tolist(), list(range(0, top_n_tokens)))
+
+    def test__calculate_topic_sizes(self):
+        sizes = calculate_topic_sizes(model=self.nmf_model, dataset=self.count_vectors)
+        self.assertEqual(len(sizes), self.num_topics)
+        self.assertEqual(round(sizes.sum(), 8), 1)
+
+        sizes = calculate_topic_sizes(model=self.lda_model, dataset=self.tfidf_vectors)
+        self.assertEqual(len(sizes), self.num_topics)
+        self.assertEqual(round(sizes.sum(), 8), 1)
+
+    def test__plot_topics(self):
+        pass
