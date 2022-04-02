@@ -157,6 +157,7 @@ def plot_topic_sizes(model, dataset, features):
               'therefore, relative (percentage) sizes are provided.</sup>'
     )
     fig.update_layout(xaxis_tickformat='p')
+    fig.update_yaxes(autorange="reversed")
     return fig
 
 
