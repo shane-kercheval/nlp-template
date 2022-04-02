@@ -5,7 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.decomposition import NMF, LatentDirichletAllocation
 from spacy.lang.en.stop_words import STOP_WORDS
 
-from source.library.topic_modeling import extract_topic_dictionary, create_topic_labels, \
+from source.library.sklearn_topic_modeling import extract_topic_dictionary, create_topic_labels, \
     extract_topic_dataframe, calculate_topic_sizes, plot_topics
 from source.tests.helpers import get_test_file_path
 
@@ -98,16 +98,18 @@ class TestTextPreparation(unittest.TestCase):
             model=self.nmf_model,
             features=self.count_features,
         )
-        labels = create_topic_labels(topic_dictionary=topics_dict, token_separator='|', top_n_tokens=3)
+        labels = create_topic_labels(model=self.nmf_model,
+                                     features=self.count_features,
+                                     token_separator='|',
+                                     top_n_tokens=3)
         self.assertEqual(topics_dict.keys(), labels.keys())
         self.assertTrue(all([isinstance(x, str) for x in labels.values()]))
         self.assertTrue(all([len(x.split('|')) == 3 for x in labels.values()]))
 
-        topics_dict = extract_topic_dictionary(
-            model=self.lda_model,
-            features=self.count_features,
-        )
-        labels = create_topic_labels(topic_dictionary=topics_dict, token_separator='|', top_n_tokens=3)
+        labels = create_topic_labels(model=self.nmf_model,
+                                     features=self.count_features,
+                                     token_separator='|',
+                                     top_n_tokens=3)
         self.assertEqual(topics_dict.keys(), labels.keys())
         self.assertTrue(all([isinstance(x, str) for x in labels.values()]))
         self.assertTrue(all([len(x.split('|')) == 3 for x in labels.values()]))

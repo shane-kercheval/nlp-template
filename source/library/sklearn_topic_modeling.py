@@ -43,19 +43,29 @@ def extract_topic_dictionary(model, features: numpy.ndarray, top_n_tokens: int =
     return topics
 
 
-def create_topic_labels(topic_dictionary: dict, token_separator: str = ' | ', top_n_tokens: int = 2) -> dict:
+def create_topic_labels(model,
+                        features: numpy.ndarray,
+                        token_separator: str = ' | ',
+                        top_n_tokens: int = 2) -> dict:
     """
-    This function creates topic labels from a topic dictionary.
+    This function creates topic labels from a model.
 
     For example, if `top_n_tokens` is set to `2`, then it will take the top 2 words from each topic and return
     a dictionary containing the same keys as the topic_dictionary, each topic containing a string value
     such as "word-1 | word-2" which can be used as a label for graphs and tables.
 
     Args:
-        topic_dictionary: the dictionary extracted from extract_topic_dictionary
-        token_separator: the separator string for joining the top tokens
-        top_n_tokens: the number of (top) tokens to use in the label
+        model:
+            the topic model (e.g. sci-kit learn NMF, LatentDirichletAllocation)
+        features:
+            a numpy array containing the the features (e.g. tokens/bi-grams that correspond to the fitted
+            model
+        token_separator:
+            the separator string for joining the top tokens
+        top_n_tokens:
+            the number of (top) tokens to use in the label
     """
+    topic_dictionary = extract_topic_dictionary(model=model, features=features)
     return {topic: token_separator.join([y[0] for y in x[0:top_n_tokens]])
             for topic, x in topic_dictionary.items()}
 
@@ -69,7 +79,7 @@ def extract_topic_dataframe(model,
     Args:
         model:
             the topic model (e.g. sci-kit learn NMF, LatentDirichletAllocation)
-         features:
+        features:
             a numpy array containing the the features (e.g. tokens/bi-grams that correspond to the fitted
             model
         top_n_tokens:
@@ -78,10 +88,10 @@ def extract_topic_dataframe(model,
             the number of (top) tokens to use in the label
     :return:
     """
-    topic_dictionary = extract_topic_dictionary(model, features, top_n_tokens)
-    topic_labels = create_topic_labels(topic_dictionary=topic_dictionary, top_n_tokens=num_tokens_in_label)
+    topic_labels = create_topic_labels(model=model, features=features, top_n_tokens=num_tokens_in_label)
     # this creates a dataframe where each column corresponds to a topic, and the rows correspond to the
     # top_n_tokens
+    topic_dictionary = extract_topic_dictionary(model=model, features=features, top_n_tokens=top_n_tokens)
     topic_tokens = pd.DataFrame(topic_dictionary)
     # add a column to indicate the index of the token (e.g. index 0 corresponds to the token with the
     # highest contribution value
@@ -106,13 +116,47 @@ def calculate_topic_sizes(model, dataset) -> numpy.array:
     this function calculates the relative size of the topics and returns a float/percentage value.
 
     Args:
-        model: The model e.g. sci-kit-learn NMF or LatentDirichletAllocation
-        dataset: (e.g. scipy.sparse._csr.csr_matrix
+        model:
+            The model e.g. sci-kit-learn NMF or LatentDirichletAllocation
+        dataset:
+            dataset to transform/predict the topics on; e.g. scipy.sparse._csr.csr_matrix
     """
     topic_predictions = model.transform(X=dataset)
     # column i.e. topic totals
     topic_totals = topic_predictions.sum(axis=0)
     return topic_totals / topic_predictions.sum()
+
+
+def plot_size_of_topics(model, dataset, features):
+    """
+    Given a model and a dataset (e.g. output of fit_transform from CountVectorizer or TfidfVectorizer),
+    this function plots the relative size of the topics.
+
+    Args:
+        model:
+            The model e.g. sci-kit-learn NMF or LatentDirichletAllocation
+        dataset:
+            dataset to transform/predict the topics on; e.g. scipy.sparse._csr.csr_matrix
+        features:
+            a numpy array containing the the features (e.g. tokens/bi-grams that correspond to the fitted
+            model
+    """
+    topic_sizes = calculate_topic_sizes(model=model, dataset=dataset)
+    topic_labels = list(create_topic_labels(model=model, features=features).values())
+    df = pd.DataFrame({
+        'Topics': topic_labels,
+        'Topic Size as a Percent of the Dataset': topic_sizes,
+    })
+
+    fig = px.bar(
+        df,
+        x='Topic Size as a Percent of the Dataset',
+        y='Topics',
+        title='Size of Topics<br><sup>More than 1 topic can be assigned to a single document; '
+              'therefore, relative (percentage) sizes are provided.</sup>'
+    )
+    fig.update_layout(xaxis_tickformat='p')
+    return fig
 
 
 def plot_topics(topics_df,
