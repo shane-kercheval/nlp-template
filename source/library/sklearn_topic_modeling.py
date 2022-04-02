@@ -75,7 +75,8 @@ def create_topic_labels(model,
 def extract_topic_dataframe(model,
                             features: numpy.array,
                             top_n_tokens: int = 10,
-                            num_tokens_in_label: int = 2) -> pd.DataFrame:
+                            num_tokens_in_label: int = 2,
+                            token_separator: str = ' | ') -> pd.DataFrame:
     """
     This function returns a pd.DataFrame where each row represents a single
     Args:
@@ -88,8 +89,15 @@ def extract_topic_dataframe(model,
             the number of tokens to extract from the model (which have the highest scores per topic)
         num_tokens_in_label:
             the number of (top) tokens to use in the label
+        token_separator:
+            the separator string for joining the top tokens in the topic label
     """
-    topic_labels = create_topic_labels(model=model, features=features, top_n_tokens=num_tokens_in_label)
+    topic_labels = create_topic_labels(
+        model=model,
+        features=features,
+        token_separator=token_separator,
+        top_n_tokens=num_tokens_in_label
+    )
     # this creates a dataframe where each column corresponds to a topic, and the rows correspond to the
     # top_n_tokens
     topic_dictionary = extract_topic_dictionary(model=model, features=features, top_n_tokens=top_n_tokens)
@@ -128,7 +136,11 @@ def calculate_topic_sizes(model, dataset) -> numpy.array:
     return topic_totals / topic_predictions.sum()
 
 
-def plot_topic_sizes(model, dataset, features):
+def plot_topic_sizes(model,
+                     dataset,
+                     features,
+                     token_separator: str = ' | ',
+                     top_n_tokens: int = 2) -> _figure.Figure:
     """
     Given a model and a dataset (e.g. output of fit_transform from CountVectorizer or TfidfVectorizer),
     this function plots the relative size of the topics.
@@ -141,9 +153,16 @@ def plot_topic_sizes(model, dataset, features):
         features:
             a numpy array containing the the features (e.g. tokens/bi-grams that correspond to the fitted
             model; This is used to build the labels of the topics.
+        token_separator:
+            the separator string for joining the top tokens in the topic label
+        top_n_tokens:
+            the number of (top) tokens to use in the label
     """
     topic_sizes = calculate_topic_sizes(model=model, dataset=dataset)
-    topic_labels = list(create_topic_labels(model=model, features=features).values())
+    topic_labels = list(create_topic_labels(model=model,
+                                            features=features,
+                                            token_separator=token_separator,
+                                            top_n_tokens=top_n_tokens).values())
     df = pd.DataFrame({
         'Topics': topic_labels,
         'Topic Size as a Percent of the Dataset': topic_sizes,
@@ -165,6 +184,7 @@ def plot_topics(model,
                 features: numpy.array,
                 top_n_tokens: int = 10,
                 num_tokens_in_label: int = 2,
+                token_separator: str = ' | ',
                 facet_col_wrap: int = 3,
                 facet_col_spacing: float = 0.2,
                 width: int = 900,
@@ -183,6 +203,8 @@ def plot_topics(model,
             the number of tokens to extract from the model (which have the highest scores per topic)
         num_tokens_in_label:
             the number of (top) tokens to use in the label
+        token_separator:
+            the separator string for joining the top tokens in the topic label
         facet_col_wrap:
             the number of columns to display regarding faceting
         facet_col_spacing:
@@ -199,6 +221,7 @@ def plot_topics(model,
         features=features,
         top_n_tokens=top_n_tokens,
         num_tokens_in_label=num_tokens_in_label,
+        token_separator=token_separator
     )
     if title is None:
         title = f"Topics<br><sup>The top {top_n_tokens} tokens are displayed per topic; " \
