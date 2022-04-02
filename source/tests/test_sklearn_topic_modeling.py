@@ -155,11 +155,10 @@ class TestSklearnTopicModeling(unittest.TestCase):
         self.assertEqual(round(sizes.sum(), 8), 1)
 
     def test__plot_topics(self):
-        topics_df = extract_topic_dataframe(
+        fig = plot_topics(
             model=self.lda_model,
             features=self.count_features,
             top_n_tokens=5,
             num_tokens_in_label=2,
         )
-        fig = plot_topics(topics_df=topics_df)
         self.assertIsNotNone(fig)

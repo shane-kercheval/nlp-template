@@ -1,3 +1,5 @@
+from typing import Union
+
 import numpy
 import pandas as pd
 import plotly_express as px
@@ -86,7 +88,6 @@ def extract_topic_dataframe(model,
             the number of tokens to extract from the model (which have the highest scores per topic)
         num_tokens_in_label:
             the number of (top) tokens to use in the label
-    :return:
     """
     topic_labels = create_topic_labels(model=model, features=features, top_n_tokens=num_tokens_in_label)
     # this creates a dataframe where each column corresponds to a topic, and the rows correspond to the
@@ -159,25 +160,58 @@ def plot_size_of_topics(model, dataset, features):
     return fig
 
 
-def plot_topics(topics_df,
-                value_column: str = 'value',
-                token_column: str = 'token',
-                topic_label_column: str = 'topic_label',
+def plot_topics(model,
+                features: numpy.array,
+                top_n_tokens: int = 10,
+                num_tokens_in_label: int = 2,
                 facet_col_wrap: int = 3,
                 facet_col_spacing: float = 0.2,
                 width: int = 900,
                 height: int = 900,
-                title: str = "Topics") -> _figure.Figure:
+                title: Union[str, None] = None) -> _figure.Figure:
+    """
+    This function plots the topics and top tokens.
+
+    Args:
+        model:
+            the topic model (e.g. sci-kit learn NMF, LatentDirichletAllocation)
+        features:
+            a numpy array containing the the features (e.g. tokens/bi-grams that correspond to the fitted
+            model
+        top_n_tokens:
+            the number of tokens to extract from the model (which have the highest scores per topic)
+        num_tokens_in_label:
+            the number of (top) tokens to use in the label
+        facet_col_wrap:
+            the number of columns to display regarding faceting
+        facet_col_spacing:
+            the spacing between the columns (0-1)
+        width:
+            the width of the graph
+        height:
+            the height of the graph
+        title:
+            the title of the graph, if None, a default title is provided
+    """
+    topics_df = extract_topic_dataframe(
+        model=model,
+        features=features,
+        top_n_tokens=top_n_tokens,
+        num_tokens_in_label=num_tokens_in_label,
+    )
+    if title is None:
+        title = f"Topics<br><sup>The top {top_n_tokens} tokens are displayed per topic; " \
+                f"the top {num_tokens_in_label} are displayed as the topic name</sup>"
     fig = px.bar(
         topics_df,
-        x=value_column,
-        y=token_column,
-        facet_col=topic_label_column,
+        x='value',
+        y='token',
+        facet_col='topic_label',
         facet_col_wrap=facet_col_wrap,
         facet_col_spacing=facet_col_spacing,
         labels={
-            token_column: '',
-            topic_label_column: '',
+            'token': '',
+            'topic_label': '',
         },
         width=width,
         height=height,
