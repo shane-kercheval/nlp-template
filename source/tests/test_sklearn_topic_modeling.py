@@ -10,7 +10,7 @@ from source.library.sklearn_topic_modeling import extract_topic_dictionary, crea
 from source.tests.helpers import get_test_file_path
 
 
-class TestTextPreparation(unittest.TestCase):
+class TestSklearnTopicModeling(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
