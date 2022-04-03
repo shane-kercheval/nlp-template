@@ -5,8 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.decomposition import NMF, LatentDirichletAllocation
 from spacy.lang.en.stop_words import STOP_WORDS
 
-from source.library.sklearn_topic_modeling import extract_topic_dictionary, create_topic_labels, \
-    extract_topic_dataframe, calculate_topic_sizes, plot_topics, plot_topic_sizes
+from source.library.sklearn_topic_modeling import *
 from source.tests.helpers import get_test_file_path
 
 
@@ -29,8 +28,10 @@ class TestSklearnTopicModeling(unittest.TestCase):
             max_df=0.7
         )
         count_vectors = count_vectorizer.fit_transform(paragraphs["text"])
-        cls.count_vectors = count_vectors
-        cls.count_features = count_vectorizer.get_feature_names_out()
+        lda_model = LatentDirichletAllocation(n_components=num_topics, random_state=42)
+        lda_model.fit(count_vectors)
+        lda_explorer = TopicModelExplorer(model=lda_model, vectorizer=count_vectorizer)
+        cls.lda_explorer = lda_explorer
 
         tfidf_vectorizer = TfidfVectorizer(
             stop_words=stop_words,
@@ -39,27 +40,17 @@ class TestSklearnTopicModeling(unittest.TestCase):
             max_df=0.7
         )
         tfidf_vectors = tfidf_vectorizer.fit_transform(paragraphs["text"])
-        cls.tfidf_vectors = tfidf_vectors
-        cls.tfidf_features = tfidf_vectorizer.get_feature_names_out()
-
         nmf_model = NMF(init='nndsvda', n_components=num_topics, random_state=42)
-        _ = nmf_model.fit_transform(tfidf_vectors)
-        cls.nmf_model = nmf_model
-
-        lda_model = LatentDirichletAllocation(n_components=num_topics, random_state=42)
-        _ = lda_model.fit_transform(count_vectors)
-        cls.lda_model = lda_model
+        _ = nmf_model.fit(tfidf_vectors)
+        nmf_explorer = TopicModelExplorer(model=nmf_model, vectorizer=tfidf_vectorizer)
+        cls.nmf_explorer = nmf_explorer
 
     def test__extract_topic_dictionary(self):
         def flatten(t):
             return [item for sublist in t for item in sublist]
 
         top_n_tokens = 7
-        topics_dict = extract_topic_dictionary(
-            model=self.nmf_model,
-            features=self.count_features,
-            top_n_tokens=top_n_tokens
-        )
+        topics_dict = self.nmf_explorer.extract_topic_dictionary(top_n_tokens=top_n_tokens)
 
         self.assertEqual(len(topics_dict), self.num_topics)
         self.assertEqual(list(topics_dict.keys()), list(range(1, self.num_topics + 1)))
@@ -75,11 +66,7 @@ class TestSklearnTopicModeling(unittest.TestCase):
         del topics_dict
 
         top_n_tokens = 8
-        topics_dict = extract_topic_dictionary(
-            model=self.lda_model,
-            features=self.count_features,
-            top_n_tokens=top_n_tokens
-        )
+        topics_dict = self.lda_explorer.extract_topic_dictionary(top_n_tokens=top_n_tokens)
 
         self.assertEqual(len(topics_dict), self.num_topics)
         self.assertEqual(list(topics_dict.keys()), list(range(1, self.num_topics + 1)))
@@ -93,39 +80,25 @@ class TestSklearnTopicModeling(unittest.TestCase):
         # check that all token/value pairs have a float as the second instance
         self.assertTrue(all(flatten([[isinstance(token_tuple[1], float) for token_tuple in token_list] for token_list in topics_dict.values()])))  # noqa
 
-    def test__create_topic_labels(self):
-        topics_dict = extract_topic_dictionary(
-            model=self.nmf_model,
-            features=self.count_features,
-        )
-        labels = create_topic_labels(model=self.nmf_model,
-                                     features=self.count_features,
-                                     token_separator='|',
-                                     top_n_tokens=3)
+    def test__extract_topic_labels(self):
+        topics_dict = self.nmf_explorer.extract_topic_dictionary()
+        labels = self.nmf_explorer.extract_topic_labels(token_separator='|', num_tokens_in_label=3)
         self.assertEqual(topics_dict.keys(), labels.keys())
         self.assertTrue(all([isinstance(x, str) for x in labels.values()]))
         self.assertTrue(all([len(x.split('|')) == 3 for x in labels.values()]))
 
-        labels = create_topic_labels(model=self.nmf_model,
-                                     features=self.count_features,
-                                     token_separator='|',
-                                     top_n_tokens=3)
+        labels = self.lda_explorer.extract_topic_labels(token_separator='|', num_tokens_in_label=3)
         self.assertEqual(topics_dict.keys(), labels.keys())
         self.assertTrue(all([isinstance(x, str) for x in labels.values()]))
         self.assertTrue(all([len(x.split('|')) == 3 for x in labels.values()]))
 
     def test__extract_topic_dataframe(self):
-        topics_dict = extract_topic_dictionary(
-            model=self.nmf_model,
-            features=self.count_features,
-        )
+        topics_dict = self.nmf_explorer.extract_topic_dictionary()
         list(topics_dict.keys())
 
         top_n_tokens = 7
         num_tokens_in_label = 3
-        topics_df = extract_topic_dataframe(
-            model=self.nmf_model,
-            features=self.count_features,
+        topics_df = self.nmf_explorer.extract_topic_dataframe(
             top_n_tokens=top_n_tokens,
             num_tokens_in_label=num_tokens_in_label,
         )
@@ -135,9 +108,7 @@ class TestSklearnTopicModeling(unittest.TestCase):
 
         top_n_tokens = 7
         num_tokens_in_label = 3
-        topics_df = extract_topic_dataframe(
-            model=self.lda_model,
-            features=self.count_features,
+        topics_df = self.lda_explorer.extract_topic_dataframe(
             top_n_tokens=top_n_tokens,
             num_tokens_in_label=num_tokens_in_label,
         )
@@ -146,22 +117,20 @@ class TestSklearnTopicModeling(unittest.TestCase):
         self.assertEqual(topics_df['token_index'].unique().tolist(), list(range(0, top_n_tokens)))
 
     def test__calculate_topic_sizes(self):
-        sizes = calculate_topic_sizes(model=self.nmf_model, dataset=self.count_vectors)
+        sizes = self.nmf_explorer.calculate_topic_sizes(text_series=self.paragraphs['text'])
         self.assertEqual(len(sizes), self.num_topics)
         self.assertEqual(round(sizes.sum(), 8), 1)
 
-        sizes = calculate_topic_sizes(model=self.lda_model, dataset=self.tfidf_vectors)
+        sizes = self.lda_explorer.calculate_topic_sizes(text_series=self.paragraphs['text'])
         self.assertEqual(len(sizes), self.num_topics)
         self.assertEqual(round(sizes.sum(), 8), 1)
 
     def test__plot_topic_sizes(self):
-        fig = plot_topic_sizes(model=self.nmf_model, dataset=self.count_vectors, features=self.count_features)
+        fig = self.nmf_explorer.plot_topic_sizes(text_series=self.paragraphs['text'])
         self.assertIsNotNone(fig)
 
     def test__plot_topics(self):
-        fig = plot_topics(
-            model=self.lda_model,
-            features=self.count_features,
+        fig = self.nmf_explorer.plot_topics(
             top_n_tokens=5,
             num_tokens_in_label=2,
         )
