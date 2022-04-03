@@ -82,6 +82,7 @@ clean: clean_python
 	rm -f artifacts/data/raw/*.pkl
 	rm -f artifacts/data/raw/*.csv
 	rm -f artifacts/data/processed/*
+	rm -f artifacts/models/topics/*
 
 #################################################################################
 # Generic Commands
