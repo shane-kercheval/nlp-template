@@ -54,8 +54,8 @@ exploration_basic: environment_python
 
 exploration_nlp: environment_python
 	@echo $(call FORMAT_MESSAGE,"exploration_nlp","Running NLP Notebooks.")
-	. .venv/bin/activate && jupyter nbconvert --execute --to html source/notebooks/text_topic_modeling_ngrams_1_3.ipynb.ipynb
-	mv source/notebooks/text_topic_modeling_ngrams_1_3.ipynb.html docs/data/text_topic_modeling_ngrams_1_3.ipynb.html
+	. .venv/bin/activate && jupyter nbconvert --execute --to html source/notebooks/text_topic_modeling_ngrams_1_3.ipynb
+	mv source/notebooks/text_topic_modeling_ngrams_1_3.html docs/data/text_topic_modeling_ngrams_1_3.html
 
 ## Run all the NLP notebooks.
 exploration: exploration_basic exploration_nlp
