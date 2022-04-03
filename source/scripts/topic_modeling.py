@@ -55,14 +55,17 @@ def nmf(num_topics, ngrams_low, ngrams_high, num_samples):
         )
         tfidf_vectors = tfidf_vectorizer.fit_transform(paragraphs["text"])
         file = f'artifacts/models/topics/nmf-topics-{num_topics}-ngrams-{ngrams_low}-{ngrams_high}__vectorizer.pkl'  # noqa
+        logger.info(f"Saving NMF vectorizer: {file}")
         to_pickle(tfidf_vectorizer, file)
         file = f'artifacts/models/topics/nmf-topics-{num_topics}-ngrams-{ngrams_low}-{ngrams_high}__vectors.pkl'  # noqa
+        logger.info(f"Saving NMF vectors: {file}")
         to_pickle(tfidf_vectors, file)
 
     with Timer("Running Non-Negative Matrix Factorization (NMF)"):  # noqa
         nmf_model = NMF(init='nndsvda', n_components=num_topics, random_state=42, max_iter=1000)
         _ = nmf_model.fit_transform(tfidf_vectors)
         file = f'artifacts/models/topics/nmf-topics-{num_topics}-ngrams-{ngrams_low}-{ngrams_high}__model.pkl'  # noqa
+        logger.info(f"Saving NMF model: {file}")
         to_pickle(nmf_model, file)
 
 
@@ -92,14 +95,17 @@ def lda(num_topics, ngrams_low, ngrams_high, num_samples):
         )
         count_vectors = count_vectorizer.fit_transform(paragraphs["text"])
         file = f'artifacts/models/topics/lda-topics-{num_topics}-ngrams-{ngrams_low}-{ngrams_high}__vectorizer.pkl'  # noqa
+        logger.info(f"Saving LDA vectorizer: {file}")
         to_pickle(count_vectorizer, file)
         file = f'artifacts/models/topics/lda-topics-{num_topics}-ngrams-{ngrams_low}-{ngrams_high}__vectors.pkl'  # noqa
+        logger.info(f"Saving LDA vectors: {file}")
         to_pickle(count_vectors, file)
 
     with Timer("Running Latent Dirichlet Allocation (LDA)"):  # noqa
         lda_model = LatentDirichletAllocation(n_components=num_topics, random_state=42)
         _ = lda_model.fit_transform(count_vectors)
         file = f'artifacts/models/topics/lda-topics-{num_topics}-ngrams-{ngrams_low}-{ngrams_high}__model.pkl'  # noqa
+        logger.info(f"Saving LDA model: {file}")
         to_pickle(lda_model, file)
 
 
