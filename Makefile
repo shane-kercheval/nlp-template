@@ -1,7 +1,7 @@
 #################################################################################
 # File adapted from https://github.com/drivendata/cookiecutter-data-science
 #################################################################################
-.PHONY: clean_python clean environment_python environment tests data_extract data_transform data exploration_basic exploration_topics exploration all
+.PHONY: clean_python clean environment_python environment tests data_extract data_transform data exploration_basic models_topics exploration_topics exploration all
 
 #################################################################################
 # GLOBALS
@@ -52,13 +52,18 @@ exploration_basic: environment_python
 	. .venv/bin/activate && jupyter nbconvert --execute --to html source/notebooks/text_eda_reddit.ipynb
 	mv source/notebooks/text_eda_reddit.html docs/data/text_eda_reddit.html
 
+models_topics: environment_python
+	@echo $(call FORMAT_MESSAGE,"models_topics","Running NMF Model")
+	#. .venv/bin/activate && $(PYTHON_INTERPRETER) source/scripts/topic_modeling.py nmf -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
+	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/scripts/topic_modeling.py lda -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
+
 exploration_topics: environment_python
 	@echo $(call FORMAT_MESSAGE,"exploration_topics","Running NLP Notebooks.")
 	. .venv/bin/activate && jupyter nbconvert --execute --to html source/notebooks/text_topic_modeling_ngrams_1_3.ipynb
-	mv source/notebooks/text_topic_modeling_ngrams_1_3.html docs/data/text_topic_modeling_ngrams_1_3.html
+	mv source/notebooks/text_topic_modeling_ngrams_1_3.html docs/models/text_topic_modeling_ngrams_1_3.html
 
 ## Run all the NLP notebooks.
-exploration: exploration_basic exploration_topics
+exploration: exploration_basic models_topics exploration_topics
 	@echo $(call FORMAT_MESSAGE,"exploration","Finished running exploration notebooks.")
 
 
