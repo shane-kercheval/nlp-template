@@ -56,13 +56,21 @@ exploration_basic: environment_python
 exploration: exploration_basic
 	@echo $(call FORMAT_MESSAGE,"exploration","Finished running exploration notebooks.")
 
-topics: environment_python
+## Run topic modeling with n-grams 1-3
+topics_1_3: environment_python
 	@echo $(call FORMAT_MESSAGE,"topics","Running NMF and LDA Models with n-grams 1-3")
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/scripts/topic_modeling.py nmf -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/scripts/topic_modeling.py lda -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
 	cp source/notebooks/templates/text_topic_modeling_template.ipynb source/notebooks/text_topic_modeling_ngrams_1_3.ipynb
+	# set values ngrams_how and ngrams_low in notebook
+	sed -i '' 's/XXXXXXXXXXXXXXXX/1/g' source/notebooks/text_topic_modeling_ngrams_1_3.ipynb
+	sed -i '' 's/YYYYYYYYYYYYYYYY/3/g' source/notebooks/text_topic_modeling_ngrams_1_3.ipynb
 	. .venv/bin/activate && jupyter nbconvert --execute --to html source/notebooks/text_topic_modeling_ngrams_1_3.ipynb
-	mv source/notebooks/text_topic_modeling_ngrams_1_3.html docs/models/text_topic_modeling_ngrams_1_3.html
+	mv source/notebooks/text_topic_modeling_ngrams_1_3.html docs/models/topics/text_topic_modeling_ngrams_1_3.html
+
+## Run all topic-modeling
+topics: topics_1_3
+	@echo $(call FORMAT_MESSAGE,"topics","Finished NMF and LDA Models")
 
 ## Run entire workflow.
 all: environment tests data exploration topics
