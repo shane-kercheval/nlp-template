@@ -62,7 +62,7 @@ topics: environment_python
 	@echo $(call FORMAT_MESSAGE,"topics","Running LDA Model")
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/scripts/topic_modeling.py lda -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
 	@echo $(call FORMAT_MESSAGE,"topics","Running Notebook")
-		. .venv/bin/activate && jupyter nbconvert --execute --to html source/notebooks/text_topic_modeling_ngrams_1_3.ipynb
+	. .venv/bin/activate && jupyter nbconvert --execute --to html source/notebooks/text_topic_modeling_ngrams_1_3.ipynb
 	mv source/notebooks/text_topic_modeling_ngrams_1_3.html docs/models/text_topic_modeling_ngrams_1_3.html
 
 ## Run entire workflow.
