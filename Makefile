@@ -83,6 +83,8 @@ clean: clean_python
 	rm -f artifacts/data/raw/*.csv
 	rm -f artifacts/data/processed/*
 	rm -f artifacts/models/topics/*
+	rm -f docs/data/*
+	rm -f docs/models/topics/*
 
 #################################################################################
 # Generic Commands
