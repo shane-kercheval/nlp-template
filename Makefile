@@ -54,7 +54,7 @@ exploration_basic: environment_python
 
 topics_models: environment_python
 	@echo $(call FORMAT_MESSAGE,"topics_models","Running NMF Model")
-	#. .venv/bin/activate && $(PYTHON_INTERPRETER) source/scripts/topic_modeling.py nmf -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
+	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/scripts/topic_modeling.py nmf -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/scripts/topic_modeling.py lda -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
 
 topics_notebooks: environment_python
