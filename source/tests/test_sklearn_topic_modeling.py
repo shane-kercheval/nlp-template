@@ -105,6 +105,9 @@ class TestSklearnTopicModeling(unittest.TestCase):
         self.assertEqual(topics_df['topic'].unique().tolist(), list(topics_dict.keys()))
         self.assertEqual(topics_df['token_index'].unique().tolist(), list(range(0, top_n_tokens)))
 
+        dataframe_to_text_file(topics_df,
+                               get_test_file_path('topic_modeling/nmf__extract_topic_dataframe.txt'))
+
         top_n_tokens = 7
         num_tokens_in_label = 3
         topics_df = self.lda_explorer.extract_topic_dataframe(
@@ -114,6 +117,10 @@ class TestSklearnTopicModeling(unittest.TestCase):
         self.assertEqual(len(topics_df), self.num_topics * top_n_tokens)
         self.assertEqual(topics_df['topic'].unique().tolist(), list(topics_dict.keys()))
         self.assertEqual(topics_df['token_index'].unique().tolist(), list(range(0, top_n_tokens)))
+
+        dataframe_to_text_file(topics_df,
+                               get_test_file_path('topic_modeling/lda__extract_topic_dataframe.txt'))
+
 
     def test__calculate_topic_sizes(self):
         sizes = self.nmf_explorer.calculate_topic_sizes(text_series=self.paragraphs['text'])
