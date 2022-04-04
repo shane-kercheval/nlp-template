@@ -26,11 +26,7 @@ TBD
 - `make environment`: Creates python/R virtual environments and install packages from the requirements.txt/DESCRIPTION files
 - `make data`: Runs ETL scripts
 - `make exploration`: Runs exploration notebooks and generate html/md documents.
-- `make experiments`: Runs scripts which use BayesSearchCV over several models.
-- `make experiments_eval`: Runs notebooks which evaluates the performance of the BayesSearchCV and produces an html report.
-- `make final_model`: Retrains the best model from the most recent experiments on all data, and predict on test/holdout set. (not implemented yet)
-- `make final_eval`: Runs the notebook which shows the performance of the final model and produces an html report. (not implemented yet)
-
+- `make topics`: Runs topic modeling scripts and notebooks.
 
 
 

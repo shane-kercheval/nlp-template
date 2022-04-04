@@ -1,12 +1,11 @@
 import unittest
 
-import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.decomposition import NMF, LatentDirichletAllocation
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from spacy.lang.en.stop_words import STOP_WORDS
 
 from source.library.sklearn_topic_modeling import *
-from source.tests.helpers import get_test_file_path
+from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 
 
 class TestSklearnTopicModeling(unittest.TestCase):
@@ -135,3 +134,27 @@ class TestSklearnTopicModeling(unittest.TestCase):
             num_tokens_in_label=2,
         )
         self.assertIsNotNone(fig)
+
+    def test__extract_top_examples(self):
+        examples = self.nmf_explorer.extract_top_examples(text_series=self.paragraphs['text'])
+        examples = self.nmf_explorer.extract_top_examples(
+            text_series=self.paragraphs['text'],
+            top_n_examples=7,
+            max_num_characters=100,
+            surround_matches="*",
+            num_tokens_in_label=2
+        )
+        self.assertEqual(len(examples), 7 * self.num_topics)
+        dataframe_to_text_file(examples,
+                               get_test_file_path('topic_modeling/nmf__extract_top_examples__default.txt'))
+
+        examples = self.nmf_explorer.extract_top_examples(
+            text_series=self.paragraphs['text'],
+            top_n_examples=7,
+            max_num_characters=100,
+            surround_matches=None,
+            num_tokens_in_label=2
+        )
+        for index in range(0, len(examples)):
+            self.assertEqual(examples.iloc[index]['text'],
+                             self.paragraphs['text'].iloc[examples.iloc[index]['index']][0:100])

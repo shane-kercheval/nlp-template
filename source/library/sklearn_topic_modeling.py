@@ -223,8 +223,28 @@ class TopicModelExplorer:
     def extract_top_examples(self,
                              text_series: pd.Series,
                              top_n_examples: int = 5,
-                             max_num_characters: int = 200,
+                             max_num_characters: int = 300,
+                             surround_matches: Union[str, None] = '|',
                              num_tokens_in_label: int = 2) -> pd.DataFrame:
+        """
+        Extracts the top n examples for each topic (i.e. the highest matching documents).
+
+        Returns the results as a pd.DataFrame.
+
+        Args
+            text_series:
+                dataset series to transform/predict the topics on; e.g. scipy.sparse._csr.csr_matrix
+            top_n_examples:
+                the number of examples/documents to extract
+            max_num_characters:
+                the maximum number of characters to extract from the examples
+            surround_matches:
+                if `surround_matches` contains a string, any words within the example that matches the
+                top 5 words of the corresponding topic, will be surrounded with these characters;
+                if None, no replacement will be done
+            num_tokens_in_label:
+                 the number of (top) tokens to use in the label
+        """
         new_data = self._vectorizer.transform(text_series)
         topic_predictions = self._model.transform(X=new_data)
         import regex
@@ -250,8 +270,12 @@ class TopicModelExplorer:
             # print([x[0:100] + "||||" for x in paragraphs['text'].iloc[top_x_indexes]])
             for index in top_x_indexes:
                 text = text_series.iloc[index][0:max_num_characters]
-                for word in top_words_per_topic[topic + 1]:
-                    text = regex.sub(word, f'|{word}|', text, flags=regex.IGNORECASE)
+
+                if surround_matches is not None and surround_matches != '':
+                    for word in top_words_per_topic[topic + 1]:
+                        text = regex.sub(word, f'{surround_matches}{word}{surround_matches}',
+                                         text,
+                                         flags=regex.IGNORECASE)
 
                 examples += [{
                     'topic index': topic,
