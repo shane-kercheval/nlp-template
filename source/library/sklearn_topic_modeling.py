@@ -285,3 +285,36 @@ class TopicModelExplorer:
                 }]
 
         return pd.DataFrame(examples)
+
+    def get_topic_sizes_per_segment(self, df: pd.DataFrame,
+                                    text_column: str,
+                                    segment_column: str,
+                                    token_separator: str = ' | ',
+                                    num_tokens_in_label: int = 2
+                                    ) -> pd.DataFrame:
+        topic_labels = self.extract_topic_labels(
+            token_separator=token_separator,
+            num_tokens_in_label=num_tokens_in_label,
+        )
+        segments = df[segment_column].unique()
+        segments.sort()
+
+        def get_segment_sizes(text_series):
+            sizes = self.calculate_topic_sizes(text_series=text_series)
+            return sizes
+
+        sizes_per_segment = {segment: get_segment_sizes(df[df[segment_column] == segment][text_column])
+                             for segment in segments}
+        segment_dict = {segment: {topic: value
+                                  for topic, value in zip(topic_labels.values(), sizes_per_segment[segment])}
+                        for segment in segments}
+        df = pd.DataFrame(segment_dict).reset_index().rename(columns={'index': 'topic_labels'})
+        column_values = df.columns
+        df = pd.melt(
+            df,
+            id_vars='topic_labels',
+            value_vars=list(column_values),
+            var_name=segment_column,
+            value_name='relative_size'
+        )
+        return df

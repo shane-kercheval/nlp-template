@@ -121,7 +121,6 @@ class TestSklearnTopicModeling(unittest.TestCase):
         dataframe_to_text_file(topics_df,
                                get_test_file_path('topic_modeling/lda__extract_topic_dataframe.txt'))
 
-
     def test__calculate_topic_sizes(self):
         sizes = self.nmf_explorer.calculate_topic_sizes(text_series=self.paragraphs['text'])
         self.assertEqual(len(sizes), self.num_topics)
@@ -143,7 +142,6 @@ class TestSklearnTopicModeling(unittest.TestCase):
         self.assertIsNotNone(fig)
 
     def test__extract_top_examples(self):
-        examples = self.nmf_explorer.extract_top_examples(text_series=self.paragraphs['text'])
         examples = self.nmf_explorer.extract_top_examples(
             text_series=self.paragraphs['text'],
             top_n_examples=7,
@@ -165,3 +163,20 @@ class TestSklearnTopicModeling(unittest.TestCase):
         for index in range(0, len(examples)):
             self.assertEqual(examples.iloc[index]['text'],
                              self.paragraphs['text'].iloc[examples.iloc[index]['index']][0:100])
+
+    def test__get_topic_sizes_per_segment(self):
+        topic_sizes_per_year = self.nmf_explorer.get_topic_sizes_per_segment(
+            df=self.paragraphs,
+            text_column='text',
+            segment_column='year',
+            token_separator='**',
+            num_tokens_in_label=2,
+        )
+        self.assertEqual(len(topic_sizes_per_year),
+                         len(self.paragraphs['year'].unique()) * self.num_topics)
+
+        self.assertTrue((round(topic_sizes_per_year.groupby('year').agg(sum)['relative_size'], 5) == 1).all())
+        dataframe_to_text_file(topic_sizes_per_year,
+                               get_test_file_path('topic_modeling/nmf__get_topic_sizes_per_segment__year.txt'))  # noqa
+
+
