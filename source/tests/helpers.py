@@ -21,6 +21,8 @@ def dataframe_to_text_file(dataframe, file_name):
     if os.path.isfile(file_name):
         os.remove(file_name)
     pd.set_option('display.max_rows', None)
+    pd.set_option('display.width', 10000)
+    pd.set_option('display.max_columns', 20)
 
     with redirect_stdout_to_file(file_name):
         print_dataframe(dataframe)
