@@ -76,6 +76,7 @@ class TestSklearnTopicModeling(unittest.TestCase):
                                get_test_file_path('topic_modeling/k_means__extract_topic_dataframe.txt'))
 
     def test__calculate_topic_sizes(self):
+        # first test with low sample sizes; we need to make sure the correct number of topics are returned
         examples = self.paragraphs['text'].iloc[0:2]
         sizes = self.k_means_explorer.calculate_topic_sizes(text_series=examples,
                                                             relative_sizes=False)
