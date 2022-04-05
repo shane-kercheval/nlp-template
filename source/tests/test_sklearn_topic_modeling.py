@@ -1,6 +1,7 @@
 import unittest
 
 from sklearn.decomposition import NMF, LatentDirichletAllocation
+from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from spacy.lang.en.stop_words import STOP_WORDS
 
@@ -125,10 +126,17 @@ class TestSklearnTopicModeling(unittest.TestCase):
         sizes = self.nmf_explorer.calculate_topic_sizes(text_series=self.paragraphs['text'])
         self.assertEqual(len(sizes), self.num_topics)
         self.assertEqual(round(sizes.sum(), 8), 1)
+        self.assertEqual(len(sizes), 10)
+
+        sizes = self.nmf_explorer.calculate_topic_sizes(text_series=self.paragraphs['text'].iloc[0:2])
+        self.assertEqual(len(sizes), 10)
 
         sizes = self.lda_explorer.calculate_topic_sizes(text_series=self.paragraphs['text'])
         self.assertEqual(len(sizes), self.num_topics)
         self.assertEqual(round(sizes.sum(), 8), 1)
+
+        sizes = self.lda_explorer.calculate_topic_sizes(text_series=self.paragraphs['text'].iloc[0:2])
+        self.assertEqual(len(sizes), 10)
 
     def test__plot_topic_sizes(self):
         fig = self.nmf_explorer.plot_topic_sizes(text_series=self.paragraphs['text'])

@@ -1,12 +1,14 @@
+from abc import abstractmethod
 from typing import Union
 
 import numpy
+import numpy as np
 import pandas as pd
 import plotly_express as px
 from plotly.graph_objs import _figure  # noqa
 
 
-class TopicModelExplorer:
+class TopicModelExplorerBase:
     def __init__(self, model, vectorizer: numpy.ndarray):
         """
         Args:
@@ -23,38 +25,14 @@ class TopicModelExplorer:
     def token_names(self):
         return self._token_names
 
+    @abstractmethod
     def extract_topic_dictionary(self, top_n_tokens: int = 10) -> dict:
-        """
-        This function extracts a dictionary from the topic model in the following format:
+        pass
 
-            {
-                1:
-                    [
-                        ('token 1', 29.185453377735968),
-                        ('token 2', 1.7306266040805285),
-                        ('token 3', 1.3485401662261807),
-                        ...
-                    ],
-                ...
-            }
+    @abstractmethod
+    def calculate_topic_sizes(self, text_series: pd.Series) -> numpy.array:
+        pass
 
-        Where the keys correspond to the topic indexes, starting with 1 (i.e. the first topic), and the values
-        contain a list of tuples corresponding to the top tokens (e.g. uni-grams/bi-grams) and contribution
-        values for that topic.
-
-        This code is modified from:
-            https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch08/Topic_Modeling_Clustering.ipynb
-        Args:
-            top_n_tokens:
-                the number of tokens to extract from the model (which have the highest scores per topic)
-        """
-        topics = dict()
-        for topic, tokens in enumerate(self._model.components_):
-            total = tokens.sum()
-            largest = tokens.argsort()[::-1]  # invert sort order
-            topics[topic + 1] = [(self._token_names[largest[i]], abs(tokens[largest[i]] * 100.0 / total))
-                                 for i in range(0, top_n_tokens)]
-        return topics
 
     def extract_topic_labels(self,
                              token_separator: str = ' | ',
@@ -113,21 +91,6 @@ class TopicModelExplorer:
         topic_tokens['topic_label'] = topic_tokens['topic'].apply(lambda x: topic_labels[x])
         topic_tokens = topic_tokens[['topic', 'token_index', 'token', 'value', 'topic_label']]
         return topic_tokens
-
-    def calculate_topic_sizes(self, text_series: pd.Series) -> numpy.array:
-        """
-        Given a model and a dataset (e.g. output of fit_transform from CountVectorizer or TfidfVectorizer),
-        this function calculates the relative size of the topics and returns a float/percentage value.
-
-        Args:
-            text_series:
-                dataset series to transform/predict the topics on; e.g. scipy.sparse._csr.csr_matrix
-        """
-        vectors = self._vectorizer.transform(text_series)
-        topic_predictions = self._model.transform(X=vectors)
-        # column i.e. topic totals
-        topic_totals = topic_predictions.sum(axis=0)
-        return topic_totals / topic_predictions.sum()
 
     def plot_topic_sizes(self,
                          text_series: pd.Series,
@@ -220,6 +183,219 @@ class TopicModelExplorer:
         fig.update_yaxes(matches=None, showticklabels=True, autorange="reversed")
         return fig
 
+    def get_topic_sizes_per_segment(self, df: pd.DataFrame,
+                                    text_column: str,
+                                    segment_column: str,
+                                    token_separator: str = ' | ',
+                                    num_tokens_in_label: int = 2
+                                    ) -> pd.DataFrame:
+        topic_labels = self.extract_topic_labels(
+            token_separator=token_separator,
+            num_tokens_in_label=num_tokens_in_label,
+        )
+        segments = df[segment_column].unique()
+        segments.sort()
+
+        def get_segment_sizes(text_series):
+            sizes = self.calculate_topic_sizes(text_series=text_series)
+            return sizes
+
+        sizes_per_segment = {segment: get_segment_sizes(df[df[segment_column] == segment][text_column])
+                             for segment in segments}
+        segment_dict = {segment: {topic: value
+                                  for topic, value in zip(topic_labels.values(), sizes_per_segment[segment])}
+                        for segment in segments}
+        df = pd.DataFrame(segment_dict).reset_index().rename(columns={'index': 'topic_labels'})
+        column_values = df.columns
+        df = pd.melt(
+            df,
+            id_vars='topic_labels',
+            value_vars=list(column_values),
+            var_name=segment_column,
+            value_name='relative_size'
+        )
+        return df
+
+
+class KMeansTopicExplorer(TopicModelExplorerBase):
+
+    def __init__(self, model, vectorizer: numpy.ndarray, vectors: numpy.ndarray):
+        """
+        Args:
+            model:
+                the topic model (e.g. sci-kit learn NMF, LatentDirichletAllocation)
+            vectorizer:
+                TBD
+        """
+        super().__init__(model=model, vectorizer=vectorizer)
+        self._vectors = vectors
+
+    def extract_topic_dictionary(self, top_n_tokens: int = 10) -> dict:
+        topics = {}
+        assert len(self._model.labels_) == self._vectors.shape[0]
+        clusters = np.unique(self._model.labels_)
+        clusters.sort()
+        for cluster in clusters:
+            token_vectors = self._vectors[self._model.labels_ == cluster].sum(axis=0).A[0]
+            largest = token_vectors.argsort()[::-1]  # invert sort order
+            topics[cluster + 1] = [(self._token_names[largest[i]], token_vectors[largest[i]])
+                                   for i in range(0, top_n_tokens)]
+        return topics
+
+    def calculate_topic_sizes(self,
+                              text_series: Union[pd.Series, None] = None,
+                              relative_sizes: bool = True) -> numpy.array:
+        """
+        Given a model and a dataset (e.g. output of fit_transform from CountVectorizer or TfidfVectorizer),
+        this function calculates the relative size of the topics and returns a float/percentage value.
+
+        Args:
+            text_series:
+                dataset series to transform/predict the topics on; e.g. scipy.sparse._csr.csr_matrix
+            relative_sizes:
+                if True, return relative sizes (i.e. percent)
+        """
+        if text_series is not None:
+            vectors = self._vectorizer.transform(text_series)
+        else:
+            vectors = self._vectors
+
+        topic_predictions = self._model.predict(X=vectors)
+        # column i.e. topic totals
+        clusters, sizes = np.unique(topic_predictions, return_counts=True)
+
+        # we need to return the sizes for each cluster even if the cluster didn't exist; in the same order
+        cluster_size_dict = {c: s for c, s in zip(clusters, sizes)}
+        sizes = np.array([cluster_size_dict.get(x, 0) for x in range(0, self._model.n_clusters)])
+        assert len(sizes) == self._model.n_clusters
+        assert sizes.sum() == len(topic_predictions)
+        assert all(clusters == sorted(clusters))
+
+        if relative_sizes:
+            return sizes / sizes.sum()
+        return sizes
+
+    def extract_random_examples(self,
+                                text_series: pd.Series,
+                                n_examples: int = 5,
+                                max_num_characters: int = 300,
+                                surround_matches: Union[str, None] = '|',
+                                num_tokens_in_label: int = 2,
+                                random_seed=42) -> pd.DataFrame:
+        """
+        Extracts the top n examples for each topic (i.e. the highest matching documents).
+
+        Returns the results as a pd.DataFrame.
+
+        Args
+            text_series:
+                dataset series to transform/predict the topics on; e.g. scipy.sparse._csr.csr_matrix
+            n_examples:
+                the number of examples/documents to extract
+            max_num_characters:
+                the maximum number of characters to extract from the examples
+            surround_matches:
+                if `surround_matches` contains a string, any words within the example that matches the
+                top 5 words of the corresponding topic, will be surrounded with these characters;
+                if None, no replacement will be done
+            num_tokens_in_label:
+                 the number of (top) tokens to use in the label
+        """
+        new_data = self._vectorizer.transform(text_series)
+        topic_predictions = self._model.predict(X=new_data)
+        import regex
+
+        top_tokens_per_topic = self.extract_topic_labels(
+            token_separator=' | ',
+            num_tokens_in_label=5,
+        )
+        top_tokens_per_topic = {topic: label.split(' | ') for topic, label in top_tokens_per_topic.items()}
+
+        topic_labels = self.extract_topic_labels(
+            token_separator=' | ',
+            num_tokens_in_label=num_tokens_in_label,
+        )
+
+        clusters = np.unique(topic_predictions)
+        clusters.sort()
+        random_examples = []
+        for topic in clusters:
+            # print(topic)
+            topic_indexes = topic_predictions == 0
+            examples = text_series.iloc[topic_indexes].sample(n_examples, random_state=random_seed)
+
+            for index in range(0, len(examples)):
+
+                example = pd.DataFrame(examples).iloc[index]
+                example_index = example.name
+                example_text = example.text[0: max_num_characters]
+                if surround_matches is not None and surround_matches != '':
+                    for token in top_tokens_per_topic[topic + 1]:
+                        example_text = regex.sub(token, f'{surround_matches}{token}{surround_matches}',
+                                                 example_text,
+                                                 flags=regex.IGNORECASE)
+
+                random_examples += [{
+                    'topic index': topic + 1,
+                    'topic labels': topic_labels[topic + 1],
+                    'text': example_text,
+                    'index': example_index,
+                }]
+
+        return pd.DataFrame(random_examples)
+
+
+class TopicModelExplorer(TopicModelExplorerBase):
+    """Works with NMF & LatentDirichletAllocation from sklearn.decomposition."""
+
+    def extract_topic_dictionary(self, top_n_tokens: int = 10) -> dict:
+        """
+        This function extracts a dictionary from the topic model in the following format:
+
+            {
+                1:
+                    [
+                        ('token 1', 29.185453377735968),
+                        ('token 2', 1.7306266040805285),
+                        ('token 3', 1.3485401662261807),
+                        ...
+                    ],
+                ...
+            }
+
+        Where the keys correspond to the topic indexes, starting with 1 (i.e. the first topic), and the values
+        contain a list of tuples corresponding to the top tokens (e.g. uni-grams/bi-grams) and contribution
+        values for that topic.
+
+        This code is modified from:
+            https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch08/Topic_Modeling_Clustering.ipynb
+        Args:
+            top_n_tokens:
+                the number of tokens to extract from the model (which have the highest scores per topic)
+        """
+        topics = dict()
+        for topic, tokens in enumerate(self._model.components_):
+            total = tokens.sum()
+            largest = tokens.argsort()[::-1]  # invert sort order
+            topics[topic + 1] = [(self._token_names[largest[i]], abs(tokens[largest[i]] * 100.0 / total))
+                                 for i in range(0, top_n_tokens)]
+        return topics
+
+    def calculate_topic_sizes(self, text_series: pd.Series) -> numpy.array:
+        """
+        Given a model and a dataset (e.g. output of fit_transform from CountVectorizer or TfidfVectorizer),
+        this function calculates the relative size of the topics and returns a float/percentage value.
+
+        Args:
+            text_series:
+                dataset series to transform/predict the topics on; e.g. scipy.sparse._csr.csr_matrix
+        """
+        vectors = self._vectorizer.transform(text_series)
+        topic_predictions = self._model.transform(X=vectors)
+        # column i.e. topic totals
+        topic_totals = topic_predictions.sum(axis=0)
+        return topic_totals / topic_predictions.sum()
+
     def extract_top_examples(self,
                              text_series: pd.Series,
                              top_n_examples: int = 5,
@@ -285,36 +461,3 @@ class TopicModelExplorer:
                 }]
 
         return pd.DataFrame(examples)
-
-    def get_topic_sizes_per_segment(self, df: pd.DataFrame,
-                                    text_column: str,
-                                    segment_column: str,
-                                    token_separator: str = ' | ',
-                                    num_tokens_in_label: int = 2
-                                    ) -> pd.DataFrame:
-        topic_labels = self.extract_topic_labels(
-            token_separator=token_separator,
-            num_tokens_in_label=num_tokens_in_label,
-        )
-        segments = df[segment_column].unique()
-        segments.sort()
-
-        def get_segment_sizes(text_series):
-            sizes = self.calculate_topic_sizes(text_series=text_series)
-            return sizes
-
-        sizes_per_segment = {segment: get_segment_sizes(df[df[segment_column] == segment][text_column])
-                             for segment in segments}
-        segment_dict = {segment: {topic: value
-                                  for topic, value in zip(topic_labels.values(), sizes_per_segment[segment])}
-                        for segment in segments}
-        df = pd.DataFrame(segment_dict).reset_index().rename(columns={'index': 'topic_labels'})
-        column_values = df.columns
-        df = pd.melt(
-            df,
-            id_vars='topic_labels',
-            value_vars=list(column_values),
-            var_name=segment_column,
-            value_name='relative_size'
-        )
-        return df
