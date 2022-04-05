@@ -103,7 +103,6 @@ class TestSklearnTopicModeling(unittest.TestCase):
                                                             relative_sizes=False)
         self.assertEqual(sizes.sum(), 100)
 
-
         sizes = self.k_means_explorer.calculate_topic_sizes(text_series=self.paragraphs['text'].sample(100, random_state=42),  # noqa
                                                             relative_sizes=True)
         self.assertEqual(round(sizes.sum(), 8), 1)
