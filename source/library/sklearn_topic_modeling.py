@@ -33,7 +33,6 @@ class TopicModelExplorerBase:
     def calculate_topic_sizes(self, text_series: pd.Series) -> numpy.array:
         pass
 
-
     def extract_topic_labels(self,
                              token_separator: str = ' | ',
                              num_tokens_in_label: int = 2) -> dict:
