@@ -3,8 +3,9 @@ import sys
 
 import click
 import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.cluster import KMeans
 from sklearn.decomposition import NMF, LatentDirichletAllocation
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from spacy.lang.en.stop_words import STOP_WORDS
 
 from helpsk.utility import to_pickle
@@ -86,7 +87,7 @@ def lda(num_topics, ngrams_low, ngrams_high, num_samples):
         paragraphs = pd.read_pickle(path)
         paragraphs = paragraphs.sample(num_samples, random_state=42)
 
-    with Timer("Calculating TF-IDF"):
+    with Timer("Calculating TF"):
         count_vectorizer = CountVectorizer(
             stop_words=stop_words,
             ngram_range=(ngrams_low, ngrams_high),
@@ -107,6 +108,46 @@ def lda(num_topics, ngrams_low, ngrams_high, num_samples):
         file = f'artifacts/models/topics/lda-topics-{num_topics}-ngrams-{ngrams_low}-{ngrams_high}__model.pkl'  # noqa
         logger.info(f"Saving LDA model: {file}")
         to_pickle(lda_model, file)
+
+@main.command()
+@click.option('-num_topics', default=10, show_default=True)
+@click.option('-ngrams_low', default=1, show_default=True)
+@click.option('-ngrams_high', default=3, show_default=True)
+@click.option('-num_samples', default=5000, show_default=True)
+def k_means(num_topics, ngrams_low, ngrams_high, num_samples):
+    logger = get_logger()
+    logger.info(f"Running K-Means.")
+    logger.info(f"Number of Topics : {num_topics}")
+    logger.info(f"N-Gram Range     : {ngrams_low}-{ngrams_high}")
+    logger.info(f"Number of Samples: {num_samples}")
+
+    with Timer("Loading Data"):
+        path = 'artifacts/data/processed/un-general-debates-paragraphs.pkl'
+        paragraphs = pd.read_pickle(path)
+        paragraphs = paragraphs.sample(num_samples, random_state=42)
+
+    with Timer("Calculating TF-IDF"):
+        tfidf_vectorizer = TfidfVectorizer(
+            stop_words=stop_words,
+            ngram_range=(ngrams_low, ngrams_high),
+            min_df=5,
+            max_df=0.7
+        )
+        tfidf_vectors = tfidf_vectorizer.fit_transform(paragraphs["text"])
+        file = f'artifacts/models/topics/k_means-topics-{num_topics}-ngrams-{ngrams_low}-{ngrams_high}__vectorizer.pkl'  # noqa
+        logger.info(f"Saving K-Means vectorizer: {file}")
+        to_pickle(tfidf_vectorizer, file)
+        file = f'artifacts/models/topics/k_means-topics-{num_topics}-ngrams-{ngrams_low}-{ngrams_high}__vectors.pkl'  # noqa
+        logger.info(f"Saving K-Means vectors: {file}")
+        to_pickle(tfidf_vectors, file)
+
+    with Timer("Running K-Means Clustering"):  # noqa
+        k_means_model = KMeans(n_clusters=10, random_state=42)
+        k_means_model.fit(tfidf_vectors)
+        file = f'artifacts/models/topics/k_means-topics-{num_topics}-ngrams-{ngrams_low}-{ngrams_high}__model.pkl'  # noqa
+        logger.info(f"Saving K-Means model: {file}")
+        to_pickle(k_means_model, file)
+
 
 
 if __name__ == '__main__':
