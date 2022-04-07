@@ -62,12 +62,13 @@ topics_1_3: environment_python
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/scripts/topic_modeling.py nmf -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/scripts/topic_modeling.py lda -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) source/scripts/topic_modeling.py k-means -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
-	cp source/notebooks/templates/text_topic_modeling_template.ipynb source/notebooks/text_topic_modeling_ngrams_1_3.ipynb
+	cp source/notebooks/templates/text_topic_modeling_template.ipynb source/notebooks/text_topic_modeling_10_ngrams_1_3.ipynb
 	# set values ngrams_how and ngrams_low in notebook
-	sed -i '' 's/XXXXXXXXXXXXXXXX/1/g' source/notebooks/text_topic_modeling_ngrams_1_3.ipynb
-	sed -i '' 's/YYYYYYYYYYYYYYYY/3/g' source/notebooks/text_topic_modeling_ngrams_1_3.ipynb
-	. .venv/bin/activate && jupyter nbconvert --execute --to html source/notebooks/text_topic_modeling_ngrams_1_3.ipynb
-	mv source/notebooks/text_topic_modeling_ngrams_1_3.html docs/models/topics/text_topic_modeling_ngrams_1_3.html
+	sed -i '' 's/XXXXXXXXXXXXXXXX/1/g' source/notebooks/text_topic_modeling_10_ngrams_1_3.ipynb
+	sed -i '' 's/YYYYYYYYYYYYYYYY/3/g' source/notebooks/text_topic_modeling_10_ngrams_1_3.ipynb
+	sed -i '' 's/ZZZZZZZZZZZZZZZZ/10/g' source/notebooks/text_topic_modeling_10_ngrams_1_3.ipynb
+	. .venv/bin/activate && jupyter nbconvert --execute --to html source/notebooks/text_topic_modeling_10_ngrams_1_3.ipynb
+	mv source/notebooks/text_topic_modeling_10_ngrams_1_3.html docs/models/topics/text_topic_modeling_10_ngrams_1_3.html
 
 ## Run all topic-modeling
 topics: topics_1_3
