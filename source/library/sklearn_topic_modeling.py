@@ -132,7 +132,7 @@ class TopicModelExplorerBase:
                     token_separator: str = ' | ',
                     facet_col_wrap: int = 3,
                     facet_col_spacing: float = 0.2,
-                    width: int = 900,
+                    width: int = 990,
                     height: int = 900,
                     title: Union[str, None] = None) -> _figure.Figure:
         """
