@@ -27,10 +27,41 @@ class TopicModelExplorerBase:
 
     @abstractmethod
     def extract_topic_dictionary(self, top_n_tokens: int = 10) -> dict:
+        """
+        This function extracts a dictionary from the topic model in the following format:
+
+            {
+                1:
+                    [
+                        ('token 1', 29.185453377735968),
+                        ('token 2', 1.7306266040805285),
+                        ('token 3', 1.3485401662261807),
+                        ...
+                    ],
+                ...
+            }
+
+        Where the keys correspond to the topic indexes, starting with 1 (i.e. the first topic), and the values
+        contain a list of tuples corresponding to the top tokens (e.g. uni-grams/bi-grams) and contribution
+        values for that topic.
+
+        This code is modified from:
+            https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch08/Topic_Modeling_Clustering.ipynb
+        Args:
+            top_n_tokens:
+                the number of tokens to extract from the model (which have the highest scores per topic)
+        """
         pass
 
     @abstractmethod
     def calculate_topic_sizes(self, text_series: pd.Series) -> numpy.array:
+        """
+        This function calculates the relative size of the topics and returns a float/percentage value.
+
+        Args:
+            text_series:
+                dataset series to transform/predict the topics on; e.g. scipy.sparse._csr.csr_matrix
+        """
         pass
 
     def extract_topic_labels(self,
@@ -96,8 +127,7 @@ class TopicModelExplorerBase:
                          token_separator: str = ' | ',
                          num_tokens_in_label: int = 2) -> _figure.Figure:
         """
-        Given a model and a dataset (e.g. output of fit_transform from CountVectorizer or TfidfVectorizer),
-        this function plots the relative size of the topics.
+        This function plots the relative size of the topics.
 
         Args:
             text_series:
@@ -188,6 +218,18 @@ class TopicModelExplorerBase:
                                     token_separator: str = ' | ',
                                     num_tokens_in_label: int = 2
                                     ) -> pd.DataFrame:
+        """
+        Given a model and a dataset (e.g. output of fit_transform from CountVectorizer or TfidfVectorizer),
+        this function plots the relative size of the topics.
+
+        Args:
+            text_series:
+                dataset series to transform/predict the topics on; e.g. scipy.sparse._csr.csr_matrix
+            token_separator:
+                the separator string for joining the top tokens in the topic label
+            num_tokens_in_label:
+                the number of (top) tokens to use in the label
+        """
         topic_labels = self.extract_topic_labels(
             token_separator=token_separator,
             num_tokens_in_label=num_tokens_in_label,
@@ -245,15 +287,16 @@ class KMeansTopicExplorer(TopicModelExplorerBase):
                               text_series: Union[pd.Series, None] = None,
                               relative_sizes: bool = True) -> numpy.array:
         """
-        Given a model and a dataset (e.g. output of fit_transform from CountVectorizer or TfidfVectorizer),
-        this function calculates the relative size of the topics and returns a float/percentage value.
+        This function calculates the size of the topics.
 
         Args:
             text_series:
                 dataset series to transform/predict the topics on; e.g. scipy.sparse._csr.csr_matrix
             relative_sizes:
-                if True, return relative sizes (i.e. percent)
+                if True, return the relative sizes (i.e. sizes will sum to 1).
+                if False, return the number of instances for each topic.
         """
+
         if text_series is not None:
             vectors = self._vectorizer.transform(text_series)
         else:
@@ -348,30 +391,6 @@ class TopicModelExplorer(TopicModelExplorerBase):
     """Works with NMF & LatentDirichletAllocation from sklearn.decomposition."""
 
     def extract_topic_dictionary(self, top_n_tokens: int = 10) -> dict:
-        """
-        This function extracts a dictionary from the topic model in the following format:
-
-            {
-                1:
-                    [
-                        ('token 1', 29.185453377735968),
-                        ('token 2', 1.7306266040805285),
-                        ('token 3', 1.3485401662261807),
-                        ...
-                    ],
-                ...
-            }
-
-        Where the keys correspond to the topic indexes, starting with 1 (i.e. the first topic), and the values
-        contain a list of tuples corresponding to the top tokens (e.g. uni-grams/bi-grams) and contribution
-        values for that topic.
-
-        This code is modified from:
-            https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch08/Topic_Modeling_Clustering.ipynb
-        Args:
-            top_n_tokens:
-                the number of tokens to extract from the model (which have the highest scores per topic)
-        """
         topics = dict()
         for topic, tokens in enumerate(self._model.components_):
             total = tokens.sum()
@@ -381,14 +400,6 @@ class TopicModelExplorer(TopicModelExplorerBase):
         return topics
 
     def calculate_topic_sizes(self, text_series: pd.Series) -> numpy.array:
-        """
-        Given a model and a dataset (e.g. output of fit_transform from CountVectorizer or TfidfVectorizer),
-        this function calculates the relative size of the topics and returns a float/percentage value.
-
-        Args:
-            text_series:
-                dataset series to transform/predict the topics on; e.g. scipy.sparse._csr.csr_matrix
-        """
         vectors = self._vectorizer.transform(text_series)
         topic_predictions = self._model.transform(X=vectors)
         # column i.e. topic totals
