@@ -24,6 +24,9 @@ def main():
 
 @main.command()
 def extract():
+    """
+    Extracts the data.
+    """
     logger = get_logger()
     logger.info("Extracting Data")
     with Timer("Loading UN Generate Debate Dataset - Saving to /artifacts/data/raw/un-general-debates-blueprint.pkl"):  # noqa
@@ -40,6 +43,9 @@ def extract():
 
 @main.command()
 def transform():
+    """
+    Transforms the data.
+    """
     logger = get_logger()
     logger.info("Transforming Data")
     ####
