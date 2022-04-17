@@ -198,6 +198,18 @@ class TestTextAnalysis(unittest.TestCase):
                                get_test_file_path('text_analysis/tf_idf__un_debates__remove_tokens__by_year_country.txt'))  # noqa
 
     def test__get_context_from_keyword(self):
+
+        context_list = get_context_from_keyword(
+            documents=self.un_debates['text'],
+            keyword='not found asdf asdf',
+            pad_context=False,
+            num_samples=10,
+            window_width=35,
+            keyword_wrap='||',
+            random_seed=42
+        )
+        self.assertEqual(context_list, [])
+
         context_list = get_context_from_keyword(
             documents=pd.Series([], dtype=object),
             keyword='sentence',
