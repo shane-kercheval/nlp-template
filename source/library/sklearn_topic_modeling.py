@@ -327,7 +327,7 @@ class KMeansTopicExplorer(TopicModelExplorerBase):
 
                 example = pd.DataFrame(examples).iloc[index]
                 example_index = example.name
-                example_text = example.text[0: max_num_characters]
+                example_text = example.iloc[0][0: max_num_characters]
                 if surround_matches is not None and surround_matches != '':
                     for token in top_tokens_per_topic[topic + 1]:
                         example_text = regex.sub(token, f'{surround_matches}{token}{surround_matches}',
