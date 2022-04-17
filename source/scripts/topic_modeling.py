@@ -36,6 +36,15 @@ def main():
 @click.option('-ngrams_high', default=3, show_default=True)
 @click.option('-num_samples', default=5000, show_default=True)
 def nmf(num_topics, ngrams_low, ngrams_high, num_samples):
+    """
+    Run Non-negative Matrix Factorization.
+
+    Args:
+        num_topics: int; number of topics to create
+        ngrams_low: int; minimum number of grams (e.g. 1 is uni-grams)
+        ngrams_high: int; maximum number of grams (e.g. 2 is bi-grams)
+        num_samples: int; the number of samples to use when creating topics.
+    """
     logger = get_logger()
     logger.info(f"Running NMF.")
     logger.info(f"Number of Topics : {num_topics}")
@@ -76,6 +85,15 @@ def nmf(num_topics, ngrams_low, ngrams_high, num_samples):
 @click.option('-ngrams_high', default=3, show_default=True)
 @click.option('-num_samples', default=5000, show_default=True)
 def lda(num_topics, ngrams_low, ngrams_high, num_samples):
+    """
+    Run Latent Dirichlet Allocation.
+
+    Args:
+        num_topics: int; number of topics to create
+        ngrams_low: int; minimum number of grams (e.g. 1 is uni-grams)
+        ngrams_high: int; maximum number of grams (e.g. 2 is bi-grams)
+        num_samples: int; the number of samples to use when creating topics.
+    """
     logger = get_logger()
     logger.info(f"Running LDA.")
     logger.info(f"Number of Topics : {num_topics}")
@@ -115,6 +133,15 @@ def lda(num_topics, ngrams_low, ngrams_high, num_samples):
 @click.option('-ngrams_high', default=3, show_default=True)
 @click.option('-num_samples', default=5000, show_default=True)
 def k_means(num_topics, ngrams_low, ngrams_high, num_samples):
+    """
+    Run K-Means Clustering.
+
+    Args:
+        num_topics: int; number of topics to create
+        ngrams_low: int; minimum number of grams (e.g. 1 is uni-grams)
+        ngrams_high: int; maximum number of grams (e.g. 2 is bi-grams)
+        num_samples: int; the number of samples to use when creating topics.
+    """
     logger = get_logger()
     logger.info(f"Running K-Means.")
     logger.info(f"Number of Topics : {num_topics}")
