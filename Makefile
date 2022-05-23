@@ -107,8 +107,8 @@ ifneq ($(wildcard .venv/.*),)
 else
 	@echo $(call FORMAT_MESSAGE,"environment_python","Did not find .venv directory. Creating virtual environment.")
 	@echo $(call FORMAT_MESSAGE,"environment_python","Installing virtualenv.")
-	python -m pip install --upgrade pip
-	python -m pip install -q virtualenv
+	python3 -m pip install --upgrade pip
+	python3 -m pip install -q virtualenv
 	@echo $(call FORMAT_MESSAGE,"environment_python","NOTE: Creating environment at .venv.")
 	@echo $(call FORMAT_MESSAGE,"environment_python","NOTE: Run this command to activate virtual environment: 'source .venv/bin/activate'.")
 	virtualenv .venv --python=$(PYTHON_INTERPRETER)
@@ -117,6 +117,13 @@ else
 	@echo $(call FORMAT_MESSAGE,"environment_python","Installing packages from requirements.txt.")
 	. .venv/bin/activate && $(PYTHON_INTERPRETER) -m pip install --upgrade pip
 	. .venv/bin/activate && pip install -U pip setuptools wheel
+ifneq ($(UNAME_M), $(APPLE_M1))
+	@echo $(call FORMAT_MESSAGE,"environment_python","Installing cython and cytoolz for non-m1 macs")
+	. .venv/bin/activate && pip install cython
+	. .venv/bin/activate && ARCHFLAGS="-arch x86_64" pip3 install cytoolz
+	. .venv/bin/activate && ARCHFLAGS="-arch x86_64" pip3 install wordcloud
+endif
+	@echo $(call FORMAT_MESSAGE,"environment_python","Installing packages from requirements.txt.")
 	. .venv/bin/activate && pip install -r requirements.txt
 	. .venv/bin/activate && brew install libomp
 
@@ -132,12 +139,25 @@ else
 	# command if not apple m1
 	. .venv/bin/activate && pip install -U spacy
 endif
-	. .venv/bin/activate && python -m spacy download $(SPACY_PIPELINE_TYPE)
+	. .venv/bin/activate && python3 -m spacy download $(SPACY_PIPELINE_TYPE)
 
 	@echo $(call FORMAT_MESSAGE,"environment_python","Installing fasttext - https://fasttext.cc/docs/en/language-identification.html")
 	brew install wget
 	wget https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz
 	mv lid.176.ftz source/resources/lid.176.ftz
+
+ifeq ($(UNAME_M), $(APPLE_M1))
+	@echo "\n[MAKE environment_python] >>> Installing snowflake packages for Apple M1."
+	#https://github.com/snowflakedb/snowflake-connector-python/issues/986
+	. .venv/bin/activate && pip install 'snowflake-connector-python[pandas,secure-local-storage]' --no-binary snowflake-connector-python
+else
+	@echo "\n[MAKE environment_python] >>> Installing snowflake packages for non-Apple-M1."
+	. .venv/bin/activate && pip install -r https://raw.githubusercontent.com/snowflakedb/snowflake-connector-python/v$(SNOWFLAKE_VERSION)/tested_requirements/requirements_$(PYTHON_VERSION_SHORT).reqs
+	. .venv/bin/activate && pip install snowflake-connector-python==v$(SNOWFLAKE_VERSION)
+endif
+
+	. .venv/bin/activate && brew install libomp
+	. .venv/bin/activate && brew install lightgbm
 
 endif
 
