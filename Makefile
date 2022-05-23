@@ -11,6 +11,7 @@ APPLE_M1 = arm64
 PYTHON_VERSION := 3.9
 PYTHON_VERSION_SHORT := $(subst .,,$(PYTHON_VERSION))
 PYTHON_INTERPRETER := python$(PYTHON_VERSION)
+SNOWFLAKE_VERSION := 2.7.4
 
 # select which type of pipeline spaCy pipeline https://spacy.io/usage
 SPACY_PIPELINE_TYPE := en_core_web_sm  # optimize for efficiency
