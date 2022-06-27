@@ -1,10 +1,10 @@
 
 .PHONY: tests
 
-compose:
+docker_compose:
 	docker compose -f docker-compose.yml up --build
 
-docker_run_container:
+docker_container:
 	docker run -it shanekercheval/python:nlp
 
 docker_run: docker_jupyter docker_zsh
