@@ -77,7 +77,7 @@ def count_tokens(tokens: Union[pd.Series, List[list], List[str]],
         if isinstance(remove_tokens, str):
             remove_tokens = {remove_tokens}
         freq_df = freq_df[~freq_df.index.isin(remove_tokens)]
-    
+
     return freq_df.sort_values('frequency', ascending=False)
 
 

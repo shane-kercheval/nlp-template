@@ -196,3 +196,4 @@ artifacts/data/raw/*
 
 !source/tests/test_files/datasets/*.csv
 !source/tests/test_files/datasets/*.pkl
+.vscode/settings.json

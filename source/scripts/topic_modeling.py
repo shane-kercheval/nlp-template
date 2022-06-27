@@ -46,7 +46,7 @@ def nmf(num_topics, ngrams_low, ngrams_high, num_samples):
         num_samples: int; the number of samples to use when creating topics.
     """
     logger = get_logger()
-    logger.info(f"Running NMF.")
+    logger.info("Running NMF.")
     logger.info(f"Number of Topics : {num_topics}")
     logger.info(f"N-Gram Range     : {ngrams_low}-{ngrams_high}")
     logger.info(f"Number of Samples: {num_samples}")
@@ -95,7 +95,7 @@ def lda(num_topics, ngrams_low, ngrams_high, num_samples):
         num_samples: int; the number of samples to use when creating topics.
     """
     logger = get_logger()
-    logger.info(f"Running LDA.")
+    logger.info("Running LDA.")
     logger.info(f"Number of Topics : {num_topics}")
     logger.info(f"N-Gram Range     : {ngrams_low}-{ngrams_high}")
     logger.info(f"Number of Samples: {num_samples}")
@@ -127,6 +127,7 @@ def lda(num_topics, ngrams_low, ngrams_high, num_samples):
         logger.info(f"Saving LDA model: {file}")
         to_pickle(lda_model, file)
 
+
 @main.command()
 @click.option('-num_topics', default=10, show_default=True)
 @click.option('-ngrams_low', default=1, show_default=True)
@@ -143,7 +144,7 @@ def k_means(num_topics, ngrams_low, ngrams_high, num_samples):
         num_samples: int; the number of samples to use when creating topics.
     """
     logger = get_logger()
-    logger.info(f"Running K-Means.")
+    logger.info("Running K-Means.")
     logger.info(f"Number of Topics : {num_topics}")
     logger.info(f"N-Gram Range     : {ngrams_low}-{ngrams_high}")
     logger.info(f"Number of Samples: {num_samples}")
@@ -174,7 +175,6 @@ def k_means(num_topics, ngrams_low, ngrams_high, num_samples):
         file = f'artifacts/models/topics/k_means-topics-{num_topics}-ngrams-{ngrams_low}-{ngrams_high}__model.pkl'  # noqa
         logger.info(f"Saving K-Means model: {file}")
         to_pickle(k_means_model, file)
-
 
 
 if __name__ == '__main__':

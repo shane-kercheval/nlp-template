@@ -19,7 +19,8 @@ docker_zsh:
 # Project-specific Commands
 #################################################################################
 linting:
-	flake8 --max-line-length 110 .
+	flake8 --max-line-length 110 source/scripts
+	flake8 --max-line-length 110 source/library
 
 ## Run unit-tests.
 tests: linting

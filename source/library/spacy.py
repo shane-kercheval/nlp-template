@@ -27,7 +27,7 @@ def create_spacy_pipeline(stopwords_to_add: Union[set[str], None] = None,
                           tokenizer: Callable = None) -> Language:
     """
     This code creates a spacy pipeline.
-    
+
     This code is modified from:
         Blueprints for Text Analytics Using Python
         by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
@@ -218,7 +218,7 @@ def extract_noun_phrases(doc: spacy.tokens.doc.Doc,
     Args:
         doc:
             the doc to extract from
-        preceding_part_of_speech: 
+        preceding_part_of_speech:
             Part of Speech to filter for in the preceding word. If None, default is ['NOUN', 'ADJ', 'VERB']
         subsequent_part_of_speech:
             Part of Speech to filter for in the subsequent word. If None, default is ['NOUN', 'ADJ', 'VERB']

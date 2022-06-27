@@ -152,4 +152,3 @@ def predict_language(text: str,
                 melt(id_vars=['name'], var_name='iso', value_name='code')
             iso639_languages = lang_df.set_index('code')['name'].to_dict()
             return iso639_languages[language]
-

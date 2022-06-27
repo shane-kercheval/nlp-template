@@ -141,4 +141,3 @@ def get_n_grams(tokens: List[str],
 
     return [separator.join(ngram) for ngram in zip(*[tokens[i:] for i in range(n)])
             if len([t for t in ngram if t in stop_words]) == 0]
-
