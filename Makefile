@@ -18,8 +18,11 @@ docker_zsh:
 #################################################################################
 # Project-specific Commands
 #################################################################################
+linting:
+	flake8 --max-line-length 110 .
+
 ## Run unit-tests.
-tests:
+tests: linting
 	python -m unittest discover source/tests
 
 ## Extract Data
