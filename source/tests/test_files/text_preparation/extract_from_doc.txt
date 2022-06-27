@@ -1,7 +1,7 @@
 all_lemmas
 ['1999', 'amg', 'c43', '107k', 'mile', '<', 'lb', '>', 'my', 'mechanic', 'instal', 'a', 'new', 'starter', 'motor', 'in', 'january', '2016', 'and', 'it', 'already', 'start', 'to', 'die', 'on', 'i', 'take', 'it', 'in', 'today', 'and', 'he', 'say', 'the', 'starter', 'motor', 'require', 'grease', 'at', 'least', 'once', 'a', 'year', 'while', 'fail', 'to', 'recognize', 'that', 'it', 'be', 'be', 'less', 'than', 'a', 'year', 'he', 'never', 'say', 'anything', 'about', 'that', 'in', 'january', 'when', 'he', 'instal', 'it', 'be', 'this', 'legit', 'or', 'should', 'i', 'find', 'a', 'new', 'mechanic', 'he', 'be', 'be', 'pretty', 'good', 'for', 'the', 'lifespan', 'of', 'the', 'car', 'until', 'now', 'but', 'now', 'i', 'be', 'start', 'to', 'wonder']
 partial_lemmas
-['1999', 'amg', 'c43', '107k', 'mile', '<', '>', 'mechanic', 'instal', 'new', 'starter', 'motor', 'january', '2016', 'start', 'die', 'take', 'today', 'say', 'starter', 'motor', 'require', 'grease', 'year', 'fail', 'recognize', 'year', 'say', 'january', 'instal', 'legit', 'find', 'new', 'mechanic', 'pretty', 'good', 'lifespan', 'car', 'start', 'wonder']
+['1999', 'amg', 'c43', '107k', 'mile', '<', 'lb', 'mechanic', 'instal', 'new', 'starter', 'motor', 'january', '2016', 'start', 'die', 'take', 'today', 'say', 'starter', 'motor', 'require', 'grease', 'year', 'fail', 'recognize', 'year', 'say', 'january', 'instal', 'legit', 'find', 'new', 'mechanic', 'pretty', 'good', 'lifespan', 'car', 'start', 'wonder']
 bi_grams
 ['1999 amg', 'amg c43', 'c43 107k', '107k mile', 'mile <', '< lb', 'lb >', 'mechanic instal', 'new starter', 'starter motor', 'january 2016', 'starter motor', 'motor require', 'require grease', 'new mechanic', 'pretty good']
 adjs_verbs
@@ -11,4 +11,4 @@ nouns
 noun_phrases
 ['mechanic instal', 'starter motor', 'starter motor', 'motor require', 'require grease', 'new mechanic']
 entities
-['1999 (DATE)', '107k mile (QUANTITY)', 'january 2016 (DATE)', 'today (DATE)', 'less than a year (DATE)', 'january (DATE)']
+['1999 (DATE)', '107k mile (QUANTITY)', 'january 2016 (DATE)', 'today (DATE)', 'year (DATE)', 'less than a year (DATE)', 'january (DATE)']
