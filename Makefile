@@ -23,18 +23,18 @@ tests:
 	python -m unittest discover source/tests
 
 ## Extract Data
-data_extract: environment_python
+data_extract:
 	python source/scripts/etl.py extract
 
 ## Clean and pre-process text data.
-data_transform: environment_python
+data_transform:
 	python source/scripts/etl.py transform
 
 ## Extract data and clean/pre-process.
 data: data_extract data_transform
 
 ## Run the basic exploration notebook(s).
-exploration_basic: environment_python
+exploration_basic:
 	jupyter nbconvert --execute --to html source/notebooks/text_eda_un_debates.ipynb
 	mv source/notebooks/text_eda_un_debates.html docs/data/text_eda_un_debates.html
 	jupyter nbconvert --execute --to html source/notebooks/text_eda_reddit.ipynb
@@ -44,15 +44,15 @@ exploration_basic: environment_python
 exploration: exploration_basic
 
 ## Run topic modeling with n-grams 1-3
-topics_1_3: environment_python
+topics_1_3:
 	python source/scripts/topic_modeling.py nmf -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
 	python source/scripts/topic_modeling.py lda -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
 	python source/scripts/topic_modeling.py k-means -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
 	cp source/notebooks/templates/text_topic_modeling_template.ipynb source/notebooks/text_topic_modeling_10_ngrams_1_3.ipynb
 	# set values ngrams_how and ngrams_low in notebook
-	sed -i '' 's/XXXXXXXXXXXXXXXX/1/g' source/notebooks/text_topic_modeling_10_ngrams_1_3.ipynb
-	sed -i '' 's/YYYYYYYYYYYYYYYY/3/g' source/notebooks/text_topic_modeling_10_ngrams_1_3.ipynb
-	sed -i '' 's/ZZZZZZZZZZZZZZZZ/10/g' source/notebooks/text_topic_modeling_10_ngrams_1_3.ipynb
+	sed -i 's/XXXXXXXXXXXXXXXX/1/g' source/notebooks/text_topic_modeling_10_ngrams_1_3.ipynb
+	sed -i 's/YYYYYYYYYYYYYYYY/3/g' source/notebooks/text_topic_modeling_10_ngrams_1_3.ipynb
+	sed -i 's/ZZZZZZZZZZZZZZZZ/10/g' source/notebooks/text_topic_modeling_10_ngrams_1_3.ipynb
 	jupyter nbconvert --execute --to html source/notebooks/text_topic_modeling_10_ngrams_1_3.ipynb
 	mv source/notebooks/text_topic_modeling_10_ngrams_1_3.html docs/models/topics/text_topic_modeling_10_ngrams_1_3.html
 
@@ -60,9 +60,9 @@ topics_1_3: environment_python
 topics: topics_1_3
 
 ## Run entire workflow.
-all: environment tests data exploration topics
+all: tests data exploration topics
 
-## Delete all generated files (e.g. virtual environment)
+## Delete all generated files
 clean: clean_python
 	rm -f artifacts/data/raw/*.pkl
 	rm -f artifacts/data/raw/*.csv
