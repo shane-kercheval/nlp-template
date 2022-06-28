@@ -120,19 +120,9 @@ jupyter notebook
 │       ├── test_files/        <- Files that help run unit tests, e.g. mock yaml files.
 │       ├── test_file.py       <- python unit-test script
 │
-├── docs/                      <- All documentation, data dictionaries, manuals, and final reports and deliverables.
-│   ├── data/                  <- Location to place documents describing results of data exploration, data dictionaries, etc.
-│   ├── deliverables/          <- All generated and sharable deliverables.
-│   ├── models/                <- Model documentation 
-│       ├── archive/
-│       ├── baseline_model/
-│       ├── current_model/
-│       ├── experiments/
-│   ├── project/               <- Project documentation, including project charter, and results.
-│   ├── figures/               <- Centralized location for all figures and diagrams in project except for those embedded in notebooks.
-│           ├── archive/
-│           ├── data/
-│           ├── models/
+├── output/                    <- All generated output
+│   ├── data/                  
+│   ├── models/                
 ```
 
 ---

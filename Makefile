@@ -40,9 +40,9 @@ data: data_extract data_transform
 ## Run the basic exploration notebook(s).
 exploration_basic:
 	jupyter nbconvert --execute --to html source/notebooks/text_eda_un_debates.ipynb
-	mv source/notebooks/text_eda_un_debates.html docs/data/text_eda_un_debates.html
+	mv source/notebooks/text_eda_un_debates.html output/data/text_eda_un_debates.html
 	jupyter nbconvert --execute --to html source/notebooks/text_eda_reddit.ipynb
-	mv source/notebooks/text_eda_reddit.html docs/data/text_eda_reddit.html
+	mv source/notebooks/text_eda_reddit.html output/data/text_eda_reddit.html
 
 ## Run all the NLP notebooks.
 exploration: exploration_basic
@@ -58,7 +58,7 @@ topics_1_3:
 	sed -i 's/YYYYYYYYYYYYYYYY/3/g' source/notebooks/text_topic_modeling_10_ngrams_1_3.ipynb
 	sed -i 's/ZZZZZZZZZZZZZZZZ/10/g' source/notebooks/text_topic_modeling_10_ngrams_1_3.ipynb
 	jupyter nbconvert --execute --to html source/notebooks/text_topic_modeling_10_ngrams_1_3.ipynb
-	mv source/notebooks/text_topic_modeling_10_ngrams_1_3.html docs/models/topics/text_topic_modeling_10_ngrams_1_3.html
+	mv source/notebooks/text_topic_modeling_10_ngrams_1_3.html output/models/topics/text_topic_modeling_10_ngrams_1_3.html
 
 ## Run all topic-modeling
 topics: topics_1_3
@@ -72,8 +72,8 @@ clean: clean_python
 	rm -f artifacts/data/raw/*.csv
 	rm -f artifacts/data/processed/*
 	rm -f artifacts/models/topics/*
-	rm -f docs/data/*
-	rm -f docs/models/topics/*
+	rm -f output/data/*
+	rm -f output/models/topics/*
 
 #################################################################################
 # Generic Commands
