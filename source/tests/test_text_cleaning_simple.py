@@ -16,7 +16,8 @@ class TestTextCleaningSimple(unittest.TestCase):
         un_debates['tokens'] = un_debates['text'].map(prepare)
         cls.un_debates = un_debates
 
-        cls.dumb_sentence = "This is a sentence; it has punctuation, etc.. It also has numbers. It's a dumb sentence."
+        cls.dumb_sentence = "This is a sentence; it has punctuation, etc.. It also has numbers. It's a " \
+            "dumb sentence."
 
     def test__get_stop_words(self):
         stop_words = get_stop_words()
@@ -29,9 +30,6 @@ class TestTextCleaningSimple(unittest.TestCase):
         self.assertTrue(len(stop_words) > 1)
         self.assertFalse('am' in stop_words)
         self.assertTrue('stop' in stop_words)
-
-    def test__open_dict_like_file(self):
-        self.assertTrue(True)
 
     def test__tokenize(self):
         tokens = tokenize(self.dumb_sentence)
@@ -56,9 +54,11 @@ class TestTextCleaningSimple(unittest.TestCase):
             file.write('|'.join(tokens))
 
         tokens = tokenize(self.dumb_sentence)
-        tokens = remove_stop_words(tokens,
-                                   stop_words=get_stop_words(include_stop_words=['sentence'], exclude_stop_words=['a']))
-        with open(get_test_file_path('text_cleaning_simple/remove_stop_words__include_exclude.txt'), 'w') as file:
+        tokens = remove_stop_words(
+            tokens,
+            stop_words=get_stop_words(include_stop_words=['sentence'], exclude_stop_words=['a'])
+        )
+        with open(get_test_file_path('text_cleaning_simple/remove_stop_words__include_exclude.txt'), 'w') as file:  # noqa
             file.write('|'.join(tokens))
 
     def test__prepare(self):
@@ -73,11 +73,11 @@ class TestTextCleaningSimple(unittest.TestCase):
     def test__get_n_grams(self):
         tokens = prepare(text=self.dumb_sentence, pipeline=[str.lower, tokenize])
         n_grams_list = get_n_grams(tokens=tokens)
-        with open(get_test_file_path('text_cleaning_simple/get_n_grams__sentence_no_stopwords_removed.txt'), 'w') as handle:
+        with open(get_test_file_path('text_cleaning_simple/get_n_grams__sentence_no_stopwords_removed.txt'), 'w') as handle:  # noqa
             handle.writelines([str(x) + "\n" for x in n_grams_list])
 
         n_grams_list = get_n_grams(tokens=tokens, stop_words=get_stop_words())
-        with open(get_test_file_path('text_cleaning_simple/get_n_grams__sentence_stopwords_removed.txt'), 'w') as handle:
+        with open(get_test_file_path('text_cleaning_simple/get_n_grams__sentence_stopwords_removed.txt'), 'w') as handle:  # noqa
             handle.writelines([str(x) + "\n" for x in n_grams_list])
 
         n_gram_series = self.un_debates['text'].\
@@ -90,3 +90,6 @@ class TestTextCleaningSimple(unittest.TestCase):
         with open(get_test_file_path('text_cleaning_simple/get_n_grams__un_debates.txt'), 'w') as handle:
             handle.writelines([str(x) + "\n" for x in n_gram_series])
 
+
+if __name__ == '__main__':
+    unittest.main()

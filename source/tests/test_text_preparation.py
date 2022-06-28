@@ -4,7 +4,7 @@ import fasttext
 import numpy as np
 import pandas as pd
 import spacy
-from spacy.lang.en import English
+# from spacy.lang.en import English
 
 from source.library.spacy import doc_to_dataframe, custom_tokenizer, extract_lemmas, extract_noun_phrases, \
     extract_named_entities, create_spacy_pipeline, extract_from_doc, get_stopwords, extract_n_grams

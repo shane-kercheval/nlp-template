@@ -1,29 +1,38 @@
-# common imports
+# flake8: noqa
+import logging
+import logging.config
 import pandas as pd
 import numpy as np
 import math
 import re
-import glob
 import os
 import sys
 import json
 import random
+import pickle as pkl
+import plotly.express as px
+from pathlib import Path
+import helpsk as hlp
+import plotly.io as pio
+from helpsk.logging import Timer
+
+import glob
 import pprint as pp
 import textwrap
 import wordcloud
-import plotly.express as px
-
-from pathlib import Path
-import helpsk as hlp
-
 #import spacy
 import nltk
 
-#from tqdm.auto import tqdm
-# register `pandas.progress_apply` and `pandas.Series.map_apply` with `tqdm`
-#tqdm.pandas()
+pio.renderers.default='notebook'
 
-# pandas display options
+os.chdir('/code')
+
+logging.config.fileConfig(
+    "source/config/logging_to_file.conf",
+    defaults={'logfilename': 'output/log.log'},
+    disable_existing_loggers=False
+)
+
 # https://pandas.pydata.org/pandas-docs/stable/user_guide/options.html#available-options
 pd.options.display.max_columns = 30 # default 20
 pd.options.display.max_rows = 60 # default 60

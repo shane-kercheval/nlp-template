@@ -1,18 +1,24 @@
 
 .PHONY: tests
 
-docker_compose:
-	docker compose -f docker-compose.yml up --build
+docker_build:
+	docker compose -f docker-compose.yml build
 
-docker_container:
-	docker run -it shanekercheval/python:nlp
+docker_run: docker_build
+	docker compose -f docker-compose.yml up
 
-docker_run: docker_jupyter docker_zsh
+docker_rebuild:
+	docker compose -f docker-compose.yml build --no-cache
 
-docker_jupyter:
+docker_bash:
+	docker compose -f docker-compose.yml up --build bash
+
+docker_open: notebook mlflow_ui zsh
+
+notebook:
 	open 'http://127.0.0.1:8888/?token=d4484563805c48c9b55f75eb8b28b3797c6757ad4871776d'
 
-docker_zsh:
+zsh:
 	docker exec -it nlp-template-bash-1 /bin/zsh
 
 #################################################################################
@@ -28,11 +34,11 @@ tests: linting
 
 ## Extract Data
 data_extract:
-	python source/scripts/etl.py extract
+	python source/scripts/commands.py extract
 
 ## Clean and pre-process text data.
 data_transform:
-	python source/scripts/etl.py transform
+	python source/scripts/commands.py transform
 
 ## Extract data and clean/pre-process.
 data: data_extract data_transform
@@ -49,9 +55,9 @@ exploration: exploration_basic
 
 ## Run topic modeling with n-grams 1-3
 topics_1_3:
-	python source/scripts/topic_modeling.py nmf -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
-	python source/scripts/topic_modeling.py lda -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
-	python source/scripts/topic_modeling.py k-means -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
+	python source/scripts/commands.py nmf -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
+	python source/scripts/commands.py lda -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
+	python source/scripts/commands.py k-means -num_topics=10 -ngrams_low=1 -ngrams_high=3 -num_samples=5000
 	cp source/notebooks/templates/text_topic_modeling_template.ipynb source/notebooks/text_topic_modeling_10_ngrams_1_3.ipynb
 	# set values ngrams_how and ngrams_low in notebook
 	sed -i 's/XXXXXXXXXXXXXXXX/1/g' source/notebooks/text_topic_modeling_10_ngrams_1_3.ipynb

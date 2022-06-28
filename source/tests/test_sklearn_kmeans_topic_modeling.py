@@ -1,10 +1,11 @@
 import unittest
+import pandas as pd
 
 from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
 from spacy.lang.en.stop_words import STOP_WORDS
 
-from source.library.sklearn_topic_modeling import *
+from source.library.sklearn_topic_modeling import KMeansTopicExplorer
 from source.tests.helpers import get_test_file_path, dataframe_to_text_file
 
 
@@ -160,3 +161,7 @@ class TestSklearnTopicModeling(unittest.TestCase):
         self.assertTrue((round(topic_sizes_per_year.groupby('year').agg(sum)['relative_size'], 5) == 1).all())
         dataframe_to_text_file(topic_sizes_per_year,
                                get_test_file_path('topic_modeling/k_means__get_topic_sizes_per_segment__year.txt'))  # noqa
+
+
+if __name__ == '__main__':
+    unittest.main()
