@@ -7,12 +7,12 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import NMF, LatentDirichletAllocation
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from spacy.lang.en.stop_words import STOP_WORDS
+import fasttext
 
 from helpsk.utility import to_pickle
 from helpsk.logging import log_function_call, log_timer, Timer
 
 import regex
-
 
 from source.library.text_analysis import impurity
 from source.library.text_cleaning_simple import prepare, get_n_grams, get_stop_words, tokenize
@@ -178,8 +178,7 @@ def transform():
 
     assert not reddit.isna().any().any()
 
-    import fasttext
-    language_model = fasttext.load_model("source/resources/lid.176.ftz")
+    language_model = fasttext.load_model("/fasttext/lid.176.ftz")
     with Timer("Reddit - Predicting Language"):
         reddit['language'] = reddit['post'].apply(predict_language, model=language_model)
         logging.info(f"Language was not able to be determined on {reddit['language'].isna().sum()} records.")
