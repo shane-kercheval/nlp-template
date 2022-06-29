@@ -3,7 +3,6 @@ import logging
 import click
 import pandas as pd
 from concurrent.futures import ProcessPoolExecutor
-import multiprocessing
 
 from sklearn.cluster import KMeans
 from sklearn.decomposition import NMF, LatentDirichletAllocation
@@ -77,6 +76,19 @@ def processing_text_data(df: pd.DataFrame):
     return (df)
 
 
+def reddit_extract_from_doc(df: pd.DataFrame) -> pd.DataFrame:
+    nlp = create_spacy_pipeline(
+        stopwords_to_add={'dear', 'regards'},
+        stopwords_to_remove={'down'},
+        tokenizer=custom_tokenizer
+    )
+    docs = nlp.pipe(df['post_clean'])
+    for j, doc in enumerate(docs):
+        for col, values in extract_from_doc(doc).items():
+            df[col].iloc[j] = values
+    return df
+
+
 @main.command()
 @log_function_call
 @log_timer
@@ -84,13 +96,9 @@ def transform():
     """
     Transforms the data.
     """
-    logging.info("Transforming Data")
     ####
     # UN Debate Data
     ####
-    num_cpus = multiprocessing.cpu_count()
-    logging.info(f"Num CPUs: {num_cpus}")
-
     with Timer("Loading UN Generate Debate Dataset"):
         un_debates = pd.read_pickle('artifacts/data/raw/un-general-debates-blueprint.pkl')
 
@@ -102,12 +110,12 @@ def transform():
     assert sum([len(x) for x in datasets]) == len(un_debates)
 
     with Timer("UN Debate - Processing Text Data"):
-        with ProcessPoolExecutor(max_workers=num_cpus*20) as pool:
+        with ProcessPoolExecutor() as pool:
             results = list(pool.map(processing_text_data, datasets))
             debates_transformed = pd.concat(results)
             assert len(debates_transformed) == len(un_debates)
             un_debates = debates_transformed
-            del (debates_transformed)
+            del debates_transformed, datasets, batch_size, num_batches, batch_indexes
             assert not un_debates.isna().any().any()
 
     with Timer("Saving UN-Debaates"):
@@ -179,22 +187,40 @@ def transform():
         reddit['post_clean'] = reddit['post'].apply(clean, remove_bracket_content=False)
     assert not reddit.isna().any().any()
     with Timer("Tokenizing & Extracting"):
-        nlp = create_spacy_pipeline(stopwords_to_add={'dear', 'regards'},
-                                    stopwords_to_remove={'down'},
-                                    tokenizer=custom_tokenizer)
-
+        nlp = create_spacy_pipeline(
+            stopwords_to_add={'dear', 'regards'},
+            stopwords_to_remove={'down'},
+            tokenizer=custom_tokenizer
+        )
         nlp_columns = list(extract_from_doc(nlp.make_doc('')).keys())
         for col in nlp_columns:
             reddit[col] = None
 
         batch_size = 500
         num_batches = ceil(len(reddit) / batch_size)
-        for i in range(0, len(reddit), batch_size):
-            logging.info(f"Processing Batch {round((i / batch_size) + 1)} of {num_batches}")
-            docs = nlp.pipe(reddit['post_clean'][i:i + batch_size])
-            for j, doc in enumerate(docs):
-                for col, values in extract_from_doc(doc).items():
-                    reddit[col].iloc[i + j] = values
+        batch_indexes = create_batch_start_stop_indexes(length=len(reddit), num_batches=num_batches)
+        datasets = [reddit.iloc[x[0]:x[1]].copy() for x in batch_indexes]
+        assert sum([len(x) for x in datasets]) == len(reddit)
+
+        with ProcessPoolExecutor() as pool:
+            # temp = reddit_extract_from_doc(df=datasets[0])
+            results = list(pool.map(reddit_extract_from_doc, datasets))
+            reddit_transformed = pd.concat(results)
+            assert len(reddit_transformed) == len(reddit)
+            added_columns = {
+                'all_lemmas', 'partial_lemmas', 'bi_grams', 'adjs_verbs', 'nouns', 'noun_phrases', 'entities'
+            }
+            assert added_columns.issubset(set(reddit_transformed.columns))
+            reddit = reddit_transformed
+            del reddit_transformed, datasets, batch_size, num_batches, batch_indexes
+            assert not reddit.isna().any().any()
+
+        # for i in range(0, len(reddit), batch_size):
+        #     logging.info(f"Processing Batch {round((i / batch_size) + 1)} of {num_batches}")
+        #     docs = nlp.pipe(reddit['post_clean'][i:i + batch_size])
+        #     for j, doc in enumerate(docs):
+        #         for col, values in extract_from_doc(doc).items():
+        #             reddit[col].iloc[i + j] = values
 
         reddit['post_length'] = reddit['post'].str.len()
         reddit['num_tokens'] = reddit['partial_lemmas'].map(len)
