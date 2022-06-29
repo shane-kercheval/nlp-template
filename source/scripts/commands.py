@@ -109,7 +109,9 @@ def transform():
             un_debates = debates_transformed
             del (debates_transformed)
             assert not un_debates.isna().any().any()
-            un_debates.to_pickle('artifacts/data/processed/un-general-debates-blueprint.pkl')
+
+    with Timer("Saving UN-Debaates"):
+        un_debates.to_pickle('artifacts/data/processed/un-general-debates-blueprint.pkl')
 
     with Timer("Creating UN dataset that is Per Year/Country/Paragraph"):
         paragraphs_series = un_debates["text"].map(lambda text: regex.split(r'\.\s*\n', text))
