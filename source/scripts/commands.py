@@ -2,6 +2,8 @@ from math import ceil
 import logging
 import click
 import pandas as pd
+from concurrent.futures import ProcessPoolExecutor
+import multiprocessing
 
 from sklearn.cluster import KMeans
 from sklearn.decomposition import NMF, LatentDirichletAllocation
@@ -18,6 +20,8 @@ from source.library.text_analysis import impurity
 from source.library.text_cleaning_simple import prepare, get_n_grams, get_stop_words, tokenize
 from source.library.text_preparation import clean, predict_language
 from source.library.spacy import create_spacy_pipeline, custom_tokenizer, extract_from_doc
+from source.library.utilities import create_batch_start_stop_indexes
+
 
 stop_words = STOP_WORDS.copy()
 stop_words |= {'united', 'nations', 'nation'}
@@ -58,6 +62,21 @@ def extract():
         reddit.to_pickle('artifacts/data/raw/reddit.pkl')
 
 
+def processing_text_data(df: pd.DataFrame):
+    df['speaker'].fillna('<unknown>', inplace=True)
+    df['position'].fillna('<unknown>', inplace=True)
+    assert not df.isna().any().any()
+    df['text_length'] = df['text'].str.len()
+    df['tokens'] = df['text'].apply(prepare)
+    df['num_tokens'] = df['tokens'].map(len)
+    df['bi_grams'] = df['text'].\
+        apply(prepare, pipeline=[str.lower, tokenize]).\
+        apply(get_n_grams, n=2, stop_words=get_stop_words())
+    df['num_bi_grams'] = df['bi_grams'].map(len)
+
+    return (df)
+
+
 @main.command()
 @log_function_call
 @log_timer
@@ -69,26 +88,26 @@ def transform():
     ####
     # UN Debate Data
     ####
+    num_cpus = multiprocessing.cpu_count()
+    logging.info(f"Num CPUs: {num_cpus}")
+
     with Timer("Loading UN Generate Debate Dataset"):
         un_debates = pd.read_pickle('artifacts/data/raw/un-general-debates-blueprint.pkl')
 
-    with Timer("UN Debate - Processing Text Data"):
-        un_debates['speaker'].fillna('<unknown>', inplace=True)
-        un_debates['position'].fillna('<unknown>', inplace=True)
-        assert not un_debates.isna().any().any()
-        un_debates['text_length'] = un_debates['text'].str.len()
-        logging.info("Generating tokens a.k.a uni-grams.")
-        un_debates['tokens'] = un_debates['text'].apply(prepare)
-        un_debates['num_tokens'] = un_debates['tokens'].map(len)
-        logging.info("Generating bi-grams.")
-        un_debates['bi_grams'] = un_debates['text'].\
-            apply(prepare, pipeline=[str.lower, tokenize]).\
-            apply(get_n_grams, n=2, stop_words=get_stop_words())
-        un_debates['num_bi_grams'] = un_debates['bi_grams'].map(len)
+    batch_size = 500
+    num_batches = ceil(len(un_debates) / batch_size)
+    batch_indexes = create_batch_start_stop_indexes(length=len(un_debates), num_batches=num_batches)
 
-    assert not un_debates.isna().any().any()
-    with Timer("Saving processed UN Debate dataset to /artifacts/data/processed/un-general-debates-blueprint.pkl"):  # noqa
-        un_debates.to_pickle('artifacts/data/processed/un-general-debates-blueprint.pkl')
+    datasets = [un_debates.iloc[x[0]:x[1]].copy() for x in batch_indexes]
+    assert sum([len(x) for x in datasets]) == len(un_debates)
+
+    with Timer("UN Debate - Processing Text Data"):
+        with ProcessPoolExecutor(max_workers=num_cpus*20) as pool:
+            results = list(pool.map(processing_text_data, datasets))
+            debates_transformed = pd.concat(results)
+            assert len(debates_transformed) == len(un_debates)
+            assert not un_debates.isna().any().any()
+            un_debates.to_pickle('artifacts/data/processed/un-general-debates-blueprint.pkl')
 
     with Timer("Creating UN dataset that is Per Year/Country/Paragraph"):
         paragraphs_series = un_debates["text"].map(lambda text: regex.split(r'\.\s*\n', text))

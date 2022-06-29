@@ -11,11 +11,12 @@ from spacy.util import compile_prefix_regex, compile_infix_regex, compile_suffix
 
 
 def get_stopwords(nlp: Union[Language, None] = None):
-    """This function doesn't seem to work as expected. If an nlp is created via `spacy.load('en_core_web_sm')`
-     and then nlp.Defaults.stop_words is modified, `spacy.load('en_core_web_sm').Defaults.stop_words` will
-     still have those modifications. I.e the modifications seem global, so passing None to nlp in this
-     function will still contain those modifications and will not return the original list.
-    is"""
+    """
+    This function doesn't seem to work as expected. If an nlp is created via `spacy.load('en_core_web_sm')`
+    and then nlp.Defaults.stop_words is modified, `spacy.load('en_core_web_sm').Defaults.stop_words` will
+    still have those modifications. I.e the modifications seem global, so passing None to nlp in this
+    function will still contain those modifications and will not return the original list.
+    """
     if nlp is None:
         nlp = spacy.load('en_core_web_sm')
 
@@ -106,12 +107,14 @@ def custom_tokenizer(nlp: Language):
     infixes = [pattern for pattern in nlp.Defaults.infixes
                if not re.search(pattern, 'xx-xx')]
 
-    return Tokenizer(vocab=nlp.vocab,  # noqa
-                     rules=nlp.Defaults.tokenizer_exceptions,  # noqa
-                     prefix_search=compile_prefix_regex(prefixes).search,  # noqa
-                     suffix_search=compile_suffix_regex(suffixes).search,  # noqa
-                     infix_finditer=compile_infix_regex(infixes).finditer,  # noqa
-                     token_match=nlp.Defaults.token_match)  # noqa
+    return Tokenizer(
+        vocab=nlp.vocab,
+        rules=nlp.Defaults.tokenizer_exceptions,
+        prefix_search=compile_prefix_regex(prefixes).search,
+        suffix_search=compile_suffix_regex(suffixes).search,
+        infix_finditer=compile_infix_regex(infixes).finditer,
+        token_match=nlp.Defaults.token_match
+    )
 
 
 def extract_lemmas(doc: spacy.tokens.doc.Doc,
