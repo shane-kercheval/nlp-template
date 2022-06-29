@@ -106,6 +106,8 @@ def transform():
             results = list(pool.map(processing_text_data, datasets))
             debates_transformed = pd.concat(results)
             assert len(debates_transformed) == len(un_debates)
+            un_debates = debates_transformed
+            del (debates_transformed)
             assert not un_debates.isna().any().any()
             un_debates.to_pickle('artifacts/data/processed/un-general-debates-blueprint.pkl')
 
