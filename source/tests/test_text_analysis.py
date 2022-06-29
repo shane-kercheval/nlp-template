@@ -19,7 +19,7 @@ class TestTextAnalysis(unittest.TestCase):
         cls.un_debates = un_debates
 
         cls.dumb_sentence = "This is a sentence; it has punctuation, etc.. It also has numbers. " \
-                            "It's a dumb sentence."
+            "It's a dumb sentence."
 
         reddit = pd.read_pickle(get_test_file_path('datasets/reddit__sample.pkl'))
         cls.reddit = reddit
@@ -118,15 +118,19 @@ class TestTextAnalysis(unittest.TestCase):
         self.assertIsInstance(result, pd.DataFrame)
         self.assertEqual(result.to_dict()['frequency'], {'sentence': 4, 'punctuation': 2, 'numbers': 2})
 
-        result = count_text_patterns(documents=pd.Series([self.dumb_sentence, self.dumb_sentence]),
-                                     pattern=r"\w{5,}",
-                                     min_frequency=3)
+        result = count_text_patterns(
+            documents=pd.Series([self.dumb_sentence, self.dumb_sentence]),
+            pattern=r"\w{5,}",
+            min_frequency=3
+        )
         self.assertIsInstance(result, pd.DataFrame)
         self.assertEqual(result.to_dict()['frequency'], {'sentence': 4})
 
-        result = count_text_patterns(documents=pd.Series([self.dumb_sentence, '']),
-                                     pattern=r"\w{5,}",
-                                     min_frequency=1)
+        result = count_text_patterns(
+            documents=pd.Series([self.dumb_sentence, '']),
+            pattern=r"\w{5,}",
+            min_frequency=1
+        )
         self.assertIsInstance(result, pd.DataFrame)
         self.assertEqual(result.to_dict()['frequency'], {'sentence': 2, 'punctuation': 1, 'numbers': 1})
 

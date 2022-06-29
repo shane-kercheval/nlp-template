@@ -58,11 +58,20 @@ class TestSklearnTopicModeling(unittest.TestCase):
         self.assertTrue(all([len(x) == top_n_tokens for x in topics_dict.values()]))
 
         # check that all token/value pairs have a length of two
-        self.assertTrue(all(flatten([[len(token_tuple) == 2 for token_tuple in token_list] for token_list in topics_dict.values()])))  # noqa
+        self.assertTrue(all(flatten([
+            [len(token_tuple) == 2 for token_tuple in token_list]
+            for token_list in topics_dict.values()
+        ])))
         # check that all token/value pairs have a string as the first instance
-        self.assertTrue(all(flatten([[isinstance(token_tuple[0], str) for token_tuple in token_list] for token_list in topics_dict.values()])))  # noqa
+        self.assertTrue(all(flatten([
+            [isinstance(token_tuple[0], str) for token_tuple in token_list]
+            for token_list in topics_dict.values()
+        ])))
         # check that all token/value pairs have a float as the second instance
-        self.assertTrue(all(flatten([[isinstance(token_tuple[1], float) for token_tuple in token_list] for token_list in topics_dict.values()])))  # noqa
+        self.assertTrue(all(flatten([
+            [isinstance(token_tuple[1], float) for token_tuple in token_list]
+            for token_list in topics_dict.values()
+        ])))
         del topics_dict
 
         top_n_tokens = 8
@@ -74,11 +83,20 @@ class TestSklearnTopicModeling(unittest.TestCase):
         self.assertTrue(all([len(x) == top_n_tokens for x in topics_dict.values()]))
 
         # check that all token/value pairs have a length of two
-        self.assertTrue(all(flatten([[len(token_tuple) == 2 for token_tuple in token_list] for token_list in topics_dict.values()])))  # noqa
+        self.assertTrue(all(flatten([
+            [len(token_tuple) == 2 for token_tuple in token_list]
+            for token_list in topics_dict.values()
+        ])))
         # check that all token/value pairs have a string as the first instance
-        self.assertTrue(all(flatten([[isinstance(token_tuple[0], str) for token_tuple in token_list] for token_list in topics_dict.values()])))  # noqa
+        self.assertTrue(all(flatten([
+            [isinstance(token_tuple[0], str) for token_tuple in token_list]
+            for token_list in topics_dict.values()
+        ])))
         # check that all token/value pairs have a float as the second instance
-        self.assertTrue(all(flatten([[isinstance(token_tuple[1], float) for token_tuple in token_list] for token_list in topics_dict.values()])))  # noqa
+        self.assertTrue(all(flatten([
+            [isinstance(token_tuple[1], float) for token_tuple in token_list]
+            for token_list in topics_dict.values()
+        ])))
 
     def test__extract_topic_labels(self):
         topics_dict = self.nmf_explorer.extract_topic_dictionary()
@@ -106,8 +124,10 @@ class TestSklearnTopicModeling(unittest.TestCase):
         self.assertEqual(topics_df['topic'].unique().tolist(), list(topics_dict.keys()))
         self.assertEqual(topics_df['token_index'].unique().tolist(), list(range(0, top_n_tokens)))
 
-        dataframe_to_text_file(topics_df,
-                               get_test_file_path('topic_modeling/nmf__extract_topic_dataframe.txt'))
+        dataframe_to_text_file(
+            topics_df,
+            get_test_file_path('topic_modeling/nmf__extract_topic_dataframe.txt')
+        )
 
         top_n_tokens = 7
         num_tokens_in_label = 3
@@ -119,8 +139,10 @@ class TestSklearnTopicModeling(unittest.TestCase):
         self.assertEqual(topics_df['topic'].unique().tolist(), list(topics_dict.keys()))
         self.assertEqual(topics_df['token_index'].unique().tolist(), list(range(0, top_n_tokens)))
 
-        dataframe_to_text_file(topics_df,
-                               get_test_file_path('topic_modeling/lda__extract_topic_dataframe.txt'))
+        dataframe_to_text_file(
+            topics_df,
+            get_test_file_path('topic_modeling/lda__extract_topic_dataframe.txt')
+        )
 
     def test__calculate_topic_sizes(self):
         sizes = self.nmf_explorer.calculate_topic_sizes(text_series=self.paragraphs['text'])
@@ -158,8 +180,10 @@ class TestSklearnTopicModeling(unittest.TestCase):
             num_tokens_in_label=2
         )
         self.assertEqual(len(examples), 7 * self.num_topics)
-        dataframe_to_text_file(examples,
-                               get_test_file_path('topic_modeling/nmf__extract_top_examples__default.txt'))
+        dataframe_to_text_file(
+            examples,
+            get_test_file_path('topic_modeling/nmf__extract_top_examples__default.txt')
+        )
 
         examples = self.nmf_explorer.extract_top_examples(
             text_series=self.paragraphs['text'],
@@ -169,8 +193,10 @@ class TestSklearnTopicModeling(unittest.TestCase):
             num_tokens_in_label=2
         )
         for index in range(0, len(examples)):
-            self.assertEqual(examples.iloc[index]['text'],
-                             self.paragraphs['text'].iloc[examples.iloc[index]['index']][0:100])
+            self.assertEqual(
+                examples.iloc[index]['text'],
+                self.paragraphs['text'].iloc[examples.iloc[index]['index']][0:100]
+            )
 
     def test__get_topic_sizes_per_segment(self):
         topic_sizes_per_year = self.nmf_explorer.get_topic_sizes_per_segment(
@@ -180,12 +206,16 @@ class TestSklearnTopicModeling(unittest.TestCase):
             token_separator='**',
             num_tokens_in_label=2,
         )
-        self.assertEqual(len(topic_sizes_per_year),
-                         len(self.paragraphs['year'].unique()) * self.num_topics)
+        self.assertEqual(
+            len(topic_sizes_per_year),
+            len(self.paragraphs['year'].unique()) * self.num_topics
+        )
 
         self.assertTrue((round(topic_sizes_per_year.groupby('year').agg(sum)['relative_size'], 5) == 1).all())
-        dataframe_to_text_file(topic_sizes_per_year,
-                               get_test_file_path('topic_modeling/nmf__get_topic_sizes_per_segment__year.txt'))  # noqa
+        dataframe_to_text_file(
+            topic_sizes_per_year,
+            get_test_file_path('topic_modeling/nmf__get_topic_sizes_per_segment__year.txt')
+        )
 
 
 if __name__ == '__main__':

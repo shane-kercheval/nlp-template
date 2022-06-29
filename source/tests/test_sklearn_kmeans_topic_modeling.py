@@ -30,9 +30,11 @@ class TestSklearnTopicModeling(unittest.TestCase):
         tfidf_vectors = tfidf_vectorizer.fit_transform(paragraphs["text"])
         k_means_model = KMeans(n_clusters=10, random_state=42)
         k_means_model.fit(tfidf_vectors)
-        cls.k_means_explorer = KMeansTopicExplorer(model=k_means_model,
-                                                   vectorizer=tfidf_vectorizer,
-                                                   vectors=tfidf_vectors)
+        cls.k_means_explorer = KMeansTopicExplorer(
+            model=k_means_model,
+            vectorizer=tfidf_vectorizer,
+            vectors=tfidf_vectors
+        )
 
     def test__extract_topic_dictionary(self):
         def flatten(t):
@@ -46,11 +48,20 @@ class TestSklearnTopicModeling(unittest.TestCase):
         self.assertTrue(all([len(x) == top_n_tokens for x in topics_dict.values()]))
 
         # check that all token/value pairs have a length of two
-        self.assertTrue(all(flatten([[len(token_tuple) == 2 for token_tuple in token_list] for token_list in topics_dict.values()])))  # noqa
+        self.assertTrue(all(flatten([
+            [len(token_tuple) == 2 for token_tuple in token_list]
+            for token_list in topics_dict.values()
+        ])))
         # check that all token/value pairs have a string as the first instance
-        self.assertTrue(all(flatten([[isinstance(token_tuple[0], str) for token_tuple in token_list] for token_list in topics_dict.values()])))  # noqa
+        self.assertTrue(all(flatten([
+            [isinstance(token_tuple[0], str) for token_tuple in token_list]
+            for token_list in topics_dict.values()
+        ])))
         # check that all token/value pairs have a float as the second instance
-        self.assertTrue(all(flatten([[isinstance(token_tuple[1], float) for token_tuple in token_list] for token_list in topics_dict.values()])))  # noqa
+        self.assertTrue(all(flatten([
+            [isinstance(token_tuple[1], float) for token_tuple in token_list]
+            for token_list in topics_dict.values()
+        ])))
 
     def test__extract_topic_labels(self):
         topics_dict = self.k_means_explorer.extract_topic_dictionary()
@@ -73,43 +84,59 @@ class TestSklearnTopicModeling(unittest.TestCase):
         self.assertEqual(topics_df['topic'].unique().tolist(), list(topics_dict.keys()))
         self.assertEqual(topics_df['token_index'].unique().tolist(), list(range(0, top_n_tokens)))
 
-        dataframe_to_text_file(topics_df,
-                               get_test_file_path('topic_modeling/k_means__extract_topic_dataframe.txt'))
+        dataframe_to_text_file(
+            topics_df,
+            get_test_file_path('topic_modeling/k_means__extract_topic_dataframe.txt')
+        )
 
     def test__calculate_topic_sizes(self):
         # first test with low sample sizes; we need to make sure the correct number of topics are returned
         examples = self.paragraphs['text'].iloc[0:2]
-        sizes = self.k_means_explorer.calculate_topic_sizes(text_series=examples,
-                                                            relative_sizes=False)
+        sizes = self.k_means_explorer.calculate_topic_sizes(
+            text_series=examples,
+            relative_sizes=False
+        )
         self.assertEqual(len(sizes), 10)
         self.assertEqual(len(examples), sizes.sum())
 
         examples = self.paragraphs['text'].iloc[0:2]
-        sizes = self.k_means_explorer.calculate_topic_sizes(text_series=examples,
-                                                            relative_sizes=True)
+        sizes = self.k_means_explorer.calculate_topic_sizes(
+            text_series=examples,
+            relative_sizes=True
+        )
         self.assertEqual(len(sizes), 10)
         self.assertEqual(sizes.sum(), 1)
 
-        sizes = self.k_means_explorer.calculate_topic_sizes(text_series=None,
-                                                            relative_sizes=False)
+        sizes = self.k_means_explorer.calculate_topic_sizes(
+            text_series=None,
+            relative_sizes=False
+        )
         self.assertEqual(len(sizes), self.num_topics)
         self.assertEqual(sizes.sum(), 2000)
 
-        sizes = self.k_means_explorer.calculate_topic_sizes(text_series=None,
-                                                            relative_sizes=True)
+        sizes = self.k_means_explorer.calculate_topic_sizes(
+            text_series=None,
+            relative_sizes=True
+        )
         self.assertEqual(len(sizes), self.num_topics)
         self.assertEqual(round(sizes.sum(), 8), 1)
 
-        sizes = self.k_means_explorer.calculate_topic_sizes(text_series=self.paragraphs['text'].sample(100, random_state=42),  # noqa
-                                                            relative_sizes=False)
+        sizes = self.k_means_explorer.calculate_topic_sizes(
+            text_series=self.paragraphs['text'].sample(100, random_state=42),
+            relative_sizes=False
+        )
         self.assertEqual(sizes.sum(), 100)
 
-        sizes = self.k_means_explorer.calculate_topic_sizes(text_series=self.paragraphs['text'].sample(100, random_state=42),  # noqa
-                                                            relative_sizes=True)
+        sizes = self.k_means_explorer.calculate_topic_sizes(
+            text_series=self.paragraphs['text'].sample(100, random_state=42),
+            relative_sizes=True
+        )
         self.assertEqual(round(sizes.sum(), 8), 1)
 
-        sizes = self.k_means_explorer.calculate_topic_sizes(text_series=self.paragraphs['text'],
-                                                            relative_sizes=False)
+        sizes = self.k_means_explorer.calculate_topic_sizes(
+            text_series=self.paragraphs['text'],
+            relative_sizes=False
+        )
         self.assertEqual(len(sizes), self.num_topics)
         self.assertEqual(sizes.sum(), len(self.paragraphs))
 
@@ -133,8 +160,10 @@ class TestSklearnTopicModeling(unittest.TestCase):
             num_tokens_in_label=2,
         )
         self.assertEqual(len(examples), 7 * self.num_topics)
-        dataframe_to_text_file(examples,
-                               get_test_file_path('topic_modeling/k_means__extract_random_examples__default.txt'))  # noqa
+        dataframe_to_text_file(
+            examples,
+            get_test_file_path('topic_modeling/k_means__extract_random_examples__default.txt')
+        )
 
         examples = self.k_means_explorer.extract_random_examples(
             text_series=self.paragraphs['text'],
@@ -144,8 +173,10 @@ class TestSklearnTopicModeling(unittest.TestCase):
             num_tokens_in_label=2,
         )
         for index in range(0, len(examples)):
-            self.assertEqual(examples.iloc[index]['text'],
-                             self.paragraphs['text'].loc[examples.iloc[index]['index']][0:100])
+            self.assertEqual(
+                examples.iloc[index]['text'],
+                self.paragraphs['text'].loc[examples.iloc[index]['index']][0:100]
+            )
 
     def test__get_topic_sizes_per_segment(self):
         topic_sizes_per_year = self.k_means_explorer.get_topic_sizes_per_segment(
@@ -155,12 +186,16 @@ class TestSklearnTopicModeling(unittest.TestCase):
             token_separator='**',
             num_tokens_in_label=2,
         )
-        self.assertEqual(len(topic_sizes_per_year),
-                         len(self.paragraphs['year'].unique()) * self.num_topics)
+        self.assertEqual(
+            len(topic_sizes_per_year),
+            len(self.paragraphs['year'].unique()) * self.num_topics
+        )
 
         self.assertTrue((round(topic_sizes_per_year.groupby('year').agg(sum)['relative_size'], 5) == 1).all())
-        dataframe_to_text_file(topic_sizes_per_year,
-                               get_test_file_path('topic_modeling/k_means__get_topic_sizes_per_segment__year.txt'))  # noqa
+        dataframe_to_text_file(
+            topic_sizes_per_year,
+            get_test_file_path('topic_modeling/k_means__get_topic_sizes_per_segment__year.txt')
+        )
 
 
 if __name__ == '__main__':

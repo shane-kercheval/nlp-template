@@ -20,9 +20,11 @@ class TestTextPreparation(unittest.TestCase):
         cls.reddit = reddit
 
     def test__clean(self):
-        text = "<This> 😩😬 [sentence] [sentence]& a & [link to something](www.hotmail.com) stuff && abc --- -   https://www.google.com/search?q=asdfa; john.doe@gmail.com #remove 445 583.345.7833 @shane"  # noqa
+        text = "<This> 😩😬 [sentence] [sentence]& a & [link to something](www.hotmail.com) stuff && abc --" \
+            "- -   https://www.google.com/search?q=asdfa; john.doe@gmail.com #remove 445 583.345.7833 @shane"
         clean_text = clean(text)
-        expected_text = '_EMOJI_ _EMOJI_ a link to something stuff abc - _URL_ _EMAIL_ _TAG_ _NUMBER_ _PHONE_ _USER_'  # noqa
+        expected_text = '_EMOJI_ _EMOJI_ a link to something stuff abc - _URL_ _EMAIL_ _TAG_ _NUMBER_ ' \
+            '_PHONE_ _USER_'
         self.assertEqual(expected_text, clean_text)
 
         clean_text = clean(
@@ -35,7 +37,8 @@ class TestTextPreparation(unittest.TestCase):
             replace_user_handles=None,
             replace_emoji=None,
         )
-        expected_text = 'This 😩😬 sentence sentence a link to something stuff abc - https://www.google.com/search?q=asdfa; _EMAIL_ #remove 445 _PHONE_ @shane'  # noqa
+        expected_text = 'This 😩😬 sentence sentence a link to something stuff abc - ' \
+            'https://www.google.com/search?q=asdfa; _EMAIL_ #remove 445 _PHONE_ @shane'
         self.assertEqual(expected_text, clean_text)
 
         with open(get_test_file_path('text_preparation/clean__reddit.txt'), 'w') as handle:
@@ -61,9 +64,10 @@ class TestTextPreparation(unittest.TestCase):
         df = doc_to_dataframe(doc)
         self.assertFalse(df.drop(columns=['ent_type_', 'ent_iob_']).replace('', np.nan).isna().any().any())
         default_tokens = [str(x) for x in doc]
-        self.assertEqual(default_tokens,
-                         ['This', ':', '_', 'is', '_', '_', 'some', '_',
-                          '#', 'text', 'down', 'dear', 'regards', '.'])
+        self.assertEqual(
+            default_tokens,
+            ['This', ':', '_', 'is', '_', '_', 'some', '_', '#', 'text', 'down', 'dear', 'regards', '.']
+        )
         default_df = doc_to_dataframe(doc, include_punctuation=True)
         self.assertTrue(default_df.query("text == 'down'").is_stop.iloc[0])
         self.assertFalse(default_df.query("text == 'dear'").is_stop.iloc[0])
@@ -71,17 +75,21 @@ class TestTextPreparation(unittest.TestCase):
         self.assertTrue((default_df['pos_'] == 'PUNCT').any())
         self.assertFalse((doc_to_dataframe(doc, include_punctuation=False)['pos_'] == 'PUNCT').any())
 
-        nlp = create_spacy_pipeline(stopwords_to_add={'dear', 'regards'},
-                                    stopwords_to_remove={'down'},
-                                    tokenizer=custom_tokenizer)
+        nlp = create_spacy_pipeline(
+            stopwords_to_add={'dear', 'regards'},
+            stopwords_to_remove={'down'},
+            tokenizer=custom_tokenizer
+        )
         self.assertIsInstance(nlp, spacy.lang.en.English)
         # if we do nlp() rather than make_doc, we should still get lemmas/etc.
         doc = nlp(text)
         df = doc_to_dataframe(doc)
         self.assertFalse(df.drop(columns=['ent_type_', 'ent_iob_']).replace('', np.nan).isna().any().any())
         custom_tokens = [str(x) for x in doc]
-        self.assertEqual(custom_tokens,
-                         ['This', ':', '_is_', '_some_', '#text', 'down', 'dear', 'regards', '.'])
+        self.assertEqual(
+            custom_tokens,
+            ['This', ':', '_is_', '_some_', '#text', 'down', 'dear', 'regards', '.']
+        )
         default_df = doc_to_dataframe(doc, include_punctuation=True)
         self.assertFalse(default_df.query("text == 'down'").is_stop.iloc[0])
         self.assertTrue(default_df.query("text == 'dear'").is_stop.iloc[0])
@@ -92,29 +100,37 @@ class TestTextPreparation(unittest.TestCase):
         text = self.reddit['post'].iloc[2]
         doc = create_spacy_pipeline()(text)
         lemmas = extract_lemmas(doc)
-        dataframe_to_text_file(pd.DataFrame(lemmas),
-                               get_test_file_path('text_preparation/extract_lemmas.txt'))
+        dataframe_to_text_file(
+            pd.DataFrame(lemmas),
+            get_test_file_path('text_preparation/extract_lemmas.txt')
+        )
 
     def test_extract_noun_phrases(self):
         text = self.reddit['post'].iloc[2]
         doc = create_spacy_pipeline()(text)
         phrases = extract_noun_phrases(doc)
-        dataframe_to_text_file(pd.DataFrame(phrases),
-                               get_test_file_path('text_preparation/extract_noun_phrases.txt'))
+        dataframe_to_text_file(
+            pd.DataFrame(phrases),
+            get_test_file_path('text_preparation/extract_noun_phrases.txt')
+        )
 
     def test_extract_named_entities(self):
         text = self.reddit['post'].iloc[2]
         doc = create_spacy_pipeline()(text)
         phrases = extract_named_entities(doc)
-        dataframe_to_text_file(pd.DataFrame(phrases),
-                               get_test_file_path('text_preparation/extract_named_entities.txt'))
+        dataframe_to_text_file(
+            pd.DataFrame(phrases),
+            get_test_file_path('text_preparation/extract_named_entities.txt')
+        )
 
     def test_extract_bi_grams(self):
         text = self.reddit['post'].iloc[2]
         doc = create_spacy_pipeline()(text)
         grams = extract_n_grams(doc)
-        dataframe_to_text_file(pd.DataFrame(grams),
-                               get_test_file_path('text_preparation/extract_bi_grams.txt'))
+        dataframe_to_text_file(
+            pd.DataFrame(grams),
+            get_test_file_path('text_preparation/extract_bi_grams.txt')
+        )
 
     def test_extract_from_doc(self):
         text = self.reddit['post'].iloc[2]
@@ -127,10 +143,14 @@ class TestTextPreparation(unittest.TestCase):
 
     def test_predict_language(self):
         model = fasttext.load_model("source/resources/lid.176.ftz")
-        self.assertEqual(predict_language('This is english.', model=model, return_language_code=False),
-                         "English")
-        self.assertEqual(predict_language('This is english.', model=model, return_language_code=True),
-                         "en")
+        self.assertEqual(
+            predict_language('This is english.', model=model, return_language_code=False),
+            "English"
+        )
+        self.assertEqual(
+            predict_language('This is english.', model=model, return_language_code=True),
+            "en"
+        )
 
         language_text = [
             "I don't like version 2.0 of Chat4you 😡👎",  # English
@@ -147,5 +167,7 @@ class TestTextPreparation(unittest.TestCase):
             model=model,
             return_language_code=True
         )
-        dataframe_to_text_file(language_text_df,
-                               get_test_file_path('text_preparation/predict_language.txt'))
+        dataframe_to_text_file(
+            language_text_df,
+            get_test_file_path('text_preparation/predict_language.txt')
+        )
