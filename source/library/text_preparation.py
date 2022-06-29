@@ -107,7 +107,7 @@ def clean(text: str,
 def predict_language(text: str,
                      probability_threshold: float = 0.6,
                      return_language_code: bool = False,
-                     model_path: str = "source/resources/lid.176.ftz",
+                     model_path: str = "/fasttext/lid.176.ftz",
                      model: 'fasttext' = None) -> str:
     """
     This function is a wrapper around fasttext's language prediction model. It will return the most probable
