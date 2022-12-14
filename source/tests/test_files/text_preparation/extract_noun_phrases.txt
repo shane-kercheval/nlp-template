@@ -1,7 +1,0 @@
-                 0
-0  mechanic instal
-1    starter motor
-2    starter motor
-3    motor require
-4   require grease
-5     new mechanic

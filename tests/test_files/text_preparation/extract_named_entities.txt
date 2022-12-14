@@ -1,0 +1,8 @@
+                         0
+0              1999 (DATE)
+1     107k mile (QUANTITY)
+2      january 2016 (DATE)
+3             today (DATE)
+4              year (DATE)
+5  less than a year (DATE)
+6           january (DATE)

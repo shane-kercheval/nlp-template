@@ -1,9 +1,0 @@
-             frequency
-token                 
-sentence             4
-numbers              4
-punctuation          2
-etc                  2
-also                 2
-nevermind            2
-dumb                 2

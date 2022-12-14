@@ -1,4 +1,0 @@
-          frequency
-token              
-sentence          2
-numbers           2
