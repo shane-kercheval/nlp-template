@@ -36,22 +36,24 @@ def clean(
             text to clean
         remove_angle_bracket_content:
             If True, removes brackets and the content within the brackets (e.g. removes <this>)
-            If False, removes the brackets only but leaves the content (e.g. `<this>` becomes `this`)
+            If False, removes the brackets only but leaves the content (e.g. `<this>` becomes
+            `this`)
         remove_bracket_content:
             If True, removes brackets and the content within the brackets (e.g. removes [this])
-            If False, removes the brackets only but leaves the content (e.g. `[this]` becomes `this`)
+            If False, removes the brackets only but leaves the content (e.g. `[this]` becomes
+            `this`)
         replace_urls:
             If `replace_urls` contains a string then urls are replaced with that string value,
             (default is "_URL_"); if None, then urls are left as is.
         replace_hashtags:
-            If `replace_hashtags` contains a string then hashtags are replaced with that string value,
-            (default is "_TAG_"); if None, then hashtags are left as is.
+            If `replace_hashtags` contains a string then hashtags are replaced with that string
+            value, (default is "_TAG_"); if None, then hashtags are left as is.
         replace_numbers:
-            If `replace_numbers` contains a string then numbers are replaced with that string value,
-            (default is "_NUMBER_"); if None, then numbers are left as is.
+            If `replace_numbers` contains a string then numbers are replaced with that string
+            value, (default is "_NUMBER_"); if None, then numbers are left as is.
         replace_user_handles:
-            If `replace_user_handles` contains a string then user_handles are replaced with that string value,
-            (default is "_USER_"); if None, then user_handles are left as is.
+            If `replace_user_handles` contains a string then user_handles are replaced with that
+            string value, (default is "_USER_"); if None, then user_handles are left as is.
         replace_emoji:
             If `replace_emoji` contains a string then emoji are replaced with that string value,
             (default is "_EMOJI_"); if None, then emoji are left as is.
@@ -93,7 +95,8 @@ def clean(
     text = prep.replace.phone_numbers(text, repl=" _PHONE_ ")
 
     if replace_numbers is not None:
-        text = prep.replace.numbers(text, repl=replace_numbers)  # needs to come after phone_numbers
+        # needs to come after phone_numbers
+        text = prep.replace.numbers(text, repl=replace_numbers)
     if replace_user_handles is not None:
         text = prep.replace.user_handles(text, repl=replace_user_handles)
     if replace_emoji is not None:
@@ -111,8 +114,9 @@ def predict_language(text: str,
                      model_path: str = "/fasttext/lid.176.ftz",
                      model: 'fasttext' = None) -> str:
     """
-    This function is a wrapper around fasttext's language prediction model. It will return the most probable
-    language predicted by the model if the probabily is higher than `probability_threshold`.
+    This function is a wrapper around fasttext's language prediction model. It will return the most
+    probable language predicted by the model if the probabily is higher than
+    `probability_threshold`.
 
     This function is modified from:
         Blueprints for Text Analytics Using Python
@@ -124,8 +128,8 @@ def predict_language(text: str,
         text:
             the text to predict the language of
         probability_threshold:
-            the minimum probability to return the language. If the probability returned by the model is lower
-            than the threshold, np.nan is returned.
+            the minimum probability to return the language. If the probability returned by the
+            model is lower than the threshold, np.nan is returned.
         return_language_code:
             if True: return the language code (e.g. en);
             If False: return the language name (e.g. English)

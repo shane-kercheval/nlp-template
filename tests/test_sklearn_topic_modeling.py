@@ -13,7 +13,7 @@ class TestSklearnTopicModeling(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        paragraphs = pd.read_pickle(get_test_file_path('datasets/un_debates_paragraphs__sample.pkl'))
+        paragraphs = pd.read_pickle(get_test_file_path('datasets/un_debates_paragraphs__sample.pkl'))  # noqa
         cls.paragraphs = paragraphs
         num_topics = 10
         cls.num_topics = num_topics
@@ -150,14 +150,18 @@ class TestSklearnTopicModeling(unittest.TestCase):
         self.assertEqual(round(sizes.sum(), 8), 1)
         self.assertEqual(len(sizes), 10)
 
-        sizes = self.nmf_explorer.calculate_topic_sizes(text_series=self.paragraphs['text'].iloc[0:2])
+        sizes = self.nmf_explorer.calculate_topic_sizes(
+            text_series=self.paragraphs['text'].iloc[0:2]
+        )
         self.assertEqual(len(sizes), 10)
 
         sizes = self.lda_explorer.calculate_topic_sizes(text_series=self.paragraphs['text'])
         self.assertEqual(len(sizes), self.num_topics)
         self.assertEqual(round(sizes.sum(), 8), 1)
 
-        sizes = self.lda_explorer.calculate_topic_sizes(text_series=self.paragraphs['text'].iloc[0:2])
+        sizes = self.lda_explorer.calculate_topic_sizes(
+            text_series=self.paragraphs['text'].iloc[0:2]
+        )
         self.assertEqual(len(sizes), 10)
 
     def test__plot_topic_sizes(self):
@@ -211,7 +215,7 @@ class TestSklearnTopicModeling(unittest.TestCase):
             len(self.paragraphs['year'].unique()) * self.num_topics
         )
 
-        self.assertTrue((round(topic_sizes_per_year.groupby('year').agg(sum)['relative_size'], 5) == 1).all())
+        self.assertTrue((round(topic_sizes_per_year.groupby('year').agg(sum)['relative_size'], 5) == 1).all())  # noqa
         dataframe_to_text_file(
             topic_sizes_per_year,
             get_test_file_path('topic_modeling/nmf__get_topic_sizes_per_segment__year.txt')

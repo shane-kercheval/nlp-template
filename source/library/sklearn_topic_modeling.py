@@ -41,26 +41,29 @@ class TopicModelExplorerBase:
                 ...
             }
 
-        Where the keys correspond to the topic indexes, starting with 1 (i.e. the first topic), and the values
-        contain a list of tuples corresponding to the top tokens (e.g. uni-grams/bi-grams) and contribution
-        values for that topic.
+        Where the keys correspond to the topic indexes, starting with 1 (i.e. the first topic), and
+        the values contain a list of tuples corresponding to the top tokens
+        (e.g. uni-grams/bi-grams) and contribution values for that topic.
 
         This code is modified from:
             https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch08/Topic_Modeling_Clustering.ipynb
         Args:
             top_n_tokens:
-                the number of tokens to extract from the model (which have the highest scores per topic)
+                the number of tokens to extract from the model (which have the highest scores per
+                topic)
         """
         pass
 
     @abstractmethod
     def calculate_topic_sizes(self, text_series: pd.Series) -> numpy.array:
         """
-        This function calculates the relative size of the topics and returns a float/percentage value.
+        This function calculates the relative size of the topics and returns a float/percentage
+        value.
 
         Args:
             text_series:
-                dataset series to transform/predict the topics on; e.g. scipy.sparse._csr.csr_matrix
+                dataset series to transform/predict the topics on;
+                e.g. scipy.sparse._csr.csr_matrix
         """
         pass
 
@@ -70,9 +73,10 @@ class TopicModelExplorerBase:
         """
         This function creates topic labels from a model.
 
-        For example, if `num_tokens_in_label` is set to `2`, then it will take the top 2 words from each topic
-        and return a dictionary containing the same keys as the topic_dictionary, each topic containing a
-        string value such as "word-1 | word-2" which can be used as a label for graphs and tables.
+        For example, if `num_tokens_in_label` is set to `2`, then it will take the top 2 words from
+        each topic and return a dictionary containing the same keys as the topic_dictionary, each
+        topic containing a string value such as "word-1 | word-2" which can be used as a label for
+        graphs and tables.
 
         Args:
             token_separator:
@@ -92,7 +96,8 @@ class TopicModelExplorerBase:
         This function returns a pd.DataFrame where each row represents a single
         Args:
             top_n_tokens:
-                the number of tokens to extract from the model (which have the highest scores per topic)
+                the number of tokens to extract from the model (which have the highest scores per
+                topic)
             num_tokens_in_label:
                 the number of (top) tokens to use in the label
             token_separator:
@@ -102,19 +107,23 @@ class TopicModelExplorerBase:
             token_separator=token_separator,
             num_tokens_in_label=num_tokens_in_label
         )
-        # this creates a dataframe where each column corresponds to a topic, and the rows correspond to the
-        # top_n_tokens
+        # this creates a dataframe where each column corresponds to a topic, and the rows
+        # correspond to the top_n_tokens
         topic_dictionary = self.extract_topic_dictionary(top_n_tokens=top_n_tokens)
         topic_tokens = pd.DataFrame(topic_dictionary)
-        # add a column to indicate the index of the token (e.g. index 0 corresponds to the token with the
-        # highest contribution value
+        # add a column to indicate the index of the token (e.g. index 0 corresponds to the token
+        # with the highest contribution value
         topics = topic_tokens.columns
         topic_tokens = topic_tokens.reset_index().rename(columns={'index': 'token_index'})
         # have a top_n_tokens (height) by #-topics (width) dataframe.
-        # We are going to transform the dataframe from wide to long, meaning each row is going to have a
-        # single token corresponding to a single topic
-        topic_tokens = pd.melt(topic_tokens, id_vars='token_index', value_vars=list(topics), var_name='topic')
-        # the `value` column is a word/value tuple; we need to split the tuple into separate columns
+        # We are going to transform the dataframe from wide to long, meaning each row is going to
+        # have a single token corresponding to a single topic
+        topic_tokens = pd.melt(
+            topic_tokens,
+            id_vars='token_index', value_vars=list(topics), var_name='topic'
+        )
+        # the `value` column is a word/value tuple; we need to split the tuple into separate
+        # columns
         topic_tokens = topic_tokens.assign(**pd.DataFrame(topic_tokens['value'].tolist(),
                                                           columns=['token', 'value']))
         # add the topic label for each corresponding topic for plots/tables.
@@ -131,15 +140,20 @@ class TopicModelExplorerBase:
 
         Args:
             text_series:
-                dataset series to transform/predict the topics on; e.g. scipy.sparse._csr.csr_matrix
+                dataset series to transform/predict the topics on;
+                e.g. scipy.sparse._csr.csr_matrix
             token_separator:
                 the separator string for joining the top tokens in the topic label
             num_tokens_in_label:
                 the number of (top) tokens to use in the label
         """
         topic_sizes = self.calculate_topic_sizes(text_series=text_series)
-        topic_labels = list(self.extract_topic_labels(token_separator=token_separator,
-                                                      num_tokens_in_label=num_tokens_in_label).values())
+        topic_labels = list(
+            self.extract_topic_labels(
+                token_separator=token_separator,
+                num_tokens_in_label=num_tokens_in_label
+            ).values()
+        )
         df = pd.DataFrame({
             'Topics': topic_labels,
             'Topic Size as a Percent of the Dataset': topic_sizes,
@@ -170,7 +184,8 @@ class TopicModelExplorerBase:
 
         Args:
             top_n_tokens:
-                the number of tokens to extract from the model (which have the highest scores per topic)
+                the number of tokens to extract from the model (which have the highest scores per
+                topic)
             num_tokens_in_label:
                 the number of (top) tokens to use in the label
             token_separator:
@@ -219,12 +234,13 @@ class TopicModelExplorerBase:
                                     num_tokens_in_label: int = 2
                                     ) -> pd.DataFrame:
         """
-        Given a model and a dataset (e.g. output of fit_transform from CountVectorizer or TfidfVectorizer),
-        this function plots the relative size of the topics.
+        Given a model and a dataset (e.g. output of fit_transform from CountVectorizer or
+        TfidfVectorizer), this function plots the relative size of the topics.
 
         Args:
             text_series:
-                dataset series to transform/predict the topics on; e.g. scipy.sparse._csr.csr_matrix
+                dataset series to transform/predict the topics on;
+                e.g. scipy.sparse._csr.csr_matrix
             token_separator:
                 the separator string for joining the top tokens in the topic label
             num_tokens_in_label:
@@ -241,11 +257,14 @@ class TopicModelExplorerBase:
             sizes = self.calculate_topic_sizes(text_series=text_series)
             return sizes
 
-        sizes_per_segment = {segment: get_segment_sizes(df[df[segment_column] == segment][text_column])
-                             for segment in segments}
-        segment_dict = {segment: {topic: value
-                                  for topic, value in zip(topic_labels.values(), sizes_per_segment[segment])}
-                        for segment in segments}
+        sizes_per_segment = {
+            segment: get_segment_sizes(df[df[segment_column] == segment][text_column])
+            for segment in segments
+            }
+        segment_dict = {
+            segment: {topic: value for topic, value in zip(topic_labels.values(), sizes_per_segment[segment])}  # noqa
+            for segment in segments
+        }
         df = pd.DataFrame(segment_dict).reset_index().rename(columns={'index': 'topic_labels'})
         column_values = df.columns
         df = pd.melt(
@@ -291,7 +310,8 @@ class KMeansTopicExplorer(TopicModelExplorerBase):
 
         Args:
             text_series:
-                dataset series to transform/predict the topics on; e.g. scipy.sparse._csr.csr_matrix
+                dataset series to transform/predict the topics on;
+                e.g. scipy.sparse._csr.csr_matrix
             relative_sizes:
                 if True, return the relative sizes (i.e. sizes will sum to 1).
                 if False, return the number of instances for each topic.
@@ -306,7 +326,8 @@ class KMeansTopicExplorer(TopicModelExplorerBase):
         # column i.e. topic totals
         clusters, sizes = np.unique(topic_predictions, return_counts=True)
 
-        # we need to return the sizes for each cluster even if the cluster didn't exist; in the same order
+        # we need to return the sizes for each cluster even if the cluster didn't exist; in the
+        # same order
         cluster_size_dict = {c: s for c, s in zip(clusters, sizes)}
         sizes = np.array([cluster_size_dict.get(x, 0) for x in range(0, self._model.n_clusters)])
         assert len(sizes) == self._model.n_clusters
@@ -331,15 +352,16 @@ class KMeansTopicExplorer(TopicModelExplorerBase):
 
         Args
             text_series:
-                dataset series to transform/predict the topics on; e.g. scipy.sparse._csr.csr_matrix
+                dataset series to transform/predict the topics on;
+                e.g. scipy.sparse._csr.csr_matrix
             n_examples:
                 the number of examples/documents to extract
             max_num_characters:
                 the maximum number of characters to extract from the examples
             surround_matches:
-                if `surround_matches` contains a string, any words within the example that matches the
-                top 5 words of the corresponding topic, will be surrounded with these characters;
-                if None, no replacement will be done
+                if `surround_matches` contains a string, any words within the example that matches
+                the top 5 words of the corresponding topic, will be surrounded with these
+                characters; if None, no replacement will be done
             num_tokens_in_label:
                  the number of (top) tokens to use in the label
         """
@@ -351,7 +373,9 @@ class KMeansTopicExplorer(TopicModelExplorerBase):
             token_separator=' | ',
             num_tokens_in_label=5,
         )
-        top_tokens_per_topic = {topic: label.split(' | ') for topic, label in top_tokens_per_topic.items()}
+        top_tokens_per_topic = {
+            topic: label.split(' | ') for topic, label in top_tokens_per_topic.items()
+        }
 
         topic_labels = self.extract_topic_labels(
             token_separator=' | ',
@@ -373,9 +397,12 @@ class KMeansTopicExplorer(TopicModelExplorerBase):
                 example_text = example.iloc[0][0: max_num_characters]
                 if surround_matches is not None and surround_matches != '':
                     for token in top_tokens_per_topic[topic + 1]:
-                        example_text = regex.sub(token, f'{surround_matches}{token}{surround_matches}',
-                                                 example_text,
-                                                 flags=regex.IGNORECASE)
+                        example_text = regex.sub(
+                            token,
+                            f'{surround_matches}{token}{surround_matches}',
+                            example_text,
+                            flags=regex.IGNORECASE
+                        )
 
                 random_examples += [{
                     'topic index': topic + 1,
@@ -395,8 +422,10 @@ class TopicModelExplorer(TopicModelExplorerBase):
         for topic, tokens in enumerate(self._model.components_):
             total = tokens.sum()
             largest = tokens.argsort()[::-1]  # invert sort order
-            topics[topic + 1] = [(self._token_names[largest[i]], abs(tokens[largest[i]] * 100.0 / total))
-                                 for i in range(0, top_n_tokens)]
+            topics[topic + 1] = [
+                (self._token_names[largest[i]], abs(tokens[largest[i]] * 100.0 / total))
+                for i in range(0, top_n_tokens)
+            ]
         return topics
 
     def calculate_topic_sizes(self, text_series: pd.Series) -> numpy.array:
@@ -419,14 +448,16 @@ class TopicModelExplorer(TopicModelExplorerBase):
 
         Args
             text_series:
-                dataset series to transform/predict the topics on; e.g. scipy.sparse._csr.csr_matrix
+                dataset series to transform/predict the topics on;
+                e.g. scipy.sparse._csr.csr_matrix
             top_n_examples:
                 the number of examples/documents to extract
             max_num_characters:
                 the maximum number of characters to extract from the examples
             surround_matches:
-                if `surround_matches` contains a string, any words within the example that matches the
-                top 5 words of the corresponding topic, will be surrounded with these characters;
+                if `surround_matches` contains a string, any words within the example that matches
+                the top 5 words of the corresponding topic, will be surrounded with these
+                characters;
                 if None, no replacement will be done
             num_tokens_in_label:
                  the number of (top) tokens to use in the label
@@ -439,7 +470,9 @@ class TopicModelExplorer(TopicModelExplorerBase):
             token_separator=' | ',
             num_tokens_in_label=5,
         )
-        top_words_per_topic = {topic: label.split(' | ') for topic, label in top_words_per_topic.items()}
+        top_words_per_topic = {
+            topic: label.split(' | ') for topic, label in top_words_per_topic.items()
+        }
 
         topic_labels = self.extract_topic_labels(
             token_separator=' | ',

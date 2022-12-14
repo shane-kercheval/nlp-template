@@ -12,12 +12,12 @@ class TestTextCleaningSimple(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        un_debates = pd.read_csv(get_test_file_path('datasets/un-general-debates-blueprint__sample.csv'))
+        un_debates = pd.read_csv(get_test_file_path('datasets/un-general-debates-blueprint__sample.csv'))  # noqa
         un_debates['tokens'] = un_debates['text'].map(prepare)
         cls.un_debates = un_debates
 
-        cls.dumb_sentence = "This is a sentence; it has punctuation, etc.. It also has numbers. It's a " \
-            "dumb sentence."
+        cls.dumb_sentence = "This is a sentence; it has punctuation, etc.. It also has numbers. " \
+            "It's a dumb sentence."
 
     def test__get_stop_words(self):
         stop_words = get_stop_words()
@@ -39,18 +39,18 @@ class TestTextCleaningSimple(unittest.TestCase):
 
         token_list = self.un_debates.text.map(tokenize)
         token_list = ['|'.join(x) for x in token_list]
-        with open(get_test_file_path('text_cleaning_simple/tokenize__un_debates.txt'), 'w') as file:
+        with open(get_test_file_path('text_cleaning_simple/tokenize__un_debates.txt'), 'w') as file:  # noqa
             file.write('\n'.join(token_list))
 
         token_list = self.un_debates.text.apply(tokenize, pattern=rx.TOKENS)
         token_list = ['|'.join(x) for x in token_list]
-        with open(get_test_file_path('text_cleaning_simple/tokenize__un_debates__pattern.txt'), 'w') as file:
+        with open(get_test_file_path('text_cleaning_simple/tokenize__un_debates__pattern.txt'), 'w') as file:  # noqa
             file.write('\n'.join(token_list))
 
     def test__remove_stop_words(self):
         tokens = tokenize(self.dumb_sentence)
         tokens = remove_stop_words(tokens)
-        with open(get_test_file_path('text_cleaning_simple/remove_stop_words__simple.txt'), 'w') as file:
+        with open(get_test_file_path('text_cleaning_simple/remove_stop_words__simple.txt'), 'w') as file:  # noqa
             file.write('|'.join(tokens))
 
         tokens = tokenize(self.dumb_sentence)
@@ -87,7 +87,7 @@ class TestTextCleaningSimple(unittest.TestCase):
         self.assertIsInstance(n_gram_series, pd.Series)
         self.assertEqual(len(n_gram_series), len(self.un_debates['text']))
 
-        with open(get_test_file_path('text_cleaning_simple/get_n_grams__un_debates.txt'), 'w') as handle:
+        with open(get_test_file_path('text_cleaning_simple/get_n_grams__un_debates.txt'), 'w') as handle:  # noqa
             handle.writelines([str(x) + "\n" for x in n_gram_series])
 
 

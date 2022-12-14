@@ -8,10 +8,11 @@ def get_config():
 
 def create_batch_start_stop_indexes(length, num_batches) -> List[tuple]:
     """
-    This function creates a list of tuples, each tuple being a start/stop index (inclusion/exclusion) of the
-    batch.
+    This function creates a list of tuples, each tuple being a start/stop index
+    (inclusion/exclusion) of the batch.
 
-    E.g. if there are twenty items (i.e. length=20) and we needed 7 batches, this function would return
+    E.g. if there are twenty items (i.e. length=20) and we needed 7 batches, this function would
+    return
          [
             (0, 3),
             (3, 6),
@@ -22,8 +23,8 @@ def create_batch_start_stop_indexes(length, num_batches) -> List[tuple]:
             (18, 20)
         ]
 
-    Each tuple is meant to work with `range()` so the second index of each tuple is an exclusion value i.e.
-    [a, b)
+    Each tuple is meant to work with `range()` so the second index of each tuple is an exclusion
+    value i.e. [a, b)
 
     Args:
         length: the length of the entire process i.e. number of items to batch

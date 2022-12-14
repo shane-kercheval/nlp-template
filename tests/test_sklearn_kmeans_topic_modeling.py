@@ -13,7 +13,7 @@ class TestSklearnTopicModeling(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        paragraphs = pd.read_pickle(get_test_file_path('datasets/un_debates_paragraphs__sample.pkl'))
+        paragraphs = pd.read_pickle(get_test_file_path('datasets/un_debates_paragraphs__sample.pkl'))  # noqa
         cls.paragraphs = paragraphs
         num_topics = 10
         cls.num_topics = num_topics
@@ -65,7 +65,10 @@ class TestSklearnTopicModeling(unittest.TestCase):
 
     def test__extract_topic_labels(self):
         topics_dict = self.k_means_explorer.extract_topic_dictionary()
-        labels = self.k_means_explorer.extract_topic_labels(token_separator='|', num_tokens_in_label=3)
+        labels = self.k_means_explorer.extract_topic_labels(
+            token_separator='|',
+            num_tokens_in_label=3
+        )
         self.assertEqual(topics_dict.keys(), labels.keys())
         self.assertTrue(all([isinstance(x, str) for x in labels.values()]))
         self.assertTrue(all([len(x.split('|')) == 3 for x in labels.values()]))
@@ -90,7 +93,8 @@ class TestSklearnTopicModeling(unittest.TestCase):
         )
 
     def test__calculate_topic_sizes(self):
-        # first test with low sample sizes; we need to make sure the correct number of topics are returned
+        # first test with low sample sizes; we need to make sure the correct number of topics are
+        # returned
         examples = self.paragraphs['text'].iloc[0:2]
         sizes = self.k_means_explorer.calculate_topic_sizes(
             text_series=examples,
@@ -191,7 +195,9 @@ class TestSklearnTopicModeling(unittest.TestCase):
             len(self.paragraphs['year'].unique()) * self.num_topics
         )
 
-        self.assertTrue((round(topic_sizes_per_year.groupby('year').agg(sum)['relative_size'], 5) == 1).all())
+        self.assertTrue(
+            (round(topic_sizes_per_year.groupby('year').agg(sum)['relative_size'], 5) == 1).all()
+        )
         dataframe_to_text_file(
             topic_sizes_per_year,
             get_test_file_path('topic_modeling/k_means__get_topic_sizes_per_segment__year.txt')
