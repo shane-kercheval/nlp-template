@@ -72,7 +72,6 @@ def processing_text_data(df: pd.DataFrame):
         apply(prepare, pipeline=[str.lower, tokenize]).\
         apply(get_n_grams, n=2, stop_words=get_stop_words())
     df['num_bi_grams'] = df['bi_grams'].map(len)
-
     return (df)
 
 
