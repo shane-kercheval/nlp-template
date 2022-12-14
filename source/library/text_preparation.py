@@ -12,15 +12,16 @@ import fasttext
 fasttext.FastText.eprint = lambda x: None
 
 
-def clean(text: str,
-          remove_angle_bracket_content: bool = True,
-          remove_bracket_content: bool = True,
-          replace_urls: Union[str, None] = " _URL_ ",
-          replace_hashtags: Union[str, None] = " _TAG_ ",
-          replace_numbers: Union[str, None] = " _NUMBER_ ",
-          replace_user_handles: Union[str, None] = " _USER_ ",
-          replace_emoji: Union[str, None] = " _EMOJI_ ",
-          ):
+def clean(
+        text: str,
+        remove_angle_bracket_content: bool = True,
+        remove_bracket_content: bool = True,
+        replace_urls: Union[str, None] = " _URL_ ",
+        replace_hashtags: Union[str, None] = " _TAG_ ",
+        replace_numbers: Union[str, None] = " _NUMBER_ ",
+        replace_user_handles: Union[str, None] = " _USER_ ",
+        replace_emoji: Union[str, None] = " _EMOJI_ "
+        ) -> str:
     """
     Applies various functions and regex patterns to clean the string.
 
@@ -138,17 +139,17 @@ def predict_language(text: str,
     if model is None:
         model = fasttext.load_model(model_path)
     labels, probabilities = model.predict(text)
-    language = labels[0].replace("__label__", "")
+    language_code = labels[0].replace("__label__", "")
     score = probabilities[0]
 
     if score < probability_threshold:
         return np.nan
     else:
         if return_language_code:
-            return language
+            return language_code
         else:
-            lang_df = pd.read_csv('source/resources/language_codes.csv')
+            lang_df = pd.read_csv('/code/source/resources/language_codes.csv')
             lang_df = lang_df[['name', '639-1', '639-2']].\
                 melt(id_vars=['name'], var_name='iso', value_name='code')
             iso639_languages = lang_df.set_index('code')['name'].to_dict()
-            return iso639_languages[language]
+            return iso639_languages[language_code]
