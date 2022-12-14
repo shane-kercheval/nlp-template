@@ -71,4 +71,7 @@ class TestUtilities(unittest.TestCase):
         self.assertEqual(indexes_found, list(range(0, length)))
         del num_batches, length, batch_indexes, indexes_found, batch, index
 
-        self.assertRaises(AssertionError, lambda: create_batch_start_stop_indexes(length=10, num_batches=11))
+        self.assertRaises(
+            AssertionError,
+            lambda: create_batch_start_stop_indexes(length=10, num_batches=11)
+        )

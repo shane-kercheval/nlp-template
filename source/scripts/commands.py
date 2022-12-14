@@ -104,7 +104,10 @@ def transform():
 
     batch_size = 500
     num_batches = ceil(len(un_debates) / batch_size)
-    batch_indexes = create_batch_start_stop_indexes(length=len(un_debates), num_batches=num_batches)
+    batch_indexes = create_batch_start_stop_indexes(
+        length=len(un_debates),
+        num_batches=num_batches
+    )
 
     datasets = [un_debates.iloc[x[0]:x[1]].copy() for x in batch_indexes]
     assert sum([len(x) for x in datasets]) == len(un_debates)
@@ -170,8 +173,12 @@ def transform():
     #         for j, result in enumerate(results):
     #             un_debates_paragraphs['clean_text'].iloc[i + j] = result
 
-    with Timer("Saving UN Paragraphs dataset to /artifacts/data/processed/un-general-debates-paragraphs.pkl"):
-        un_debates_paragraphs.to_pickle('artifacts/data/processed/un-general-debates-paragraphs.pkl')
+    message = "Saving UN Paragraphs dataset to " \
+        "/artifacts/data/processed/un-general-debates-paragraphs.pkl"
+    with Timer(message=message):
+        un_debates_paragraphs.to_pickle(
+            'artifacts/data/processed/un-general-debates-paragraphs.pkl'
+        )
 
     ####
     # Processing Reddit Data
@@ -198,7 +205,10 @@ def transform():
 
         batch_size = 500
         num_batches = ceil(len(reddit) / batch_size)
-        batch_indexes = create_batch_start_stop_indexes(length=len(reddit), num_batches=num_batches)
+        batch_indexes = create_batch_start_stop_indexes(
+            length=len(reddit),
+            num_batches=num_batches
+        )
         datasets = [reddit.iloc[x[0]:x[1]].copy() for x in batch_indexes]
         assert sum([len(x) for x in datasets]) == len(reddit)
 
@@ -208,7 +218,8 @@ def transform():
             reddit_transformed = pd.concat(results)
             assert len(reddit_transformed) == len(reddit)
             added_columns = {
-                'all_lemmas', 'partial_lemmas', 'bi_grams', 'adjs_verbs', 'nouns', 'noun_phrases', 'entities'
+                'all_lemmas', 'partial_lemmas', 'bi_grams', 'adjs_verbs', 'nouns', 'noun_phrases',
+                'entities'
             }
             assert added_columns.issubset(set(reddit_transformed.columns))
             reddit = reddit_transformed
@@ -230,7 +241,9 @@ def transform():
     language_model = fasttext.load_model("/fasttext/lid.176.ftz")
     with Timer("Reddit - Predicting Language"):
         reddit['language'] = reddit['post'].apply(predict_language, model=language_model)
-        logging.info(f"Language was not able to be determined on {reddit['language'].isna().sum()} records.")
+        logging.info(
+            f"Language was not able to be determined on {reddit['language'].isna().sum()} records."
+        )
 
     with Timer("Saving processed Reddit dataset to /artifacts/data/processed/reddit.pkl"):
         reddit.to_pickle('artifacts/data/processed/reddit.pkl')

@@ -25,13 +25,15 @@ def count_tokens(tokens: Union[pd.Series, List[list], List[str]],
     Args:
         tokens:
             either
-                - a pandas Series (with strings or a list of strings); each item in the Series is a 'document'
+                - a pandas Series (with strings or a list of strings); each item in the Series is a
+                'document'
                 - a list of strings; a single 'document'
                 - a list of lists of strings; each sublist is a 'document'
         min_frequency:
             The minimum times the token has to appear in order to be returned
         count_once_per_doc:
-            If True, counts each token once per document. This is synonymous with 'Document Frequency'.
+            If True, counts each token once per document. This is synonymous with 'Document
+            Frequency'.
         remove_tokens:
             remove the set of tokens from the results.
 
@@ -144,14 +146,19 @@ def term_frequency(df: pd.DataFrame,
         tokens_column:
             the name of the column containing the tokens.
         segment_columns:
-            the name(s) of the column(s) to segment term-frequencies by. Either a string or a list of strings.
+            the name(s) of the column(s) to segment term-frequencies by. Either a string or a list
+            of strings.
         min_frequency:
             The minimum times the token has to appear in order to be returned
         remove_tokens:
             remove the set of tokens from the results.
     """
     if segment_columns is None:
-        term_freq = count_tokens(df[tokens_column], min_frequency=min_frequency, remove_tokens=remove_tokens)
+        term_freq = count_tokens(
+            df[tokens_column],
+            min_frequency=min_frequency,
+            remove_tokens=remove_tokens
+        )
     else:
         term_freq = df.groupby(segment_columns)[tokens_column].\
             apply(count_tokens, min_frequency=min_frequency, remove_tokens=remove_tokens)
@@ -178,14 +185,18 @@ def inverse_document_frequency(documents: Union[pd.Series, List[list]],
         min_frequency:
             The minimum times the token has to appear in order to be returned
         constant:
-            "Note that idf(t)=0 for terms that appear in all documents. To not completely ignore those term,
-            some libraries add a constant to the whole term." - Blueprints for Text Analytics Using Python,
-            pg. 21
+            "Note that idf(t)=0 for terms that appear in all documents. To not completely ignore
+            those term, some libraries add a constant to the whole term." - Blueprints for Text
+            Analytics Using Python, pg. 21
     """
-    document_frequency = count_tokens(tokens=documents, min_frequency=min_frequency, count_once_per_doc=True)
+    document_frequency = count_tokens(
+        tokens=documents,
+        min_frequency=min_frequency,
+        count_once_per_doc=True
+    )
     num_documents = len(documents)
-    # if any frequencies are greater than the number of documents, something is wrong, because we are only
-    # counting once per document
+    # if any frequencies are greater than the number of documents, something is wrong, because we
+    # are only counting once per document
     assert (document_frequency['frequency'] <= num_documents).all()
     idf = np.log(num_documents / document_frequency) + constant
     idf.rename(columns={'frequency': 'inverse document frequency'}, inplace=True)
@@ -200,8 +211,8 @@ def tf_idf(df: pd.DataFrame,
            remove_tokens: Union[Set[str], None] = None,
            constant: float = 0.1) -> pd.DataFrame:
     """
-    This function returns the term-frequency inverse-document-frequency values for a given set of documents,
-    or by segment/slice.
+    This function returns the term-frequency inverse-document-frequency values for a given set of
+    documents, or by segment/slice.
 
     Unlike sci-kit learn TfidfVectorizer, you can calculate tf-idf for different slices/segments.
 
@@ -211,21 +222,22 @@ def tf_idf(df: pd.DataFrame,
         tokens_column:
             the name of the column containing the tokens.
         segment_columns:
-            the name(s) of the column(s) to segment term-frequencies by. Either a string or a list of strings.
+            the name(s) of the column(s) to segment term-frequencies by. Either a string or a list
+            of strings.
         min_frequency_document:
             The minimum times the token has to appear in the document in order to be returned
         min_frequency_corpus:
-            The minimum times the token has to appear in the corpus (across all docs) in order to be returned
+            The minimum times the token has to appear in the corpus (across all docs) in order to
+            be returned
         remove_tokens:
             remove the set of tokens from the results.
         constant:
-            "Note that idf(t)=0 for terms that appear in all documents. To not completely ignore those term,
-            some libraries add a constant to the whole term." - Blueprints for Text Analytics Using Python,
-            pg. 21
+            "Note that idf(t)=0 for terms that appear in all documents. To not completely ignore
+            those term, some libraries add a constant to the whole term." - Blueprints for Text
+            Analytics Using Python, pg. 21
     """
-    # calculate the term-frequencies by segment (if applicable) but inverse-document-frequencies across
-    # entire dataset
-
+    # calculate the term-frequencies by segment (if applicable) but inverse-document-frequencies
+    # across entire dataset
     term_freq = term_frequency(
         df=df,
         tokens_column=tokens_column,
@@ -291,7 +303,8 @@ def get_context_from_keyword(documents: pd.Series,
             ``keyword`` is a string; for pre-compiled regular expressions,
             the ``re.IGNORECASE`` flag is left as-is.
         shuffle_data:
-            If True, shuffle the data before searching for context, in order to generate a random sample.
+            If True, shuffle the data before searching for context, in order to generate a random
+            sample.
         random_seed:
             Random state if shuffle_data is True.
     """
@@ -325,8 +338,8 @@ def count_keywords(tokens: Union[List[str], Set[str]],
                    keywords: Union[List[str], Set[str]]) -> List[int]:
     """
     This function counts the number of times each keyword appears in the list of tokens.
-    It returns a list the same length as keywords and the number of occurrences, for each respective
-    keyword (in order of the keywords passed in).
+    It returns a list the same length as keywords and the number of occurrences, for each
+    respective keyword (in order of the keywords passed in).
 
     Copied from:
         Blueprints for Text Analytics Using Python
@@ -351,11 +364,11 @@ def count_keywords_by(df: pd.DataFrame,
                       keywords: List[str],
                       count_once_per_doc: bool = False) -> pd.DataFrame:
     """
-    This function is used to count the number of times keywords are used across one or more groups (e.g.
-    across `year`, or across `year and country`, etc.).
+    This function is used to count the number of times keywords are used across one or more groups
+    (e.g. across `year`, or across `year and country`, etc.).
 
-    This function takes a dataframe that has a column containing tokens (the column name is passed to
-    `tokens`) and additional columns to group by (i.e. `by`).
+    This function takes a dataframe that has a column containing tokens (the column name is passed
+    to `tokens`) and additional columns to group by (i.e. `by`).
 
     Copied from:
         Blueprints for Text Analytics Using Python
@@ -373,10 +386,10 @@ def count_keywords_by(df: pd.DataFrame,
         keywords:
             a list of keywords to get counts for
         count_once_per_doc:
-            If False, the counts contain the total number of occurrences summed across all documents for the
-                given group (for each keyword).
-            If True, each keyword count is only counted once per once per document. In other words, it tells
-                you the amount of documents the keyword appears in for the given groups.
+            If False, the counts contain the total number of occurrences summed across all
+                documents for the given group (for each keyword).
+            If True, each keyword count is only counted once per once per document. In other words,
+                it tells you the amount of documents the keyword appears in for the given groups.
     """
     def count_keywords_adjusted(x, keywords):  # noqa
         if count_once_per_doc:
@@ -394,16 +407,18 @@ def count_keywords_by(df: pd.DataFrame,
 
 def impurity(text: str, pattern: str = rx.SUSPICIOUS, min_length: int = 10):
     """
-    Returns the percent of characters matching regex_patterns.SUSPICIOUS (or other pattern passed in).
+    Returns the percent of characters matching regex_patterns.SUSPICIOUS (or other pattern passed
+    in).
 
     Args:
         text:
             text to search
         pattern:
-            regex pattern to use to search for suspicious characters; default is regex_patterns.SUSPICIOUS
+            regex pattern to use to search for suspicious characters; default is
+            regex_patterns.SUSPICIOUS
         min_length:
-            the minimum length of `text` required to return a score; if `text` is less than the minimum
-            length, then a value of np.nan is returned.
+            the minimum length of `text` required to return a score; if `text` is less than the
+            minimum length, then a value of np.nan is returned.
     Copied from:
         Blueprints for Text Analytics Using Python
         by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler

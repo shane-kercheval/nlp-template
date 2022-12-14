@@ -27,6 +27,7 @@ zsh:
 linting:
 	flake8 --max-line-length 110 source/scripts
 	flake8 --max-line-length 110 source/library
+	flake8 --max-line-length 110 tests
 
 ## Run unit-tests.
 tests: linting

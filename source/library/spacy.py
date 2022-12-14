@@ -12,10 +12,11 @@ from spacy.util import compile_prefix_regex, compile_infix_regex, compile_suffix
 
 def get_stopwords(nlp: Union[Language, None] = None):
     """
-    This function doesn't seem to work as expected. If an nlp is created via `spacy.load('en_core_web_sm')`
-    and then nlp.Defaults.stop_words is modified, `spacy.load('en_core_web_sm').Defaults.stop_words` will
-    still have those modifications. I.e the modifications seem global, so passing None to nlp in this
-    function will still contain those modifications and will not return the original list.
+    This function doesn't seem to work as expected.
+    If an nlp is created via `spacy.load('en_core_web_sm')` and then nlp.Defaults.stop_words is
+    modified, `spacy.load('en_core_web_sm').Defaults.stop_words` will still have those
+    modifications. I.e the modifications seem global, so passing None to nlp in this function will
+    still contain those modifications and will not return the original list.
     """
     if nlp is None:
         nlp = spacy.load('en_core_web_sm')
@@ -77,10 +78,12 @@ def doc_to_dataframe(doc: spacy.tokens.doc.Doc, include_punctuation: bool = Fals
     rows = []
     for i, t in enumerate(doc):
         if not t.is_punct or include_punctuation:
-            row = {'token': i, 'text': t.text, 'lemma_': t.lemma_,
-                   'is_stop': t.is_stop, 'is_alpha': t.is_alpha,
-                   'pos_': t.pos_, 'dep_': t.dep_,
-                   'ent_type_': t.ent_type_, 'ent_iob_': t.ent_iob_}
+            row = {
+                'token': i, 'text': t.text, 'lemma_': t.lemma_,
+                'is_stop': t.is_stop, 'is_alpha': t.is_alpha,
+                'pos_': t.pos_, 'dep_': t.dep_,
+                'ent_type_': t.ent_type_, 'ent_iob_': t.ent_iob_
+            }
             rows.append(row)
 
     df = pd.DataFrame(rows).set_index('token')
@@ -100,12 +103,15 @@ def custom_tokenizer(nlp: Language):
     Args:
         nlp: the Language
     """
-    prefixes = [pattern for pattern in nlp.Defaults.prefixes
-                if pattern not in ['-', '_', '#']]
-    suffixes = [pattern for pattern in nlp.Defaults.suffixes
-                if pattern not in ['_']]
-    infixes = [pattern for pattern in nlp.Defaults.infixes
-               if not re.search(pattern, 'xx-xx')]
+    prefixes = [
+        pattern for pattern in nlp.Defaults.prefixes if pattern not in ['-', '_', '#']
+    ]
+    suffixes = [
+        pattern for pattern in nlp.Defaults.suffixes if pattern not in ['_']
+    ]
+    infixes = [
+        pattern for pattern in nlp.Defaults.infixes if not re.search(pattern, 'xx-xx')
+    ]
 
     return Tokenizer(
         vocab=nlp.vocab,
@@ -172,8 +178,8 @@ def extract_n_grams(doc: spacy.tokens.doc.Doc,
     """
     This function extracts n_grams from the `doc`.
 
-    Note that exclude_punctuation and exclude_numbers does not seem to work; punctuation and numbers are being
-    returned.
+    Note that exclude_punctuation and exclude_numbers does not seem to work; punctuation and
+    numbers are being returned.
 
 
     Args:
@@ -222,9 +228,11 @@ def extract_noun_phrases(doc: spacy.tokens.doc.Doc,
         doc:
             the doc to extract from
         preceding_part_of_speech:
-            Part of Speech to filter for in the preceding word. If None, default is ['NOUN', 'ADJ', 'VERB']
+            Part of Speech to filter for in the preceding word. If None, default is ['NOUN', 'ADJ',
+            'VERB']
         subsequent_part_of_speech:
-            Part of Speech to filter for in the subsequent word. If None, default is ['NOUN', 'ADJ', 'VERB']
+            Part of Speech to filter for in the subsequent word. If None, default is ['NOUN',
+            'ADJ', 'VERB']
         sep:
             the separator to join the lemmas on.
         to_lower:
@@ -311,9 +319,10 @@ def extract_from_doc(doc: spacy.tokens.doc.Doc,
 
     Args:
         doc: the doc to extract from
-        all_lemmas: if True, return all lemmas (lower-case) of every word, also includes punctuation;
-            This is useful if you need to use e.g. scikit-learn TfidfVectorizer and need the raw document.
-            i.e. you can do a `' '.join()` with this data.
+        all_lemmas: if True, return all lemmas (lower-case) of every word, also includes
+        punctuation;
+            This is useful if you need to use e.g. scikit-learn TfidfVectorizer and need the raw
+            document. i.e. you can do a `' '.join()` with this data.
         partial_lemmas: if True, return lemmas (lower-case), excluding stopwords and punctuation
         bi_grams: if True, return bi_grams
         adjectives_verbs: if True, return adjectives_verbs

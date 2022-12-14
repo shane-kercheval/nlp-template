@@ -84,9 +84,9 @@ def prepare(text: str, pipeline: List[Callable] = None) -> List[str]:
     """
     Transforms `text` according to the pipeline, which is a list of functions to be called on text.
 
-    By default (and by design), it returns a list of strings (because `tokenize()` is part of the pipeline
-    if no `pipeline` is specified. However, it is possible to return something other than a list of strings
-    if `tokenize()` or an equivalent is not part of the pipeline.
+    By default (and by design), it returns a list of strings (because `tokenize()` is part of the
+    pipeline if no `pipeline` is specified. However, it is possible to return something other than
+    a list of strings if `tokenize()` or an equivalent is not part of the pipeline.
 
     From:
         Blueprints for Text Analytics Using Python

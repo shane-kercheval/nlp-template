@@ -6,8 +6,9 @@ import pandas as pd
 import spacy
 # from spacy.lang.en import English
 
-from source.library.spacy import doc_to_dataframe, custom_tokenizer, extract_lemmas, extract_noun_phrases, \
-    extract_named_entities, create_spacy_pipeline, extract_from_doc, get_stopwords, extract_n_grams
+from source.library.spacy import doc_to_dataframe, custom_tokenizer, extract_lemmas, \
+    extract_noun_phrases, extract_named_entities, create_spacy_pipeline, extract_from_doc, \
+    get_stopwords, extract_n_grams
 from source.library.text_preparation import clean, predict_language
 from tests.helpers import get_test_file_path, dataframe_to_text_file
 
@@ -20,11 +21,12 @@ class TestTextPreparation(unittest.TestCase):
         cls.reddit = reddit
 
     def test__clean(self):
-        text = "<This> 😩😬 [sentence] [sentence]& a & [link to something](www.hotmail.com) stuff && abc --" \
-            "- -   https://www.google.com/search?q=asdfa; john.doe@gmail.com #remove 445 583.345.7833 @shane"
+        text = "<This> 😩😬 [sentence] [sentence]& a & [link to something](www.hotmail.com) " \
+            "stuff && abc --- -   https://www.google.com/search?q=asdfa; john.doe@gmail.com " \
+            "#remove 445 583.345.7833 @shane"
         clean_text = clean(text)
-        expected_text = '_EMOJI_ _EMOJI_ a link to something stuff abc - _URL_ _EMAIL_ _TAG_ _NUMBER_ ' \
-            '_PHONE_ _USER_'
+        expected_text = '_EMOJI_ _EMOJI_ a link to something stuff abc - _URL_ _EMAIL_ _TAG_ ' \
+            '_NUMBER_ _PHONE_ _USER_'
         self.assertEqual(expected_text, clean_text)
 
         clean_text = clean(
@@ -62,18 +64,25 @@ class TestTextPreparation(unittest.TestCase):
         # if we do nlp() rather than make_doc, we should still get lemmas/etc.
         doc = nlp(text)
         df = doc_to_dataframe(doc)
-        self.assertFalse(df.drop(columns=['ent_type_', 'ent_iob_']).replace('', np.nan).isna().any().any())
+        self.assertFalse(
+            df.drop(columns=['ent_type_', 'ent_iob_']).replace('', np.nan).isna().any().any()
+        )
         default_tokens = [str(x) for x in doc]
         self.assertEqual(
             default_tokens,
-            ['This', ':', '_', 'is', '_', '_', 'some', '_', '#', 'text', 'down', 'dear', 'regards', '.']
+            [
+                'This', ':', '_', 'is', '_', '_', 'some', '_', '#', 'text', 'down', 'dear',
+                'regards', '.'
+            ]
         )
         default_df = doc_to_dataframe(doc, include_punctuation=True)
         self.assertTrue(default_df.query("text == 'down'").is_stop.iloc[0])
         self.assertFalse(default_df.query("text == 'dear'").is_stop.iloc[0])
         self.assertFalse(default_df.query("text == 'regards'").is_stop.iloc[0])
         self.assertTrue((default_df['pos_'] == 'PUNCT').any())
-        self.assertFalse((doc_to_dataframe(doc, include_punctuation=False)['pos_'] == 'PUNCT').any())
+        self.assertFalse(
+            (doc_to_dataframe(doc, include_punctuation=False)['pos_'] == 'PUNCT').any()
+        )
 
         nlp = create_spacy_pipeline(
             stopwords_to_add={'dear', 'regards'},
@@ -84,7 +93,9 @@ class TestTextPreparation(unittest.TestCase):
         # if we do nlp() rather than make_doc, we should still get lemmas/etc.
         doc = nlp(text)
         df = doc_to_dataframe(doc)
-        self.assertFalse(df.drop(columns=['ent_type_', 'ent_iob_']).replace('', np.nan).isna().any().any())
+        self.assertFalse(
+            df.drop(columns=['ent_type_', 'ent_iob_']).replace('', np.nan).isna().any().any()
+        )
         custom_tokens = [str(x) for x in doc]
         self.assertEqual(
             custom_tokens,
@@ -161,7 +172,8 @@ class TestTextPreparation(unittest.TestCase):
         language_text_df = pd.Series(language_text, name='text').to_frame()
 
         # create new column
-        language_text_df['language'] = language_text_df['text'].apply(predict_language, model=model)
+        language_text_df['language'] = language_text_df['text']\
+            .apply(predict_language, model=model)
         language_text_df['language_code'] = language_text_df['text'].apply(
             predict_language,
             model=model,
