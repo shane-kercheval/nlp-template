@@ -27,6 +27,7 @@ def get_stop_words(source: str = 'nltk',
                    include_stop_words: Union[Set[str], List[str]] = None,
                    exclude_stop_words: Union[Set[str], List[str]] = None) -> Set[str]:
     """
+    Gets the stop words from a given source (currently only `nltk` is supported.)
 
     Args:
         source:
