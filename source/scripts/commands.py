@@ -243,7 +243,7 @@ def transform():
                 'entities'
             }
             assert expected_columns == set(reddit_transformed.columns)
-            reddit = pd.concat([reddit, reddit_transformed], axis=1).columns
+            reddit = pd.concat([reddit, reddit_transformed], axis=1)
             del datasets, batch_size, num_batches, batch_indexes
             assert not reddit.isna().any().any()
 
