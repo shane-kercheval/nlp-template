@@ -99,18 +99,6 @@ def _extract_from_doc(df: pd.DataFrame, text_column: str) -> dict:
 
     return extracted_values
 
-# def reddit_extract_from_doc(df: pd.DataFrame) -> pd.DataFrame:
-#     nlp = create_spacy_pipeline(
-#         stopwords_to_add={'dear', 'regards'},
-#         stopwords_to_remove={'down'},
-#         tokenizer=custom_tokenizer
-#     )
-#     docs = nlp.pipe(df['post_clean'])
-#     for j, doc in enumerate(docs):
-#         for col, values in extract_from_doc(doc).items():
-#             df[col].iloc[j] = values
-#     return df
-
 
 @main.command()
 @log_function_call
