@@ -162,40 +162,6 @@ def transform():
         un_debates_paragraphs['text'] = un_debates_paragraphs['text'].str.strip()
         un_debates_paragraphs = un_debates_paragraphs[un_debates_paragraphs['text'] != '']
 
-    # This takes about 30 minutes to run.
-    # with Timer("Cleaning UN Paragraph dataset "):
-    #     nlp = create_spacy_pipeline(stopwords_to_add={'dear', 'regards'},
-    #                                 stopwords_to_remove={'down'},
-    #                                 tokenizer=custom_tokenizer)
-    #
-    #     def text_lemmas(text: str) -> str:
-    #         text = clean(
-    #             text,
-    #             remove_angle_bracket_content=True,
-    #             remove_bracket_content=True,
-    #         )
-    #         lemmas = extract_from_doc(
-    #             doc=nlp(text),
-    #             all_lemmas=True,
-    #             partial_lemmas=False,
-    #             bi_grams=False,
-    #             adjectives_verbs=False,
-    #             nouns=False,
-    #             noun_phrases=False,
-    #             named_entities=False
-    #         )
-    #         return ' '.join(lemmas['all_lemmas'])
-    #
-    #     un_debates_paragraphs['clean_text'] = None
-    #     batch_size = 25000
-    #     from math import ceil
-    #     num_batches = ceil(len(un_debates_paragraphs) / batch_size)
-    #     for i in range(0, len(un_debates_paragraphs), batch_size):
-    #         logging.info(f"Processing Batch {round((i / batch_size) + 1)} of {num_batches}")
-    #         results = [text_lemmas(x) for x in un_debates_paragraphs['text'][i:i + batch_size]]
-    #         for j, result in enumerate(results):
-    #             un_debates_paragraphs['clean_text'].iloc[i + j] = result
-
     message = "Saving UN Paragraphs dataset to " \
         "/artifacts/data/processed/un-general-debates-paragraphs.pkl"
     with Timer(message=message):
