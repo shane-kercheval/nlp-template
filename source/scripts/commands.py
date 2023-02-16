@@ -1,5 +1,6 @@
 from math import ceil
 import logging
+import logging.config
 import click
 import pandas as pd
 from concurrent.futures import ProcessPoolExecutor
