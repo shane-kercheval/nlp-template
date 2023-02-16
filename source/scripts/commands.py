@@ -76,17 +76,40 @@ def processing_text_data(df: pd.DataFrame):
     return (df)
 
 
-def reddit_extract_from_doc(df: pd.DataFrame) -> pd.DataFrame:
+def _extract_from_doc(df: pd.DataFrame, text_column: str) -> dict:
     nlp = create_spacy_pipeline(
         stopwords_to_add={'dear', 'regards'},
         stopwords_to_remove={'down'},
         tokenizer=custom_tokenizer
     )
-    docs = nlp.pipe(df['post_clean'])
+    extracted_values = {
+        'all_lemmas': [None] * len(df),
+        'partial_lemmas': [None] * len(df),
+        'bi_grams': [None] * len(df),
+        'adjs_verbs': [None] * len(df),
+        'nouns': [None] * len(df),
+        'noun_phrases': [None] * len(df),
+        'entities': [None] * len(df),
+    }
+    docs = nlp.pipe(df[text_column])
     for j, doc in enumerate(docs):
-        for col, values in extract_from_doc(doc).items():
-            df[col].iloc[j] = values
-    return df
+        _extraction = extract_from_doc(doc=doc)
+        for col, values in _extraction.items():
+            extracted_values[col][j] = values
+
+    return extracted_values
+
+# def reddit_extract_from_doc(df: pd.DataFrame) -> pd.DataFrame:
+#     nlp = create_spacy_pipeline(
+#         stopwords_to_add={'dear', 'regards'},
+#         stopwords_to_remove={'down'},
+#         tokenizer=custom_tokenizer
+#     )
+#     docs = nlp.pipe(df['post_clean'])
+#     for j, doc in enumerate(docs):
+#         for col, values in extract_from_doc(doc).items():
+#             df[col].iloc[j] = values
+#     return df
 
 
 @main.command()
@@ -185,7 +208,9 @@ def transform():
     ####
     with Timer("Loading Reddit Dataset - Sampling 5K rows."):
         reddit = pd.read_pickle('artifacts/data/raw/reddit.pkl')
-        reddit = reddit.sample(5000, random_state=42)
+        reddit = reddit.\
+            sample(5000, random_state=42).\
+            reset_index(drop=True)
 
     with Timer("Loading Reddit Dataset - Calculating Impurity"):
         reddit['impurity'] = reddit['post'].apply(impurity)
@@ -194,15 +219,6 @@ def transform():
         reddit['post_clean'] = reddit['post'].apply(clean, remove_bracket_content=False)
     assert not reddit.isna().any().any()
     with Timer("Tokenizing & Extracting"):
-        nlp = create_spacy_pipeline(
-            stopwords_to_add={'dear', 'regards'},
-            stopwords_to_remove={'down'},
-            tokenizer=custom_tokenizer
-        )
-        nlp_columns = list(extract_from_doc(nlp.make_doc('')).keys())
-        for col in nlp_columns:
-            reddit[col] = None
-
         batch_size = 500
         num_batches = ceil(len(reddit) / batch_size)
         batch_indexes = create_batch_start_stop_indexes(
@@ -213,17 +229,22 @@ def transform():
         assert sum([len(x) for x in datasets]) == len(reddit)
 
         with ProcessPoolExecutor() as pool:
-            # temp = reddit_extract_from_doc(df=datasets[0])
-            results = list(pool.map(reddit_extract_from_doc, datasets))
-            reddit_transformed = pd.concat(results)
+            # results = [
+            #     _extract_from_doc(df=datasets[0], text_column='post_clean'),
+            #     _extract_from_doc(df=datasets[1], text_column='post_clean'),
+            # ]
+            text_column = ['post_clean'] * len(datasets)
+            results = list(pool.map(_extract_from_doc, datasets, text_column))
+            reddit_transformed = pd.concat([pd.DataFrame(x) for x in results]).\
+                reset_index(drop=True)
             assert len(reddit_transformed) == len(reddit)
-            added_columns = {
+            expected_columns = {
                 'all_lemmas', 'partial_lemmas', 'bi_grams', 'adjs_verbs', 'nouns', 'noun_phrases',
                 'entities'
             }
-            assert added_columns.issubset(set(reddit_transformed.columns))
-            reddit = reddit_transformed
-            del reddit_transformed, datasets, batch_size, num_batches, batch_indexes
+            assert expected_columns == set(reddit_transformed.columns)
+            reddit = pd.concat([reddit, reddit_transformed], axis=1).columns
+            del datasets, batch_size, num_batches, batch_indexes
             assert not reddit.isna().any().any()
 
         # for i in range(0, len(reddit), batch_size):
