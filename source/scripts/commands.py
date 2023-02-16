@@ -277,7 +277,7 @@ def nmf(num_topics, ngrams_low, ngrams_high, num_samples):
 
     with Timer("Calculating TF-IDF"):
         tfidf_vectorizer = TfidfVectorizer(
-            stop_words=stop_words,
+            stop_words=list(stop_words),
             ngram_range=(ngrams_low, ngrams_high),
             min_df=5,
             max_df=0.7
@@ -327,7 +327,7 @@ def lda(num_topics, ngrams_low, ngrams_high, num_samples):
 
     with Timer("Calculating TF"):
         count_vectorizer = CountVectorizer(
-            stop_words=stop_words,
+            stop_words=list(stop_words),
             ngram_range=(ngrams_low, ngrams_high),
             min_df=5,
             max_df=0.7
@@ -377,7 +377,7 @@ def k_means(num_topics, ngrams_low, ngrams_high, num_samples):
 
     with Timer("Calculating TF-IDF"):
         tfidf_vectorizer = TfidfVectorizer(
-            stop_words=stop_words,
+            stop_words=list(stop_words),
             ngram_range=(ngrams_low, ngrams_high),
             min_df=5,
             max_df=0.7
@@ -391,7 +391,7 @@ def k_means(num_topics, ngrams_low, ngrams_high, num_samples):
         to_pickle(tfidf_vectors, file)
 
     with Timer("Running K-Means Clustering"):  # noqa
-        k_means_model = KMeans(n_clusters=10, random_state=42)
+        k_means_model = KMeans(n_clusters=10, n_init='auto', random_state=42)
         k_means_model.fit(tfidf_vectors)
         file = f'artifacts/models/topics/k_means-topics-{num_topics}-ngrams-{ngrams_low}-{ngrams_high}__model.pkl'  # noqa
         logging.info(f"Saving K-Means model: {file}")

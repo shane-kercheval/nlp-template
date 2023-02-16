@@ -22,7 +22,7 @@ class TestSklearnTopicModeling(unittest.TestCase):
         stop_words |= {'ll', 've'}
 
         count_vectorizer = CountVectorizer(
-            stop_words=STOP_WORDS,
+            stop_words=list(stop_words),
             ngram_range=(2, 2),
             min_df=5,
             max_df=0.7
@@ -34,7 +34,7 @@ class TestSklearnTopicModeling(unittest.TestCase):
         cls.lda_explorer = lda_explorer
 
         tfidf_vectorizer = TfidfVectorizer(
-            stop_words=stop_words,
+            stop_words=list(stop_words),
             ngram_range=(2, 2),
             min_df=5,
             max_df=0.7
@@ -215,7 +215,7 @@ class TestSklearnTopicModeling(unittest.TestCase):
             len(self.paragraphs['year'].unique()) * self.num_topics
         )
 
-        self.assertTrue((round(topic_sizes_per_year.groupby('year').agg(sum)['relative_size'], 5) == 1).all())  # noqa
+        self.assertTrue((round(topic_sizes_per_year.groupby('year')['relative_size'].sum(), 5) == 1).all())  # noqa
         dataframe_to_text_file(
             topic_sizes_per_year,
             get_test_file_path('topic_modeling/nmf__get_topic_sizes_per_segment__year.txt')

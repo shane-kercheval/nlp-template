@@ -22,13 +22,13 @@ class TestSklearnTopicModeling(unittest.TestCase):
         stop_words |= {'ll', 've'}
 
         tfidf_vectorizer = TfidfVectorizer(
-            stop_words=stop_words,
+            stop_words=list(stop_words),
             ngram_range=(2, 2),
             min_df=5,
             max_df=0.7
         )
         tfidf_vectors = tfidf_vectorizer.fit_transform(paragraphs["text"])
-        k_means_model = KMeans(n_clusters=10, random_state=42)
+        k_means_model = KMeans(n_clusters=10, n_init='auto', random_state=42)
         k_means_model.fit(tfidf_vectors)
         cls.k_means_explorer = KMeansTopicExplorer(
             model=k_means_model,
@@ -196,7 +196,7 @@ class TestSklearnTopicModeling(unittest.TestCase):
         )
 
         self.assertTrue(
-            (round(topic_sizes_per_year.groupby('year').agg(sum)['relative_size'], 5) == 1).all()
+            (round(topic_sizes_per_year.groupby('year')['relative_size'].sum(), 5) == 1).all()
         )
         dataframe_to_text_file(
             topic_sizes_per_year,
