@@ -201,13 +201,6 @@ def transform():
             del datasets, batch_size, num_batches, batch_indexes
             assert not reddit.isna().any().any()
 
-        # for i in range(0, len(reddit), batch_size):
-        #     logging.info(f"Processing Batch {round((i / batch_size) + 1)} of {num_batches}")
-        #     docs = nlp.pipe(reddit['post_clean'][i:i + batch_size])
-        #     for j, doc in enumerate(docs):
-        #         for col, values in extract_from_doc(doc).items():
-        #             reddit[col].iloc[i + j] = values
-
         reddit['post_length'] = reddit['post'].str.len()
         reddit['num_tokens'] = reddit['partial_lemmas'].map(len)
 
