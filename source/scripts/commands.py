@@ -189,17 +189,18 @@ def transform():
             # ]
             text_column = ['post_clean'] * len(datasets)
             results = list(pool.map(_extract_from_doc, datasets, text_column))
-            reddit_transformed = pd.concat([pd.DataFrame(x) for x in results]).\
-                reset_index(drop=True)
-            assert len(reddit_transformed) == len(reddit)
-            expected_columns = {
-                'all_lemmas', 'partial_lemmas', 'bi_grams', 'adjs_verbs', 'nouns', 'noun_phrases',
-                'entities'
-            }
-            assert expected_columns == set(reddit_transformed.columns)
-            reddit = pd.concat([reddit, reddit_transformed], axis=1)
-            del datasets, batch_size, num_batches, batch_indexes
-            assert not reddit.isna().any().any()
+
+        reddit_transformed = pd.concat([pd.DataFrame(x) for x in results]).\
+            reset_index(drop=True)
+        assert len(reddit_transformed) == len(reddit)
+        expected_columns = {
+            'all_lemmas', 'partial_lemmas', 'bi_grams', 'adjs_verbs', 'nouns', 'noun_phrases',
+            'entities'
+        }
+        assert expected_columns == set(reddit_transformed.columns)
+        reddit = pd.concat([reddit, reddit_transformed], axis=1)
+        del datasets, batch_size, num_batches, batch_indexes
+        assert not reddit.isna().any().any()
 
         reddit['post_length'] = reddit['post'].str.len()
         reddit['num_tokens'] = reddit['partial_lemmas'].map(len)
