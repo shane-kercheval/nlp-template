@@ -23,7 +23,7 @@ class TestSklearnTopicModeling(unittest.TestCase):
 
         tfidf_vectorizer = TfidfVectorizer(
             stop_words=list(stop_words),
-            ngram_range=(2, 2),
+            ngram_range=(1, 2),
             min_df=5,
             max_df=0.7
         )
@@ -43,7 +43,7 @@ class TestSklearnTopicModeling(unittest.TestCase):
         top_n_tokens = 7
         topics_dict = self.k_means_explorer.extract_topic_dictionary(top_n_tokens=top_n_tokens)
         self.assertEqual(len(topics_dict), self.num_topics)
-        self.assertEqual(list(topics_dict.keys()), list(range(1, self.num_topics + 1)))
+        self.assertEqual(list(topics_dict.keys()), list(range(self.num_topics)))
         self.assertTrue(all([len(x) == top_n_tokens for x in topics_dict.values()]))
         self.assertTrue(all([len(x) == top_n_tokens for x in topics_dict.values()]))
 
@@ -155,31 +155,31 @@ class TestSklearnTopicModeling(unittest.TestCase):
         )
         self.assertIsNotNone(fig)
 
-    def test__extract_random_examples(self):
-        examples = self.k_means_explorer.extract_random_examples(
+    def test__extract_top_examples(self):
+        examples = self.k_means_explorer.extract_top_examples(
             text_series=self.paragraphs['text'],
-            n_examples=7,
+            top_n_examples=7,
             max_num_characters=100,
             surround_matches="*",
-            num_tokens_in_label=2,
+            num_tokens_in_label=2
         )
         self.assertEqual(len(examples), 7 * self.num_topics)
         dataframe_to_text_file(
             examples,
-            get_test_file_path('topic_modeling/k_means__extract_random_examples__default.txt')
+            get_test_file_path('topic_modeling/k_means__extract_top_examples__default.txt')
         )
 
-        examples = self.k_means_explorer.extract_random_examples(
+        examples = self.k_means_explorer.extract_top_examples(
             text_series=self.paragraphs['text'],
-            n_examples=7,
+            top_n_examples=7,
             max_num_characters=100,
             surround_matches=None,
-            num_tokens_in_label=2,
+            num_tokens_in_label=2
         )
-        for index in range(0, len(examples)):
+        for index in examples.index:
             self.assertEqual(
-                examples.iloc[index]['text'],
-                self.paragraphs['text'].loc[examples.iloc[index]['index']][0:100]
+                examples.loc[index]['text'],
+                self.paragraphs['text'].loc[index][0:100]
             )
 
     def test__get_topic_sizes_per_segment(self):

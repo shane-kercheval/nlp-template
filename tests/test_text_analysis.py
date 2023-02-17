@@ -309,7 +309,7 @@ class TestTextAnalysis(unittest.TestCase):
             keyword_wrap='||',
             random_seed=42
         )
-        self.assertEqual(context_list, [])
+        self.assertEqual(len(context_list), 0)
 
         context_list = get_context_from_keyword(
             documents=pd.Series([], dtype=object),
@@ -320,7 +320,7 @@ class TestTextAnalysis(unittest.TestCase):
             keyword_wrap='||',
             random_seed=42
         )
-        self.assertEqual(context_list, [])
+        self.assertEqual(len(context_list), 0)
 
         documents = pd.Series(self.dumb_sentence)
         context_list = get_context_from_keyword(

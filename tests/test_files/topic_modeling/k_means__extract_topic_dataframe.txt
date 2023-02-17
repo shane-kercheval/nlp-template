@@ -1,71 +1,71 @@
-   topic  token_index                    token      value                                        topic_label
-0      1            0           women children   5.669575  women children | international community | qua...
-1      1            1  international community   1.036357  women children | international community | qua...
-2      1            2             quality life   0.719305  women children | international community | qua...
-3      1            3                men women   0.712947  women children | international community | qua...
-4      1            4        twentieth century   0.696648  women children | international community | qua...
-5      1            5         security council   0.635614  women children | international community | qua...
-6      1            6          human suffering   0.580917  women children | international community | qua...
-7      2            0           peace security   0.286101  peace security | international regional | peac...
-8      2            1   international regional   0.250297  peace security | international regional | peac...
-9      2            2       peaceful solutions   0.250297  peace security | international regional | peac...
-10     2            3             peace loving   0.244631  peace security | international regional | peac...
-11     2            4     conventional weapons   0.244631  peace security | international regional | peac...
-12     2            5   regional organizations   0.235393  peace security | international regional | peac...
-13     2            6       national interests   0.235393  peace security | international regional | peac...
-14     3            0  international community  46.865359  international community | united nations | sup...
-15     3            1           united nations   5.989197  international community | united nations | sup...
-16     3            2    support international   4.251589  international community | united nations | sup...
-17     3            3  attention international   2.946357  international community | united nations | sup...
-18     3            4             human rights   2.839078  international community | united nations | sup...
-19     3            5      developed countries   2.774068  international community | united nations | sup...
-20     3            6    nations international   2.767632  international community | united nations | sup...
-21     4            0             human rights  31.236411      human rights | united nations | respect human
-22     4            1           united nations   3.324001      human rights | united nations | respect human
-23     4            2            respect human   3.090803      human rights | united nations | respect human
-24     4            3                 rule law   2.258516      human rights | united nations | respect human
-25     4            4         political rights   1.986032      human rights | united nations | respect human
-26     4            5  international community   1.964056      human rights | united nations | respect human
-27     4            6          economic social   1.912613      human rights | united nations | respect human
-28     5            0           united nations  99.475811  united nations | member states | secretary gen...
-29     5            1            member states   9.688257  united nations | member states | secretary gen...
-30     5            2        secretary general   8.916980  united nations | member states | secretary gen...
-31     5            3           peace security   7.024621  united nations | member states | secretary gen...
-32     5            4           nations system   6.080441  united nations | member states | secretary gen...
-33     5            5           european union   4.865887  united nations | member states | secretary gen...
-34     5            6          nations charter   4.798184  united nations | member states | secretary gen...
-35     6            0         general assembly  38.868712  general assembly | developing countries | unit...
-36     6            1     developing countries  32.703420  general assembly | developing countries | unit...
-37     6            2           united nations  27.042924  general assembly | developing countries | unit...
-38     6            3             co operation  26.615159  general assembly | developing countries | unit...
-39     6            4              middle east  24.219227  general assembly | developing countries | unit...
-40     6            5           peace security  23.569138  general assembly | developing countries | unit...
-41     6            6        secretary general  23.203208  general assembly | developing countries | unit...
-42     7            0            united states  28.542478       united states | soviet union | states soviet
-43     7            1             soviet union   5.594111       united states | soviet union | states soviet
-44     7            2            states soviet   4.089219       united states | soviet union | states soviet
-45     7            3           states america   4.058858       united states | soviet union | states soviet
-46     7            4          nuclear weapons   2.309591       united states | soviet union | states soviet
-47     7            5         general assembly   1.596092       united states | soviet union | states soviet
-48     7            6            peace process   1.517687       united states | soviet union | states soviet
-49     8            0         security council  36.271171  security council | council resolution | united...
-50     8            1       council resolution   6.958257  security council | council resolution | united...
-51     8            2           united nations   6.059823  security council | council resolution | united...
-52     8            3        secretary general   3.601504  security council | council resolution | united...
-53     8            4         general assembly   3.455050  security council | council resolution | united...
-54     8            5          reform security   3.202515  security council | council resolution | united...
-55     8            6            non permanent   3.118340  security council | council resolution | united...
-56     9            0        equatorial guinea   3.150931      equatorial guinea | years ago | principle non
-57     9            1                years ago   0.629046      equatorial guinea | years ago | principle non
-58     9            2            principle non   0.475105      equatorial guinea | years ago | principle non
-59     9            3    interference internal   0.446816      equatorial guinea | years ago | principle non
-60     9            4           affairs states   0.439465      equatorial guinea | years ago | principle non
-61     9            5        living conditions   0.439060      equatorial guinea | years ago | principle non
-62     9            6         internal affairs   0.394684      equatorial guinea | years ago | principle non
-63    10            0       development agenda   2.675005  development agenda | 2015 development | post 2015
-64    10            1         2015 development   2.673420  development agenda | 2015 development | post 2015
-65    10            2                post 2015   2.581951  development agenda | 2015 development | post 2015
-66    10            3   millennium development   0.902130  development agenda | 2015 development | post 2015
-67    10            4        development goals   0.572233  development agenda | 2015 development | post 2015
-68    10            5         great importance   0.430009  development agenda | 2015 development | post 2015
-69    10            6           climate change   0.398820  development agenda | 2015 development | post 2015
+   topic  token_index                 token      value                                    topic_label
+0      0            0                rights  14.959443                  rights | human rights | human
+1      0            1          human rights  14.541781                  rights | human rights | human
+2      0            2                 human  13.101121                  rights | human rights | human
+3      0            3         international   3.171870                  rights | human rights | human
+4      0            4         respect human   2.622771                  rights | human rights | human
+5      0            5            violations   2.489138                  rights | human rights | human
+6      0            6               respect   2.481753                  rights | human rights | human
+7      1            0             countries  25.608180  countries | developing | developing countries
+8      1            1            developing  13.646890  countries | developing | developing countries
+9      1            2  developing countries  13.094347  countries | developing | developing countries
+10     1            3              economic  11.619058  countries | developing | developing countries
+11     1            4           development   9.860045  countries | developing | developing countries
+12     1            5             developed   8.209747  countries | developing | developing countries
+13     1            6         international   7.404430  countries | developing | developing countries
+14     2            0     secretary general  11.642356        secretary general | secretary | general
+15     2            1             secretary  11.613150        secretary general | secretary | general
+16     2            2               general   8.514203        secretary general | secretary | general
+17     2            3               nations   3.746665        secretary general | secretary | general
+18     2            4        united nations   3.576800        secretary general | secretary | general
+19     2            5                united   3.348865        secretary general | secretary | general
+20     2            6                report   2.990993        secretary general | secretary | general
+21     3            0                 world  23.167414                       world | people | country
+22     3            1                people  17.471705                       world | people | country
+23     3            2               country  15.496567                       world | people | country
+24     3            3                 peace  14.860700                       world | people | country
+25     3            4                africa  14.200759                       world | people | country
+26     3            5                 south  13.330983                       world | people | country
+27     3            6         international  11.439866                       world | people | country
+28     4            0               nuclear  15.819031                nuclear | weapons | disarmament
+29     4            1               weapons  12.489710                nuclear | weapons | disarmament
+30     4            2           disarmament   8.620744                nuclear | weapons | disarmament
+31     4            3                  arms   8.180096                nuclear | weapons | disarmament
+32     4            4       nuclear weapons   5.721337                nuclear | weapons | disarmament
+33     4            5                  race   5.712535                nuclear | weapons | disarmament
+34     4            6                treaty   5.627116                nuclear | weapons | disarmament
+35     5            0                middle   9.534856                    middle | middle east | east
+36     5            1           middle east   9.531383                    middle | middle east | east
+37     5            2                  east   8.999911                    middle | middle east | east
+38     5            3           palestinian   8.602894                    middle | middle east | east
+39     5            4                israel   7.955449                    middle | middle east | east
+40     5            5               israeli   6.658111                    middle | middle east | east
+41     5            6                 peace   6.361425                    middle | middle east | east
+42     6            0               nations  33.500797              nations | united nations | united
+43     6            1        united nations  32.844479              nations | united nations | united
+44     6            2                united  31.701786              nations | united nations | united
+45     6            3         international  10.105221              nations | united nations | united
+46     6            4          organization   9.504661              nations | united nations | united
+47     6            5                states   7.957204              nations | united nations | united
+48     6            6                 world   7.051135              nations | united nations | united
+49     7            0               council  14.853988          council | security council | security
+50     7            1      security council  12.425139          council | security council | security
+51     7            2              security  10.458360          council | security council | security
+52     7            3                reform   3.142625          council | security council | security
+53     7            4             permanent   2.843378          council | security council | security
+54     7            5            resolution   2.750018          council | security council | security
+55     7            6               nations   2.561021          council | security council | security
+56     8            0         international  12.904869            international | conference | states
+57     8            1            conference   8.777636            international | conference | states
+58     8            2                states   8.035400            international | conference | states
+59     8            3           development   7.907143            international | conference | states
+60     8            4                   law   6.907829            international | conference | states
+61     8            5            government   6.781509            international | conference | states
+62     8            6                   sea   6.493462            international | conference | states
+63     9            0               session  12.670086          session | assembly | general assembly
+64     9            1              assembly  12.618697          session | assembly | general assembly
+65     9            2      general assembly  11.278353          session | assembly | general assembly
+66     9            3               general  10.371841          session | assembly | general assembly
+67     9            4                    mr   9.452883          session | assembly | general assembly
+68     9            5       session general   7.114720          session | assembly | general assembly
+69     9            6              election   6.845353          session | assembly | general assembly

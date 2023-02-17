@@ -278,9 +278,11 @@ def get_context_from_keyword(documents: pd.Series,
                              pad_context: bool = False,
                              ignore_case: bool = True,
                              shuffle_data: bool = True,
-                             random_seed: int = None) -> List[str]:
+                             random_seed: int = None) -> pd.Series:
     """
-    Search documents for specific keyword and return matches/context in list.
+    Search documents for specific keyword and return matches/context in list. A pandas series
+    is returned with matching indexes so that the user can join on the original Series or
+    DataFrame.
 
     Wrapper around https://textacy.readthedocs.io/en/0.11.0/_modules/textacy/extract/kwic.html
     Args:
@@ -310,28 +312,33 @@ def get_context_from_keyword(documents: pd.Series,
     """
     num_contexts_found = 0
     contexts_found = []
+    indexes_found = []
 
     if shuffle_data:
         documents = documents.sample(len(documents), random_state=random_seed)
+
+    indexes = documents.index
     # iterate through documents and generator until the number of samples is found
     # the list could get quite large and we could run out of memory if we converted the generators
     # to lists and built one large list.
-    for doc in documents:
+    for index, doc in zip(indexes, documents):
         context_gen = keyword_in_context(
             doc=doc,
             keyword=keyword,
             ignore_case=ignore_case,
             window_width=window_width,
-            pad_context=pad_context)
+            pad_context=pad_context
+        )
         for context in context_gen:
             before = re.sub(r'[\n\t]', ' ', context[0])
             after = re.sub(r'[\n\t]', ' ', context[2])
+            indexes_found += [index]
             contexts_found += [f"{before} {keyword_wrap}{context[1]}{keyword_wrap} {after}"]
             num_contexts_found += 1
             if num_contexts_found >= num_samples:
-                return contexts_found
+                return pd.Series(contexts_found, index=indexes_found)
 
-    return contexts_found
+    return pd.Series(contexts_found, index=indexes_found, dtype='object')
 
 
 def count_keywords(tokens: Union[List[str], Set[str]],

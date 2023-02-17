@@ -1,5 +1,6 @@
 from abc import abstractmethod
-from typing import Union
+from typing import Optional
+import regex
 
 import numpy
 import numpy as np
@@ -67,6 +68,15 @@ class TopicModelExplorerBase:
         """
         pass
 
+    @abstractmethod
+    def extract_top_examples(self,
+                             text_series: pd.Series,
+                             top_n_examples: int = 5,
+                             max_num_characters: int = 300,
+                             surround_matches: Optional[str] = '|',
+                             num_tokens_in_label: int = 2) -> pd.DataFrame:
+        pass
+
     def extract_topic_labels(self,
                              token_separator: str = ' | ',
                              num_tokens_in_label: int = 2) -> dict:
@@ -94,6 +104,7 @@ class TopicModelExplorerBase:
                                 token_separator: str = ' | ') -> pd.DataFrame:
         """
         This function returns a pd.DataFrame where each row represents a single
+
         Args:
             top_n_tokens:
                 the number of tokens to extract from the model (which have the highest scores per
@@ -178,7 +189,7 @@ class TopicModelExplorerBase:
                     facet_col_spacing: float = 0.2,
                     width: int = 990,
                     height: int = 900,
-                    title: Union[str, None] = None) -> _figure.Figure:
+                    title: Optional[str] = None) -> _figure.Figure:
         """
         This function plots the topics and top tokens.
 
@@ -216,6 +227,7 @@ class TopicModelExplorerBase:
             facet_col='topic_label',
             facet_col_wrap=facet_col_wrap,
             facet_col_spacing=facet_col_spacing,
+            facet_row_spacing=0,
             labels={
                 'token': '',
                 'topic_label': '',
@@ -298,12 +310,14 @@ class KMeansTopicExplorer(TopicModelExplorerBase):
         for cluster in clusters:
             token_vectors = self._vectors[self._model.labels_ == cluster].sum(axis=0).A[0]
             largest = token_vectors.argsort()[::-1]  # invert sort order
-            topics[cluster + 1] = [(self._token_names[largest[i]], token_vectors[largest[i]])
-                                   for i in range(0, top_n_tokens)]
+            topics[cluster] = [
+                (self._token_names[largest[i]], token_vectors[largest[i]])
+                for i in range(0, top_n_tokens)
+            ]
         return topics
 
     def calculate_topic_sizes(self,
-                              text_series: Union[pd.Series, None] = None,
+                              text_series: Optional[pd.Series] = None,
                               relative_sizes: bool = True) -> numpy.array:
         """
         This function calculates the size of the topics.
@@ -338,43 +352,50 @@ class KMeansTopicExplorer(TopicModelExplorerBase):
             return sizes / sizes.sum()
         return sizes
 
-    def extract_random_examples(self,
-                                text_series: pd.Series,
-                                n_examples: int = 5,
-                                max_num_characters: int = 300,
-                                surround_matches: Union[str, None] = '|',
-                                num_tokens_in_label: int = 2,
-                                random_seed=42) -> pd.DataFrame:
+    def extract_top_examples(self,
+                             text_series: pd.Series,
+                             top_n_examples: int = 5,
+                             max_num_characters: int = 300,
+                             surround_matches: Optional[str] = '|',
+                             num_tokens_in_label: int = 2) -> pd.DataFrame:
         """
         Extracts the top n examples for each topic (i.e. the highest matching documents).
 
-        Returns the results as a pd.DataFrame.
+        Returns the results as a pd.DataFrame. The indexes of the pd.Series are retained and
+        returned as the index of the DataFrame so that the user can rejoin the original dataset if
+        needed.
 
         Args
             text_series:
                 dataset series to transform/predict the topics on;
                 e.g. scipy.sparse._csr.csr_matrix
-            n_examples:
+            top_n_examples:
                 the number of examples/documents to extract
             max_num_characters:
                 the maximum number of characters to extract from the examples
             surround_matches:
                 if `surround_matches` contains a string, any words within the example that matches
                 the top 5 words of the corresponding topic, will be surrounded with these
-                characters; if None, no replacement will be done
+                characters;
+                if None, no replacement will be done
             num_tokens_in_label:
                  the number of (top) tokens to use in the label
         """
         new_data = self._vectorizer.transform(text_series)
-        topic_predictions = self._model.predict(X=new_data)
-        import regex
+        # Transform X to a cluster-distance space.
+        # In the new space, each dimension is the distance to the cluster centers.
+        cluster_distances = self._model.transform(X=new_data)
+        assert len(cluster_distances) == len(text_series)
 
-        top_tokens_per_topic = self.extract_topic_labels(
+        predicted_clusters = self._model.predict(X=self._vectorizer.transform(text_series))
+        assert len(predicted_clusters) == len(text_series)
+
+        top_words_per_topic = self.extract_topic_labels(
             token_separator=' | ',
             num_tokens_in_label=5,
         )
-        top_tokens_per_topic = {
-            topic: label.split(' | ') for topic, label in top_tokens_per_topic.items()
+        top_words_per_topic = {
+            topic: label.split(' | ') for topic, label in top_words_per_topic.items()
         }
 
         topic_labels = self.extract_topic_labels(
@@ -382,36 +403,43 @@ class KMeansTopicExplorer(TopicModelExplorerBase):
             num_tokens_in_label=num_tokens_in_label,
         )
 
-        clusters = np.unique(topic_predictions)
-        clusters.sort()
-        random_examples = []
-        for topic in clusters:
+        examples = []
+        # for each cluster, get the top_n_examples that have the lowest distance to cluster centers
+        for topic in range(0, cluster_distances.shape[1]):
             # print(topic)
-            topic_indexes = topic_predictions == 0
-            examples = text_series.iloc[topic_indexes].sample(n_examples, random_state=random_seed)
+            distances_to_center = cluster_distances[predicted_clusters == topic, topic]
+            smallest_indexes = (distances_to_center).argsort()
+            _cluster_series = text_series[predicted_clusters == topic].\
+                copy().\
+                iloc[smallest_indexes].\
+                head(top_n_examples)
 
-            for index in range(0, len(examples)):
+            def _surround_keywords(text: str):
+                for word in top_words_per_topic[topic]:
+                    text = regex.sub(
+                        word,
+                        f'{surround_matches}{word}{surround_matches}',
+                        text,
+                        flags=regex.IGNORECASE
+                    )
+                return text
 
-                example = pd.DataFrame(examples).iloc[index]
-                example_index = example.name
-                example_text = example.iloc[0][0: max_num_characters]
-                if surround_matches is not None and surround_matches != '':
-                    for token in top_tokens_per_topic[topic + 1]:
-                        example_text = regex.sub(
-                            token,
-                            f'{surround_matches}{token}{surround_matches}',
-                            example_text,
-                            flags=regex.IGNORECASE
-                        )
+            _cluster_series = _cluster_series.apply(lambda x: x[0:max_num_characters])
+            if surround_matches is not None and surround_matches != '':
+                _cluster_series = _cluster_series.apply(lambda x: _surround_keywords(x))
 
-                random_examples += [{
-                    'topic index': topic + 1,
-                    'topic labels': topic_labels[topic + 1],
-                    'text': example_text,
-                    'index': example_index,
-                }]
+            _cluster_series.name = 'text'
+            _cluster_dataframe = pd.DataFrame(_cluster_series)
+            _cluster_dataframe['topic index'] = topic
+            _cluster_dataframe['topic labels'] = topic_labels[topic]
+            _cluster_dataframe = _cluster_dataframe[[
+                'topic index',
+                'topic labels',
+                'text',
+            ]]
+            examples.append(_cluster_dataframe)
 
-        return pd.DataFrame(random_examples)
+        return pd.concat(examples)
 
 
 class TopicModelExplorer(TopicModelExplorerBase):
@@ -422,7 +450,7 @@ class TopicModelExplorer(TopicModelExplorerBase):
         for topic, tokens in enumerate(self._model.components_):
             total = tokens.sum()
             largest = tokens.argsort()[::-1]  # invert sort order
-            topics[topic + 1] = [
+            topics[topic] = [
                 (self._token_names[largest[i]], abs(tokens[largest[i]] * 100.0 / total))
                 for i in range(0, top_n_tokens)
             ]
@@ -439,12 +467,13 @@ class TopicModelExplorer(TopicModelExplorerBase):
                              text_series: pd.Series,
                              top_n_examples: int = 5,
                              max_num_characters: int = 300,
-                             surround_matches: Union[str, None] = '|',
+                             surround_matches: Optional[str] = '|',
                              num_tokens_in_label: int = 2) -> pd.DataFrame:
         """
         Extracts the top n examples for each topic (i.e. the highest matching documents).
 
-        Returns the results as a pd.DataFrame.
+        Returns the results as a pd.DataFrame. The indexes of the pd.Series are retained and
+        returned as the `index` column so that the user can rejoin the original dataset if needed.
 
         Args
             text_series:
@@ -464,7 +493,6 @@ class TopicModelExplorer(TopicModelExplorerBase):
         """
         new_data = self._vectorizer.transform(text_series)
         topic_predictions = self._model.transform(X=new_data)
-        import regex
 
         top_words_per_topic = self.extract_topic_labels(
             token_separator=' | ',
@@ -480,6 +508,7 @@ class TopicModelExplorer(TopicModelExplorerBase):
         )
 
         examples = []
+        indexes = []
         for topic in range(0, topic_predictions.shape[1]):
             # print(topic)
             topic_predictions_per_doc = topic_predictions[:, topic]
@@ -491,16 +520,17 @@ class TopicModelExplorer(TopicModelExplorerBase):
                 text = text_series.iloc[index][0:max_num_characters]
 
                 if surround_matches is not None and surround_matches != '':
-                    for word in top_words_per_topic[topic + 1]:
+                    for word in top_words_per_topic[topic]:
                         text = regex.sub(word, f'{surround_matches}{word}{surround_matches}',
                                          text,
                                          flags=regex.IGNORECASE)
 
+                indexes += [text_series.index[index]]
                 examples += [{
                     'topic index': topic,
-                    'topic labels': topic_labels[topic + 1],
+                    'topic labels': topic_labels[topic],
                     'text': text,
-                    'index': index,
                 }]
 
-        return pd.DataFrame(examples)
+        assert len(examples) == len(indexes)
+        return pd.DataFrame(examples, index=indexes)

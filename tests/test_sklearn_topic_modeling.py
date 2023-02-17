@@ -53,7 +53,7 @@ class TestSklearnTopicModeling(unittest.TestCase):
         topics_dict = self.nmf_explorer.extract_topic_dictionary(top_n_tokens=top_n_tokens)
 
         self.assertEqual(len(topics_dict), self.num_topics)
-        self.assertEqual(list(topics_dict.keys()), list(range(1, self.num_topics + 1)))
+        self.assertEqual(list(topics_dict.keys()), list(range(0, self.num_topics)))
         self.assertTrue(all([len(x) == top_n_tokens for x in topics_dict.values()]))
         self.assertTrue(all([len(x) == top_n_tokens for x in topics_dict.values()]))
 
@@ -78,7 +78,7 @@ class TestSklearnTopicModeling(unittest.TestCase):
         topics_dict = self.lda_explorer.extract_topic_dictionary(top_n_tokens=top_n_tokens)
 
         self.assertEqual(len(topics_dict), self.num_topics)
-        self.assertEqual(list(topics_dict.keys()), list(range(1, self.num_topics + 1)))
+        self.assertEqual(list(topics_dict.keys()), list(range(0, self.num_topics)))
         self.assertTrue(all([len(x) == top_n_tokens for x in topics_dict.values()]))
         self.assertTrue(all([len(x) == top_n_tokens for x in topics_dict.values()]))
 
@@ -196,10 +196,11 @@ class TestSklearnTopicModeling(unittest.TestCase):
             surround_matches=None,
             num_tokens_in_label=2
         )
-        for index in range(0, len(examples)):
+
+        for index in examples.index:
             self.assertEqual(
-                examples.iloc[index]['text'],
-                self.paragraphs['text'].iloc[examples.iloc[index]['index']][0:100]
+                examples.loc[index]['text'],
+                self.paragraphs['text'].loc[index][0:100]
             )
 
     def test__get_topic_sizes_per_segment(self):
@@ -220,7 +221,3 @@ class TestSklearnTopicModeling(unittest.TestCase):
             topic_sizes_per_year,
             get_test_file_path('topic_modeling/nmf__get_topic_sizes_per_segment__year.txt')
         )
-
-
-if __name__ == '__main__':
-    unittest.main()

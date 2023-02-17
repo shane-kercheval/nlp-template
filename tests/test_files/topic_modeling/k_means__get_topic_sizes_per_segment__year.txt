@@ -1,461 +1,461 @@
-                                topic_labels  year  relative_size
-0    women children**international community  1970       0.000000
-1     peace security**international regional  1970       0.000000
-2    international community**united nations  1970       0.000000
-3               human rights**united nations  1970       0.000000
-4              united nations**member states  1970       0.409091
-5     general assembly**developing countries  1970       0.590909
-6                united states**soviet union  1970       0.000000
-7       security council**council resolution  1970       0.000000
-8               equatorial guinea**years ago  1970       0.000000
-9       development agenda**2015 development  1970       0.000000
-10   women children**international community  1971       0.000000
-11    peace security**international regional  1971       0.000000
-12   international community**united nations  1971       0.030303
-13              human rights**united nations  1971       0.060606
-14             united nations**member states  1971       0.181818
-15    general assembly**developing countries  1971       0.696970
-16               united states**soviet union  1971       0.000000
-17      security council**council resolution  1971       0.030303
-18              equatorial guinea**years ago  1971       0.000000
-19      development agenda**2015 development  1971       0.000000
-20   women children**international community  1972       0.025000
-21    peace security**international regional  1972       0.000000
-22   international community**united nations  1972       0.025000
-23              human rights**united nations  1972       0.000000
-24             united nations**member states  1972       0.125000
-25    general assembly**developing countries  1972       0.750000
-26               united states**soviet union  1972       0.050000
-27      security council**council resolution  1972       0.025000
-28              equatorial guinea**years ago  1972       0.000000
-29      development agenda**2015 development  1972       0.000000
-30   women children**international community  1973       0.000000
-31    peace security**international regional  1973       0.000000
-32   international community**united nations  1973       0.000000
-33              human rights**united nations  1973       0.024390
-34             united nations**member states  1973       0.170732
-35    general assembly**developing countries  1973       0.731707
-36               united states**soviet union  1973       0.048780
-37      security council**council resolution  1973       0.024390
-38              equatorial guinea**years ago  1973       0.000000
-39      development agenda**2015 development  1973       0.000000
-40   women children**international community  1974       0.000000
-41    peace security**international regional  1974       0.000000
-42   international community**united nations  1974       0.093750
-43              human rights**united nations  1974       0.000000
-44             united nations**member states  1974       0.125000
-45    general assembly**developing countries  1974       0.750000
-46               united states**soviet union  1974       0.031250
-47      security council**council resolution  1974       0.000000
-48              equatorial guinea**years ago  1974       0.000000
-49      development agenda**2015 development  1974       0.000000
-50   women children**international community  1975       0.000000
-51    peace security**international regional  1975       0.000000
-52   international community**united nations  1975       0.000000
-53              human rights**united nations  1975       0.000000
-54             united nations**member states  1975       0.100000
-55    general assembly**developing countries  1975       0.825000
-56               united states**soviet union  1975       0.075000
-57      security council**council resolution  1975       0.000000
-58              equatorial guinea**years ago  1975       0.000000
-59      development agenda**2015 development  1975       0.000000
-60   women children**international community  1976       0.000000
-61    peace security**international regional  1976       0.000000
-62   international community**united nations  1976       0.062500
-63              human rights**united nations  1976       0.000000
-64             united nations**member states  1976       0.187500
-65    general assembly**developing countries  1976       0.729167
-66               united states**soviet union  1976       0.020833
-67      security council**council resolution  1976       0.000000
-68              equatorial guinea**years ago  1976       0.000000
-69      development agenda**2015 development  1976       0.000000
-70   women children**international community  1977       0.000000
-71    peace security**international regional  1977       0.000000
-72   international community**united nations  1977       0.094340
-73              human rights**united nations  1977       0.037736
-74             united nations**member states  1977       0.113208
-75    general assembly**developing countries  1977       0.679245
-76               united states**soviet union  1977       0.056604
-77      security council**council resolution  1977       0.018868
-78              equatorial guinea**years ago  1977       0.000000
-79      development agenda**2015 development  1977       0.000000
-80   women children**international community  1978       0.000000
-81    peace security**international regional  1978       0.000000
-82   international community**united nations  1978       0.040000
-83              human rights**united nations  1978       0.020000
-84             united nations**member states  1978       0.040000
-85    general assembly**developing countries  1978       0.860000
-86               united states**soviet union  1978       0.020000
-87      security council**council resolution  1978       0.020000
-88              equatorial guinea**years ago  1978       0.000000
-89      development agenda**2015 development  1978       0.000000
-90   women children**international community  1979       0.000000
-91    peace security**international regional  1979       0.000000
-92   international community**united nations  1979       0.040000
-93              human rights**united nations  1979       0.040000
-94             united nations**member states  1979       0.000000
-95    general assembly**developing countries  1979       0.900000
-96               united states**soviet union  1979       0.020000
-97      security council**council resolution  1979       0.000000
-98              equatorial guinea**years ago  1979       0.000000
-99      development agenda**2015 development  1979       0.000000
-100  women children**international community  1980       0.000000
-101   peace security**international regional  1980       0.000000
-102  international community**united nations  1980       0.055556
-103             human rights**united nations  1980       0.018519
-104            united nations**member states  1980       0.055556
-105   general assembly**developing countries  1980       0.833333
-106              united states**soviet union  1980       0.037037
-107     security council**council resolution  1980       0.000000
-108             equatorial guinea**years ago  1980       0.000000
-109     development agenda**2015 development  1980       0.000000
-110  women children**international community  1981       0.000000
-111   peace security**international regional  1981       0.000000
-112  international community**united nations  1981       0.073529
-113             human rights**united nations  1981       0.014706
-114            united nations**member states  1981       0.014706
-115   general assembly**developing countries  1981       0.779412
-116              united states**soviet union  1981       0.088235
-117     security council**council resolution  1981       0.029412
-118             equatorial guinea**years ago  1981       0.000000
-119     development agenda**2015 development  1981       0.000000
-120  women children**international community  1982       0.000000
-121   peace security**international regional  1982       0.022727
-122  international community**united nations  1982       0.090909
-123             human rights**united nations  1982       0.000000
-124            united nations**member states  1982       0.068182
-125   general assembly**developing countries  1982       0.659091
-126              united states**soviet union  1982       0.068182
-127     security council**council resolution  1982       0.068182
-128             equatorial guinea**years ago  1982       0.022727
-129     development agenda**2015 development  1982       0.000000
-130  women children**international community  1983       0.000000
-131   peace security**international regional  1983       0.000000
-132  international community**united nations  1983       0.052632
-133             human rights**united nations  1983       0.017544
-134            united nations**member states  1983       0.070175
-135   general assembly**developing countries  1983       0.789474
-136              united states**soviet union  1983       0.035088
-137     security council**council resolution  1983       0.035088
-138             equatorial guinea**years ago  1983       0.000000
-139     development agenda**2015 development  1983       0.000000
-140  women children**international community  1984       0.000000
-141   peace security**international regional  1984       0.000000
-142  international community**united nations  1984       0.023810
-143             human rights**united nations  1984       0.023810
-144            united nations**member states  1984       0.166667
-145   general assembly**developing countries  1984       0.714286
-146              united states**soviet union  1984       0.071429
-147     security council**council resolution  1984       0.000000
-148             equatorial guinea**years ago  1984       0.000000
-149     development agenda**2015 development  1984       0.000000
-150  women children**international community  1985       0.000000
-151   peace security**international regional  1985       0.000000
-152  international community**united nations  1985       0.098039
-153             human rights**united nations  1985       0.000000
-154            united nations**member states  1985       0.235294
-155   general assembly**developing countries  1985       0.627451
-156              united states**soviet union  1985       0.019608
-157     security council**council resolution  1985       0.019608
-158             equatorial guinea**years ago  1985       0.000000
-159     development agenda**2015 development  1985       0.000000
-160  women children**international community  1986       0.000000
-161   peace security**international regional  1986       0.000000
-162  international community**united nations  1986       0.122449
-163             human rights**united nations  1986       0.000000
-164            united nations**member states  1986       0.102041
-165   general assembly**developing countries  1986       0.673469
-166              united states**soviet union  1986       0.102041
-167     security council**council resolution  1986       0.000000
-168             equatorial guinea**years ago  1986       0.000000
-169     development agenda**2015 development  1986       0.000000
-170  women children**international community  1987       0.000000
-171   peace security**international regional  1987       0.000000
-172  international community**united nations  1987       0.027027
-173             human rights**united nations  1987       0.000000
-174            united nations**member states  1987       0.027027
-175   general assembly**developing countries  1987       0.864865
-176              united states**soviet union  1987       0.027027
-177     security council**council resolution  1987       0.054054
-178             equatorial guinea**years ago  1987       0.000000
-179     development agenda**2015 development  1987       0.000000
-180  women children**international community  1988       0.000000
-181   peace security**international regional  1988       0.000000
-182  international community**united nations  1988       0.057143
-183             human rights**united nations  1988       0.000000
-184            united nations**member states  1988       0.114286
-185   general assembly**developing countries  1988       0.771429
-186              united states**soviet union  1988       0.028571
-187     security council**council resolution  1988       0.028571
-188             equatorial guinea**years ago  1988       0.000000
-189     development agenda**2015 development  1988       0.000000
-190  women children**international community  1989       0.000000
-191   peace security**international regional  1989       0.000000
-192  international community**united nations  1989       0.048780
-193             human rights**united nations  1989       0.000000
-194            united nations**member states  1989       0.170732
-195   general assembly**developing countries  1989       0.731707
-196              united states**soviet union  1989       0.048780
-197     security council**council resolution  1989       0.000000
-198             equatorial guinea**years ago  1989       0.000000
-199     development agenda**2015 development  1989       0.000000
-200  women children**international community  1990       0.000000
-201   peace security**international regional  1990       0.000000
-202  international community**united nations  1990       0.083333
-203             human rights**united nations  1990       0.000000
-204            united nations**member states  1990       0.027778
-205   general assembly**developing countries  1990       0.750000
-206              united states**soviet union  1990       0.027778
-207     security council**council resolution  1990       0.111111
-208             equatorial guinea**years ago  1990       0.000000
-209     development agenda**2015 development  1990       0.000000
-210  women children**international community  1991       0.000000
-211   peace security**international regional  1991       0.000000
-212  international community**united nations  1991       0.102564
-213             human rights**united nations  1991       0.051282
-214            united nations**member states  1991       0.153846
-215   general assembly**developing countries  1991       0.641026
-216              united states**soviet union  1991       0.025641
-217     security council**council resolution  1991       0.025641
-218             equatorial guinea**years ago  1991       0.000000
-219     development agenda**2015 development  1991       0.000000
-220  women children**international community  1992       0.000000
-221   peace security**international regional  1992       0.000000
-222  international community**united nations  1992       0.050000
-223             human rights**united nations  1992       0.025000
-224            united nations**member states  1992       0.175000
-225   general assembly**developing countries  1992       0.725000
-226              united states**soviet union  1992       0.000000
-227     security council**council resolution  1992       0.025000
-228             equatorial guinea**years ago  1992       0.000000
-229     development agenda**2015 development  1992       0.000000
-230  women children**international community  1993       0.000000
-231   peace security**international regional  1993       0.000000
-232  international community**united nations  1993       0.068182
-233             human rights**united nations  1993       0.022727
-234            united nations**member states  1993       0.090909
-235   general assembly**developing countries  1993       0.704545
-236              united states**soviet union  1993       0.000000
-237     security council**council resolution  1993       0.090909
-238             equatorial guinea**years ago  1993       0.022727
-239     development agenda**2015 development  1993       0.000000
-240  women children**international community  1994       0.016393
-241   peace security**international regional  1994       0.000000
-242  international community**united nations  1994       0.049180
-243             human rights**united nations  1994       0.016393
-244            united nations**member states  1994       0.163934
-245   general assembly**developing countries  1994       0.672131
-246              united states**soviet union  1994       0.000000
-247     security council**council resolution  1994       0.081967
-248             equatorial guinea**years ago  1994       0.000000
-249     development agenda**2015 development  1994       0.000000
-250  women children**international community  1995       0.000000
-251   peace security**international regional  1995       0.000000
-252  international community**united nations  1995       0.074074
-253             human rights**united nations  1995       0.037037
-254            united nations**member states  1995       0.166667
-255   general assembly**developing countries  1995       0.685185
-256              united states**soviet union  1995       0.018519
-257     security council**council resolution  1995       0.000000
-258             equatorial guinea**years ago  1995       0.018519
-259     development agenda**2015 development  1995       0.000000
-260  women children**international community  1996       0.000000
-261   peace security**international regional  1996       0.000000
-262  international community**united nations  1996       0.076923
-263             human rights**united nations  1996       0.019231
-264            united nations**member states  1996       0.269231
-265   general assembly**developing countries  1996       0.634615
-266              united states**soviet union  1996       0.000000
-267     security council**council resolution  1996       0.000000
-268             equatorial guinea**years ago  1996       0.000000
-269     development agenda**2015 development  1996       0.000000
-270  women children**international community  1997       0.000000
-271   peace security**international regional  1997       0.000000
-272  international community**united nations  1997       0.000000
-273             human rights**united nations  1997       0.044444
-274            united nations**member states  1997       0.111111
-275   general assembly**developing countries  1997       0.777778
-276              united states**soviet union  1997       0.022222
-277     security council**council resolution  1997       0.044444
-278             equatorial guinea**years ago  1997       0.000000
-279     development agenda**2015 development  1997       0.000000
-280  women children**international community  1998       0.000000
-281   peace security**international regional  1998       0.000000
-282  international community**united nations  1998       0.137255
-283             human rights**united nations  1998       0.058824
-284            united nations**member states  1998       0.117647
-285   general assembly**developing countries  1998       0.588235
-286              united states**soviet union  1998       0.039216
-287     security council**council resolution  1998       0.058824
-288             equatorial guinea**years ago  1998       0.000000
-289     development agenda**2015 development  1998       0.000000
-290  women children**international community  1999       0.024390
-291   peace security**international regional  1999       0.000000
-292  international community**united nations  1999       0.073171
-293             human rights**united nations  1999       0.000000
-294            united nations**member states  1999       0.170732
-295   general assembly**developing countries  1999       0.658537
-296              united states**soviet union  1999       0.000000
-297     security council**council resolution  1999       0.073171
-298             equatorial guinea**years ago  1999       0.000000
-299     development agenda**2015 development  1999       0.000000
-300  women children**international community  2000       0.000000
-301   peace security**international regional  2000       0.000000
-302  international community**united nations  2000       0.040816
-303             human rights**united nations  2000       0.040816
-304            united nations**member states  2000       0.163265
-305   general assembly**developing countries  2000       0.591837
-306              united states**soviet union  2000       0.000000
-307     security council**council resolution  2000       0.163265
-308             equatorial guinea**years ago  2000       0.000000
-309     development agenda**2015 development  2000       0.000000
-310  women children**international community  2001       0.000000
-311   peace security**international regional  2001       0.000000
-312  international community**united nations  2001       0.076923
-313             human rights**united nations  2001       0.025641
-314            united nations**member states  2001       0.153846
-315   general assembly**developing countries  2001       0.666667
-316              united states**soviet union  2001       0.025641
-317     security council**council resolution  2001       0.051282
-318             equatorial guinea**years ago  2001       0.000000
-319     development agenda**2015 development  2001       0.000000
-320  women children**international community  2002       0.000000
-321   peace security**international regional  2002       0.000000
-322  international community**united nations  2002       0.131579
-323             human rights**united nations  2002       0.078947
-324            united nations**member states  2002       0.078947
-325   general assembly**developing countries  2002       0.631579
-326              united states**soviet union  2002       0.000000
-327     security council**council resolution  2002       0.078947
-328             equatorial guinea**years ago  2002       0.000000
-329     development agenda**2015 development  2002       0.000000
-330  women children**international community  2003       0.000000
-331   peace security**international regional  2003       0.000000
-332  international community**united nations  2003       0.108108
-333             human rights**united nations  2003       0.000000
-334            united nations**member states  2003       0.081081
-335   general assembly**developing countries  2003       0.648649
-336              united states**soviet union  2003       0.081081
-337     security council**council resolution  2003       0.081081
-338             equatorial guinea**years ago  2003       0.000000
-339     development agenda**2015 development  2003       0.000000
-340  women children**international community  2004       0.000000
-341   peace security**international regional  2004       0.000000
-342  international community**united nations  2004       0.121951
-343             human rights**united nations  2004       0.024390
-344            united nations**member states  2004       0.146341
-345   general assembly**developing countries  2004       0.585366
-346              united states**soviet union  2004       0.024390
-347     security council**council resolution  2004       0.097561
-348             equatorial guinea**years ago  2004       0.000000
-349     development agenda**2015 development  2004       0.000000
-350  women children**international community  2005       0.025000
-351   peace security**international regional  2005       0.000000
-352  international community**united nations  2005       0.050000
-353             human rights**united nations  2005       0.050000
-354            united nations**member states  2005       0.125000
-355   general assembly**developing countries  2005       0.675000
-356              united states**soviet union  2005       0.000000
-357     security council**council resolution  2005       0.075000
-358             equatorial guinea**years ago  2005       0.000000
-359     development agenda**2015 development  2005       0.000000
-360  women children**international community  2006       0.030303
-361   peace security**international regional  2006       0.000000
-362  international community**united nations  2006       0.121212
-363             human rights**united nations  2006       0.000000
-364            united nations**member states  2006       0.151515
-365   general assembly**developing countries  2006       0.575758
-366              united states**soviet union  2006       0.000000
-367     security council**council resolution  2006       0.121212
-368             equatorial guinea**years ago  2006       0.000000
-369     development agenda**2015 development  2006       0.000000
-370  women children**international community  2007       0.020000
-371   peace security**international regional  2007       0.000000
-372  international community**united nations  2007       0.020000
-373             human rights**united nations  2007       0.020000
-374            united nations**member states  2007       0.120000
-375   general assembly**developing countries  2007       0.740000
-376              united states**soviet union  2007       0.040000
-377     security council**council resolution  2007       0.040000
-378             equatorial guinea**years ago  2007       0.000000
-379     development agenda**2015 development  2007       0.000000
-380  women children**international community  2008       0.000000
-381   peace security**international regional  2008       0.000000
-382  international community**united nations  2008       0.066667
-383             human rights**united nations  2008       0.022222
-384            united nations**member states  2008       0.133333
-385   general assembly**developing countries  2008       0.711111
-386              united states**soviet union  2008       0.000000
-387     security council**council resolution  2008       0.066667
-388             equatorial guinea**years ago  2008       0.000000
-389     development agenda**2015 development  2008       0.000000
-390  women children**international community  2009       0.000000
-391   peace security**international regional  2009       0.000000
-392  international community**united nations  2009       0.022727
-393             human rights**united nations  2009       0.022727
-394            united nations**member states  2009       0.159091
-395   general assembly**developing countries  2009       0.727273
-396              united states**soviet union  2009       0.045455
-397     security council**council resolution  2009       0.022727
-398             equatorial guinea**years ago  2009       0.000000
-399     development agenda**2015 development  2009       0.000000
-400  women children**international community  2010       0.000000
-401   peace security**international regional  2010       0.000000
-402  international community**united nations  2010       0.066667
-403             human rights**united nations  2010       0.100000
-404            united nations**member states  2010       0.233333
-405   general assembly**developing countries  2010       0.533333
-406              united states**soviet union  2010       0.033333
-407     security council**council resolution  2010       0.033333
-408             equatorial guinea**years ago  2010       0.000000
-409     development agenda**2015 development  2010       0.000000
-410  women children**international community  2011       0.000000
-411   peace security**international regional  2011       0.000000
-412  international community**united nations  2011       0.075000
-413             human rights**united nations  2011       0.050000
-414            united nations**member states  2011       0.175000
-415   general assembly**developing countries  2011       0.625000
-416              united states**soviet union  2011       0.025000
-417     security council**council resolution  2011       0.050000
-418             equatorial guinea**years ago  2011       0.000000
-419     development agenda**2015 development  2011       0.000000
-420  women children**international community  2012       0.020408
-421   peace security**international regional  2012       0.000000
-422  international community**united nations  2012       0.081633
-423             human rights**united nations  2012       0.000000
-424            united nations**member states  2012       0.183673
-425   general assembly**developing countries  2012       0.693878
-426              united states**soviet union  2012       0.000000
-427     security council**council resolution  2012       0.020408
-428             equatorial guinea**years ago  2012       0.000000
-429     development agenda**2015 development  2012       0.000000
-430  women children**international community  2013       0.020833
-431   peace security**international regional  2013       0.000000
-432  international community**united nations  2013       0.104167
-433             human rights**united nations  2013       0.020833
-434            united nations**member states  2013       0.083333
-435   general assembly**developing countries  2013       0.687500
-436              united states**soviet union  2013       0.020833
-437     security council**council resolution  2013       0.041667
-438             equatorial guinea**years ago  2013       0.000000
-439     development agenda**2015 development  2013       0.020833
-440  women children**international community  2014       0.000000
-441   peace security**international regional  2014       0.000000
-442  international community**united nations  2014       0.047619
-443             human rights**united nations  2014       0.000000
-444            united nations**member states  2014       0.095238
-445   general assembly**developing countries  2014       0.690476
-446              united states**soviet union  2014       0.000000
-447     security council**council resolution  2014       0.047619
-448             equatorial guinea**years ago  2014       0.023810
-449     development agenda**2015 development  2014       0.095238
-450  women children**international community  2015       0.000000
-451   peace security**international regional  2015       0.000000
-452  international community**united nations  2015       0.120000
-453             human rights**united nations  2015       0.000000
-454            united nations**member states  2015       0.040000
-455   general assembly**developing countries  2015       0.600000
-456              united states**soviet union  2015       0.080000
-457     security council**council resolution  2015       0.120000
-458             equatorial guinea**years ago  2015       0.000000
-459     development agenda**2015 development  2015       0.040000
+                     topic_labels  year  relative_size
+0            rights**human rights  1970       0.045455
+1           countries**developing  1970       0.045455
+2    secretary general**secretary  1970       0.000000
+3                   world**people  1970       0.227273
+4                nuclear**weapons  1970       0.045455
+5             middle**middle east  1970       0.045455
+6         nations**united nations  1970       0.454545
+7       council**security council  1970       0.000000
+8       international**conference  1970       0.136364
+9               session**assembly  1970       0.000000
+10           rights**human rights  1971       0.060606
+11          countries**developing  1971       0.151515
+12   secretary general**secretary  1971       0.060606
+13                  world**people  1971       0.151515
+14               nuclear**weapons  1971       0.030303
+15            middle**middle east  1971       0.000000
+16        nations**united nations  1971       0.242424
+17      council**security council  1971       0.030303
+18      international**conference  1971       0.151515
+19              session**assembly  1971       0.121212
+20           rights**human rights  1972       0.000000
+21          countries**developing  1972       0.150000
+22   secretary general**secretary  1972       0.000000
+23                  world**people  1972       0.375000
+24               nuclear**weapons  1972       0.050000
+25            middle**middle east  1972       0.100000
+26        nations**united nations  1972       0.075000
+27      council**security council  1972       0.025000
+28      international**conference  1972       0.175000
+29              session**assembly  1972       0.050000
+30           rights**human rights  1973       0.024390
+31          countries**developing  1973       0.048780
+32   secretary general**secretary  1973       0.000000
+33                  world**people  1973       0.341463
+34               nuclear**weapons  1973       0.024390
+35            middle**middle east  1973       0.024390
+36        nations**united nations  1973       0.243902
+37      council**security council  1973       0.024390
+38      international**conference  1973       0.219512
+39              session**assembly  1973       0.048780
+40           rights**human rights  1974       0.000000
+41          countries**developing  1974       0.187500
+42   secretary general**secretary  1974       0.062500
+43                  world**people  1974       0.343750
+44               nuclear**weapons  1974       0.000000
+45            middle**middle east  1974       0.093750
+46        nations**united nations  1974       0.125000
+47      council**security council  1974       0.000000
+48      international**conference  1974       0.156250
+49              session**assembly  1974       0.031250
+50           rights**human rights  1975       0.000000
+51          countries**developing  1975       0.100000
+52   secretary general**secretary  1975       0.000000
+53                  world**people  1975       0.425000
+54               nuclear**weapons  1975       0.025000
+55            middle**middle east  1975       0.075000
+56        nations**united nations  1975       0.125000
+57      council**security council  1975       0.000000
+58      international**conference  1975       0.200000
+59              session**assembly  1975       0.050000
+60           rights**human rights  1976       0.000000
+61          countries**developing  1976       0.083333
+62   secretary general**secretary  1976       0.041667
+63                  world**people  1976       0.416667
+64               nuclear**weapons  1976       0.041667
+65            middle**middle east  1976       0.083333
+66        nations**united nations  1976       0.125000
+67      council**security council  1976       0.020833
+68      international**conference  1976       0.166667
+69              session**assembly  1976       0.020833
+70           rights**human rights  1977       0.094340
+71          countries**developing  1977       0.094340
+72   secretary general**secretary  1977       0.000000
+73                  world**people  1977       0.301887
+74               nuclear**weapons  1977       0.113208
+75            middle**middle east  1977       0.075472
+76        nations**united nations  1977       0.188679
+77      council**security council  1977       0.000000
+78      international**conference  1977       0.132075
+79              session**assembly  1977       0.000000
+80           rights**human rights  1978       0.020000
+81          countries**developing  1978       0.140000
+82   secretary general**secretary  1978       0.000000
+83                  world**people  1978       0.340000
+84               nuclear**weapons  1978       0.140000
+85            middle**middle east  1978       0.040000
+86        nations**united nations  1978       0.080000
+87      council**security council  1978       0.020000
+88      international**conference  1978       0.160000
+89              session**assembly  1978       0.060000
+90           rights**human rights  1979       0.060000
+91          countries**developing  1979       0.140000
+92   secretary general**secretary  1979       0.040000
+93                  world**people  1979       0.360000
+94               nuclear**weapons  1979       0.100000
+95            middle**middle east  1979       0.100000
+96        nations**united nations  1979       0.000000
+97      council**security council  1979       0.000000
+98      international**conference  1979       0.120000
+99              session**assembly  1979       0.080000
+100          rights**human rights  1980       0.055556
+101         countries**developing  1980       0.074074
+102  secretary general**secretary  1980       0.000000
+103                 world**people  1980       0.462963
+104              nuclear**weapons  1980       0.037037
+105           middle**middle east  1980       0.018519
+106       nations**united nations  1980       0.074074
+107     council**security council  1980       0.000000
+108     international**conference  1980       0.148148
+109             session**assembly  1980       0.129630
+110          rights**human rights  1981       0.014706
+111         countries**developing  1981       0.117647
+112  secretary general**secretary  1981       0.000000
+113                 world**people  1981       0.323529
+114              nuclear**weapons  1981       0.073529
+115           middle**middle east  1981       0.088235
+116       nations**united nations  1981       0.102941
+117     council**security council  1981       0.058824
+118     international**conference  1981       0.102941
+119             session**assembly  1981       0.117647
+120          rights**human rights  1982       0.022727
+121         countries**developing  1982       0.045455
+122  secretary general**secretary  1982       0.113636
+123                 world**people  1982       0.272727
+124              nuclear**weapons  1982       0.090909
+125           middle**middle east  1982       0.113636
+126       nations**united nations  1982       0.045455
+127     council**security council  1982       0.068182
+128     international**conference  1982       0.113636
+129             session**assembly  1982       0.113636
+130          rights**human rights  1983       0.017544
+131         countries**developing  1983       0.140351
+132  secretary general**secretary  1983       0.000000
+133                 world**people  1983       0.350877
+134              nuclear**weapons  1983       0.087719
+135           middle**middle east  1983       0.052632
+136       nations**united nations  1983       0.122807
+137     council**security council  1983       0.035088
+138     international**conference  1983       0.140351
+139             session**assembly  1983       0.052632
+140          rights**human rights  1984       0.047619
+141         countries**developing  1984       0.119048
+142  secretary general**secretary  1984       0.000000
+143                 world**people  1984       0.357143
+144              nuclear**weapons  1984       0.095238
+145           middle**middle east  1984       0.023810
+146       nations**united nations  1984       0.166667
+147     council**security council  1984       0.000000
+148     international**conference  1984       0.142857
+149             session**assembly  1984       0.047619
+150          rights**human rights  1985       0.039216
+151         countries**developing  1985       0.078431
+152  secretary general**secretary  1985       0.039216
+153                 world**people  1985       0.392157
+154              nuclear**weapons  1985       0.058824
+155           middle**middle east  1985       0.019608
+156       nations**united nations  1985       0.176471
+157     council**security council  1985       0.019608
+158     international**conference  1985       0.137255
+159             session**assembly  1985       0.039216
+160          rights**human rights  1986       0.000000
+161         countries**developing  1986       0.122449
+162  secretary general**secretary  1986       0.000000
+163                 world**people  1986       0.346939
+164              nuclear**weapons  1986       0.122449
+165           middle**middle east  1986       0.040816
+166       nations**united nations  1986       0.102041
+167     council**security council  1986       0.020408
+168     international**conference  1986       0.122449
+169             session**assembly  1986       0.122449
+170          rights**human rights  1987       0.000000
+171         countries**developing  1987       0.081081
+172  secretary general**secretary  1987       0.000000
+173                 world**people  1987       0.378378
+174              nuclear**weapons  1987       0.189189
+175           middle**middle east  1987       0.027027
+176       nations**united nations  1987       0.054054
+177     council**security council  1987       0.108108
+178     international**conference  1987       0.081081
+179             session**assembly  1987       0.081081
+180          rights**human rights  1988       0.057143
+181         countries**developing  1988       0.085714
+182  secretary general**secretary  1988       0.114286
+183                 world**people  1988       0.171429
+184              nuclear**weapons  1988       0.114286
+185           middle**middle east  1988       0.085714
+186       nations**united nations  1988       0.057143
+187     council**security council  1988       0.028571
+188     international**conference  1988       0.171429
+189             session**assembly  1988       0.114286
+190          rights**human rights  1989       0.000000
+191         countries**developing  1989       0.146341
+192  secretary general**secretary  1989       0.073171
+193                 world**people  1989       0.292683
+194              nuclear**weapons  1989       0.048780
+195           middle**middle east  1989       0.000000
+196       nations**united nations  1989       0.170732
+197     council**security council  1989       0.000000
+198     international**conference  1989       0.243902
+199             session**assembly  1989       0.024390
+200          rights**human rights  1990       0.000000
+201         countries**developing  1990       0.055556
+202  secretary general**secretary  1990       0.000000
+203                 world**people  1990       0.388889
+204              nuclear**weapons  1990       0.000000
+205           middle**middle east  1990       0.083333
+206       nations**united nations  1990       0.138889
+207     council**security council  1990       0.111111
+208     international**conference  1990       0.166667
+209             session**assembly  1990       0.055556
+210          rights**human rights  1991       0.102564
+211         countries**developing  1991       0.051282
+212  secretary general**secretary  1991       0.051282
+213                 world**people  1991       0.333333
+214              nuclear**weapons  1991       0.025641
+215           middle**middle east  1991       0.076923
+216       nations**united nations  1991       0.128205
+217     council**security council  1991       0.025641
+218     international**conference  1991       0.153846
+219             session**assembly  1991       0.051282
+220          rights**human rights  1992       0.025000
+221         countries**developing  1992       0.100000
+222  secretary general**secretary  1992       0.100000
+223                 world**people  1992       0.425000
+224              nuclear**weapons  1992       0.000000
+225           middle**middle east  1992       0.025000
+226       nations**united nations  1992       0.200000
+227     council**security council  1992       0.000000
+228     international**conference  1992       0.075000
+229             session**assembly  1992       0.050000
+230          rights**human rights  1993       0.045455
+231         countries**developing  1993       0.090909
+232  secretary general**secretary  1993       0.068182
+233                 world**people  1993       0.318182
+234              nuclear**weapons  1993       0.068182
+235           middle**middle east  1993       0.022727
+236       nations**united nations  1993       0.090909
+237     council**security council  1993       0.113636
+238     international**conference  1993       0.090909
+239             session**assembly  1993       0.090909
+240          rights**human rights  1994       0.016393
+241         countries**developing  1994       0.000000
+242  secretary general**secretary  1994       0.000000
+243                 world**people  1994       0.459016
+244              nuclear**weapons  1994       0.016393
+245           middle**middle east  1994       0.016393
+246       nations**united nations  1994       0.196721
+247     council**security council  1994       0.114754
+248     international**conference  1994       0.147541
+249             session**assembly  1994       0.032787
+250          rights**human rights  1995       0.037037
+251         countries**developing  1995       0.074074
+252  secretary general**secretary  1995       0.037037
+253                 world**people  1995       0.388889
+254              nuclear**weapons  1995       0.037037
+255           middle**middle east  1995       0.000000
+256       nations**united nations  1995       0.185185
+257     council**security council  1995       0.000000
+258     international**conference  1995       0.166667
+259             session**assembly  1995       0.074074
+260          rights**human rights  1996       0.019231
+261         countries**developing  1996       0.076923
+262  secretary general**secretary  1996       0.019231
+263                 world**people  1996       0.288462
+264              nuclear**weapons  1996       0.076923
+265           middle**middle east  1996       0.096154
+266       nations**united nations  1996       0.230769
+267     council**security council  1996       0.000000
+268     international**conference  1996       0.153846
+269             session**assembly  1996       0.038462
+270          rights**human rights  1997       0.066667
+271         countries**developing  1997       0.044444
+272  secretary general**secretary  1997       0.044444
+273                 world**people  1997       0.422222
+274              nuclear**weapons  1997       0.111111
+275           middle**middle east  1997       0.000000
+276       nations**united nations  1997       0.088889
+277     council**security council  1997       0.044444
+278     international**conference  1997       0.133333
+279             session**assembly  1997       0.044444
+280          rights**human rights  1998       0.078431
+281         countries**developing  1998       0.058824
+282  secretary general**secretary  1998       0.039216
+283                 world**people  1998       0.215686
+284              nuclear**weapons  1998       0.098039
+285           middle**middle east  1998       0.039216
+286       nations**united nations  1998       0.137255
+287     council**security council  1998       0.058824
+288     international**conference  1998       0.215686
+289             session**assembly  1998       0.058824
+290          rights**human rights  1999       0.048780
+291         countries**developing  1999       0.073171
+292  secretary general**secretary  1999       0.097561
+293                 world**people  1999       0.439024
+294              nuclear**weapons  1999       0.000000
+295           middle**middle east  1999       0.048780
+296       nations**united nations  1999       0.146341
+297     council**security council  1999       0.097561
+298     international**conference  1999       0.024390
+299             session**assembly  1999       0.024390
+300          rights**human rights  2000       0.061224
+301         countries**developing  2000       0.061224
+302  secretary general**secretary  2000       0.102041
+303                 world**people  2000       0.346939
+304              nuclear**weapons  2000       0.000000
+305           middle**middle east  2000       0.040816
+306       nations**united nations  2000       0.163265
+307     council**security council  2000       0.122449
+308     international**conference  2000       0.081633
+309             session**assembly  2000       0.020408
+310          rights**human rights  2001       0.025641
+311         countries**developing  2001       0.076923
+312  secretary general**secretary  2001       0.025641
+313                 world**people  2001       0.333333
+314              nuclear**weapons  2001       0.025641
+315           middle**middle east  2001       0.025641
+316       nations**united nations  2001       0.128205
+317     council**security council  2001       0.051282
+318     international**conference  2001       0.179487
+319             session**assembly  2001       0.128205
+320          rights**human rights  2002       0.131579
+321         countries**developing  2002       0.131579
+322  secretary general**secretary  2002       0.026316
+323                 world**people  2002       0.263158
+324              nuclear**weapons  2002       0.026316
+325           middle**middle east  2002       0.078947
+326       nations**united nations  2002       0.078947
+327     council**security council  2002       0.078947
+328     international**conference  2002       0.184211
+329             session**assembly  2002       0.000000
+330          rights**human rights  2003       0.000000
+331         countries**developing  2003       0.054054
+332  secretary general**secretary  2003       0.108108
+333                 world**people  2003       0.378378
+334              nuclear**weapons  2003       0.027027
+335           middle**middle east  2003       0.000000
+336       nations**united nations  2003       0.216216
+337     council**security council  2003       0.081081
+338     international**conference  2003       0.081081
+339             session**assembly  2003       0.054054
+340          rights**human rights  2004       0.048780
+341         countries**developing  2004       0.048780
+342  secretary general**secretary  2004       0.048780
+343                 world**people  2004       0.439024
+344              nuclear**weapons  2004       0.048780
+345           middle**middle east  2004       0.000000
+346       nations**united nations  2004       0.073171
+347     council**security council  2004       0.097561
+348     international**conference  2004       0.121951
+349             session**assembly  2004       0.073171
+350          rights**human rights  2005       0.100000
+351         countries**developing  2005       0.025000
+352  secretary general**secretary  2005       0.000000
+353                 world**people  2005       0.300000
+354              nuclear**weapons  2005       0.025000
+355           middle**middle east  2005       0.075000
+356       nations**united nations  2005       0.175000
+357     council**security council  2005       0.075000
+358     international**conference  2005       0.150000
+359             session**assembly  2005       0.075000
+360          rights**human rights  2006       0.000000
+361         countries**developing  2006       0.121212
+362  secretary general**secretary  2006       0.000000
+363                 world**people  2006       0.363636
+364              nuclear**weapons  2006       0.000000
+365           middle**middle east  2006       0.060606
+366       nations**united nations  2006       0.242424
+367     council**security council  2006       0.121212
+368     international**conference  2006       0.060606
+369             session**assembly  2006       0.030303
+370          rights**human rights  2007       0.040000
+371         countries**developing  2007       0.100000
+372  secretary general**secretary  2007       0.020000
+373                 world**people  2007       0.380000
+374              nuclear**weapons  2007       0.060000
+375           middle**middle east  2007       0.020000
+376       nations**united nations  2007       0.120000
+377     council**security council  2007       0.080000
+378     international**conference  2007       0.140000
+379             session**assembly  2007       0.040000
+380          rights**human rights  2008       0.088889
+381         countries**developing  2008       0.133333
+382  secretary general**secretary  2008       0.044444
+383                 world**people  2008       0.311111
+384              nuclear**weapons  2008       0.022222
+385           middle**middle east  2008       0.022222
+386       nations**united nations  2008       0.155556
+387     council**security council  2008       0.066667
+388     international**conference  2008       0.133333
+389             session**assembly  2008       0.022222
+390          rights**human rights  2009       0.022727
+391         countries**developing  2009       0.045455
+392  secretary general**secretary  2009       0.022727
+393                 world**people  2009       0.500000
+394              nuclear**weapons  2009       0.045455
+395           middle**middle east  2009       0.022727
+396       nations**united nations  2009       0.136364
+397     council**security council  2009       0.045455
+398     international**conference  2009       0.159091
+399             session**assembly  2009       0.000000
+400          rights**human rights  2010       0.166667
+401         countries**developing  2010       0.066667
+402  secretary general**secretary  2010       0.000000
+403                 world**people  2010       0.366667
+404              nuclear**weapons  2010       0.000000
+405           middle**middle east  2010       0.000000
+406       nations**united nations  2010       0.266667
+407     council**security council  2010       0.033333
+408     international**conference  2010       0.100000
+409             session**assembly  2010       0.000000
+410          rights**human rights  2011       0.050000
+411         countries**developing  2011       0.050000
+412  secretary general**secretary  2011       0.050000
+413                 world**people  2011       0.300000
+414              nuclear**weapons  2011       0.025000
+415           middle**middle east  2011       0.075000
+416       nations**united nations  2011       0.200000
+417     council**security council  2011       0.075000
+418     international**conference  2011       0.175000
+419             session**assembly  2011       0.000000
+420          rights**human rights  2012       0.020408
+421         countries**developing  2012       0.020408
+422  secretary general**secretary  2012       0.061224
+423                 world**people  2012       0.387755
+424              nuclear**weapons  2012       0.020408
+425           middle**middle east  2012       0.040816
+426       nations**united nations  2012       0.163265
+427     council**security council  2012       0.020408
+428     international**conference  2012       0.224490
+429             session**assembly  2012       0.040816
+430          rights**human rights  2013       0.041667
+431         countries**developing  2013       0.000000
+432  secretary general**secretary  2013       0.020833
+433                 world**people  2013       0.416667
+434              nuclear**weapons  2013       0.062500
+435           middle**middle east  2013       0.041667
+436       nations**united nations  2013       0.104167
+437     council**security council  2013       0.041667
+438     international**conference  2013       0.187500
+439             session**assembly  2013       0.083333
+440          rights**human rights  2014       0.000000
+441         countries**developing  2014       0.047619
+442  secretary general**secretary  2014       0.047619
+443                 world**people  2014       0.500000
+444              nuclear**weapons  2014       0.047619
+445           middle**middle east  2014       0.023810
+446       nations**united nations  2014       0.095238
+447     council**security council  2014       0.047619
+448     international**conference  2014       0.142857
+449             session**assembly  2014       0.047619
+450          rights**human rights  2015       0.080000
+451         countries**developing  2015       0.040000
+452  secretary general**secretary  2015       0.040000
+453                 world**people  2015       0.360000
+454              nuclear**weapons  2015       0.000000
+455           middle**middle east  2015       0.000000
+456       nations**united nations  2015       0.080000
+457     council**security council  2015       0.120000
+458     international**conference  2015       0.280000
+459             session**assembly  2015       0.000000
