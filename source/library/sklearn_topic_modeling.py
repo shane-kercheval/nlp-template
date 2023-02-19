@@ -534,3 +534,34 @@ class TopicModelExplorer(TopicModelExplorerBase):
 
         assert len(examples) == len(indexes)
         return pd.DataFrame(examples, index=indexes)
+
+    def plot_token(self, token: str):
+        """
+        The goal is of the plot is, for a given token, to show which topics are most
+        relevant/representative of the token.
+
+        Uses the `components_` attribute of the `sklearn.decomposition.LatentDirichletAllocation`
+        object.
+
+        `components_` description:
+            Variational parameters for topic word distribution. Since the complete conditional for
+            topic word distribution is a Dirichlet, components_[i, j] can be viewed as pseudocount
+            that represents the number of times word j was assigned to topic i.
+            It can also be viewed as distribution over the words for each topic after
+            normalization: model.components_ / model.components_.sum(axis=1)[:, np.newaxis].
+        """
+        _topic_components = self._model.\
+            components_[:, self._vectorizer.get_feature_names_out() == token]
+        _topic_components = _topic_components.reshape(1, -1)[0]
+
+        _df = pd.DataFrame({
+            'Topic': np.arange(1, len(_topic_components) + 1),
+            'Relative Value': _topic_components,
+        })
+        _df['Topic'] = _df['Topic'].astype(str)
+        return px.bar(
+            _df.iloc[::-1],
+            y='Topic',
+            x='Relative Value',
+            title=f"Relevance of Topics for the token '{token}'",
+        )
