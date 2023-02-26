@@ -38,7 +38,7 @@ x-pipe h-pipe muscle-car x-pipe x-pipe-sound pipe-sound muscle-car muscle-car de
 line-manual 60k-mile credit-card credit-card-debt card-debt decent-job car-inspect motor-mount driver-window driver-window-regulator window-regulator fail-clutch fail-clutch-switch clutch-switch cruise-control washer-fluid blower-motor motor-work differential-mount oil-consumption great-shape japanese-car time-bomb
 new-feature air-vent new-vent lot-quieter big-cross big-cross-section cross-section vent-hole guy-think
 test-drive auto-lane auto-lane-change lane-change mom-tend
-good-choice down-payment poor-formatting hot-hatch hot-hatch-fever hatch-fever
+good-choice poor-formatting hot-hatch hot-hatch-fever hatch-fever
 clunk-sound poor-road suspension-relate right-hand engine-mount oil-pan
 positive-feedback additional-question handle-snow big-decision
 trouble-remove mount-bolt brake-line proper-flush original-starter mechanic-yoga hand-positioning diesel-thing tight-space good-advice
@@ -101,7 +101,7 @@ big-car big-car-guy car-guy forseeable-issue
 console-insert street-glide crack-n crack-n-fade n-fade shop-thst find-someplace someplace-capable
 local-work mb-card
 little-help sway-bar good-route nice-ride rally-ready rally-drive good-place guy-know good-deal
-use-market market-leave down-engine honest-opinion
+use-market market-leave honest-opinion
 center-console center-console-box console-box large-circle circle-shape shape-mechanism loose-end
 correct-place current-car good-deal small-detail guy-come main-perk price-difference throw-money
 wiring-diagram vent-seat vent-seat-switch seat-switch right-direction main-question heating-seat heating-seat-switch seat-switch vents?(heating-switch alot-cheap
@@ -109,7 +109,7 @@ hard-bag bungee-cord
 manual-tran parking-space sharp-corner car-shake hear-people torque-bind viscous-coupling
 extension-cable battery-compartment
 different-reservoir
-new-jeep home-mortgage down-payment hard-time time-justify income-class run-jku
+new-jeep home-mortgage hard-time time-justify income-class run-jku
 oil-change tranny-fluid gassy-smell general-service tranny-fluid deliver-package hour-shift hour-shift hour-shift-today shift-today dealer-tomorrow
 fellow-lexus fellow-lexus-driver lexus-driver green-light light-thing green-light light-turn
 new-type new-type-r type-r look-car new-touring speed-junky r-look low-40
@@ -475,7 +475,7 @@ stock-transmission
 new-trunk trunk-come emergency-trunk emergency-trunk-release trunk-release latch-mechanism old-trunk
 wish-list new-car solid-gas solid-gas-mileage gas-mileage leather-seat android-auto smooth-drive efficient-option main-difference turbo-charge charge-engine quick-pickup work-route great-price similar-result uncapitalized-title reason-lol
 run-idol degree-day winter-evening clicking-sound experienced-guy
-base-package down-payment
+base-package
 ironhead-project basket-case good-resource
 electric-mode slow-speed musical-sound sound-come red-light window-open window-open computerized-music electric-mode
 long-story story-short disclose-history civic-hybrid civic-hybrid bad-battery bit-sluggish
