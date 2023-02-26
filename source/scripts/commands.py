@@ -19,7 +19,7 @@ import regex
 from source.library.text_analysis import impurity
 from source.library.text_cleaning_simple import prepare, get_n_grams, get_stop_words, tokenize
 from source.library.text_preparation import clean, predict_language
-from source.library.spacy import create_spacy_pipeline, custom_tokenizer, extract_from_doc
+from source.library.spacy import SpacyWrapper
 from source.library.utilities import create_batch_start_stop_indexes
 
 
@@ -76,28 +76,12 @@ def processing_text_data(df: pd.DataFrame):
     return (df)
 
 
-def _extract_from_doc(df: pd.DataFrame, text_column: str) -> dict:
-    nlp = create_spacy_pipeline(
+def _extract_from_doc(df: pd.DataFrame, text_column: str) -> dict[list]:
+    sp = SpacyWrapper(
         stopwords_to_add={'dear', 'regards'},
         stopwords_to_remove={'down'},
-        tokenizer=custom_tokenizer
     )
-    extracted_values = {
-        'all_lemmas': [None] * len(df),
-        'partial_lemmas': [None] * len(df),
-        'bi_grams': [None] * len(df),
-        'adjs_verbs': [None] * len(df),
-        'nouns': [None] * len(df),
-        'noun_phrases': [None] * len(df),
-        'entities': [None] * len(df),
-    }
-    docs = nlp.pipe(df[text_column])
-    for j, doc in enumerate(docs):
-        _extraction = extract_from_doc(doc=doc)
-        for col, values in _extraction.items():
-            extracted_values[col][j] = values
-
-    return extracted_values
+    return sp.extract(df[text_column])
 
 
 @main.command()
@@ -190,8 +174,7 @@ def transform():
             text_column = ['post_clean'] * len(datasets)
             results = list(pool.map(_extract_from_doc, datasets, text_column))
 
-        reddit_transformed = pd.concat([pd.DataFrame(x) for x in results]).\
-            reset_index(drop=True)
+        reddit_transformed = pd.concat([pd.DataFrame(x) for x in results]).reset_index(drop=True)
         assert len(reddit_transformed) == len(reddit)
         expected_columns = {
             'all_lemmas', 'partial_lemmas', 'bi_grams', 'adjs_verbs', 'nouns', 'noun_phrases',
