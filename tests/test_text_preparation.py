@@ -4,7 +4,7 @@ import pandas as pd
 import spacy
 # from spacy.lang.en import English
 
-from source.library.spacy import SpacyWrapper, doc_to_dataframe, custom_tokenizer, \
+from source.library.spacy import STOP_WORDS_DEFAULT, SpacyWrapper, custom_tokenizer, \
     extract_lemmas, extract_noun_phrases, extract_named_entities, extract_from_doc, \
     extract_n_grams, _list_dicts_to_dict_lists
 from source.library.text_preparation import clean, predict_language
@@ -50,44 +50,85 @@ def test__get_stopwords():
     assert 'is' in stop_words
 
 
+def test__spacywrapper_stop_words_reset():
+    sp = SpacyWrapper()
+    assert sp.stop_words == STOP_WORDS_DEFAULT
+
+    # make sure the stopwords we are adding aren't already in the our global stop words
+    # and the stop words that we are removing are in the global stop words
+    stop_words_to_ad = {'dear', 'regard'}
+    stop_words_to_remove = {'down'}
+    assert stop_words_to_ad.isdisjoint(STOP_WORDS_DEFAULT)
+    assert stop_words_to_remove < STOP_WORDS_DEFAULT
+    assert [x.is_stop for x in sp._nlp("dear regard down")] == [False, False, True]
+
+    sp = SpacyWrapper(stopwords_to_add=stop_words_to_ad, stopwords_to_remove=stop_words_to_remove)
+    assert sp.stop_words != STOP_WORDS_DEFAULT
+    assert stop_words_to_ad < sp.stop_words
+    assert stop_words_to_remove.isdisjoint(sp.stop_words)
+    # verify we didn't accidently change STOP_WORDS_DEFAULT
+    assert stop_words_to_ad.isdisjoint(STOP_WORDS_DEFAULT)
+    assert stop_words_to_remove < STOP_WORDS_DEFAULT
+    assert [x.is_stop for x in sp._nlp("dear regard down")] == [True, True, False]
+
+
+    sp = SpacyWrapper()
+    assert sp.stop_words == STOP_WORDS_DEFAULT
+    assert stop_words_to_ad.isdisjoint(STOP_WORDS_DEFAULT)
+    assert stop_words_to_remove < STOP_WORDS_DEFAULT
+    assert stop_words_to_ad.isdisjoint(STOP_WORDS_DEFAULT)
+    assert stop_words_to_remove < STOP_WORDS_DEFAULT
+    assert [x.is_stop for x in sp._nlp("dear regard down")] == [False, False, True]
+
+
 def test__doc_to_dataframe():
     text = "This: _is_ _some_ #text down dear regards."
-    nlp = SpacyWrapper()._nlp
-    assert isinstance(nlp, spacy.lang.en.English)
-    # if we do nlp() rather than make_doc, we should still get lemmas/etc.
-    doc = nlp(text)
-    df = doc_to_dataframe(doc)
-    assert not df.drop(columns=['ent_type_', 'ent_iob_']).replace('', np.nan).isna().any().any()
-    default_tokens = [str(x) for x in doc]
-    assert default_tokens == [
-        'This', ':', '_is_', '_some_', '#text', 'down', 'dear', 'regards', '.'
-    ]
-    default_df = doc_to_dataframe(doc, include_punctuation=True)
-    assert default_df.query("text == 'down'").is_stop.iloc[0]
-    assert not default_df.query("text == 'dear'").is_stop.iloc[0]
-    assert not default_df.query("text == 'regards'").is_stop.iloc[0]
-    assert (default_df['pos_'] == 'PUNCT').any()
-    assert not (doc_to_dataframe(doc, include_punctuation=False)['pos_'] == 'PUNCT').any()
+    sp = SpacyWrapper()
+    assert 'down' in sp.stop_words
 
-    nlp = SpacyWrapper(
-        stopwords_to_add={'dear', 'regards'},
-        stopwords_to_remove={'down'},
-        tokenizer=custom_tokenizer
-    )._nlp
-    assert isinstance(nlp, spacy.lang.en.English)
-    # if we do nlp() rather than make_doc, we should still get lemmas/etc.
-    doc = nlp(text)
-    df = doc_to_dataframe(doc)
+    df = sp.text_to_dataframe(text=text, include_punctuation=False)
     assert not df.drop(columns=['ent_type_', 'ent_iob_']).replace('', np.nan).isna().any().any()
-    custom_tokens = [str(x) for x in doc]
-    assert custom_tokens == [
+    assert df['text'].tolist() == ['This', '_some_', '#text', 'down', 'dear', 'regards']
+    assert df.query("text == 'down'").is_stop.iloc[0]
+    assert not df.query("text == 'dear'").is_stop.iloc[0]
+    assert not df.query("text == 'regards'").is_stop.iloc[0]
+    assert not (df['pos_'] == 'PUNCT').any()
+
+    df = sp.text_to_dataframe(text=text, include_punctuation=True)
+    assert df['text'].tolist() == [
         'This', ':', '_is_', '_some_', '#text', 'down', 'dear', 'regards', '.'
     ]
-    default_df = doc_to_dataframe(doc, include_punctuation=True)
-    assert not default_df.query("text == 'down'").is_stop.iloc[0]
-    assert default_df.query("text == 'dear'").is_stop.iloc[0]
-    assert default_df.query("text == 'regards'").is_stop.iloc[0]
-    assert (default_df['pos_'] == 'PUNCT').any()
+    assert df.query("text == 'down'").is_stop.iloc[0]
+    assert not df.query("text == 'dear'").is_stop.iloc[0]
+    assert not df.query("text == 'regards'").is_stop.iloc[0]
+    assert (df['pos_'] == 'PUNCT').any()
+
+    stopwords_to_add = {'dear', 'regards'}
+    stopwords_to_remove = {'down'}
+    sp = SpacyWrapper(
+        stopwords_to_add=stopwords_to_add,
+        stopwords_to_remove=stopwords_to_remove,
+    )
+    assert stopwords_to_add < sp.stop_words
+    assert stopwords_to_remove.isdisjoint(sp.stop_words)
+
+    df = sp.text_to_dataframe(text=text, include_punctuation=False)
+    assert not df.drop(columns=['ent_type_', 'ent_iob_']).replace('', np.nan).isna().any().any()
+    assert df['text'].tolist() == ['This', '_some_', '#text', 'down', 'dear', 'regards']
+    assert not df.query("text == 'down'").is_stop.iloc[0]
+    assert df.query("text == 'dear'").is_stop.iloc[0]
+    assert df.query("text == 'regards'").is_stop.iloc[0]
+    assert not (df['pos_'] == 'PUNCT').any()
+
+    df = sp.text_to_dataframe(text=text, include_punctuation=True)
+    assert not df.drop(columns=['ent_type_', 'ent_iob_']).replace('', np.nan).isna().any().any()
+    assert df['text'].tolist() == [
+        'This', ':', '_is_', '_some_', '#text', 'down', 'dear', 'regards', '.'
+    ]
+    assert not df.query("text == 'down'").is_stop.iloc[0]
+    assert df.query("text == 'dear'").is_stop.iloc[0]
+    assert df.query("text == 'regards'").is_stop.iloc[0]
+    assert (df['pos_'] == 'PUNCT').any()
 
 
 def test__extract_lemmas(reddit):
@@ -163,18 +204,18 @@ def test__SpacyWrapper(reddit):
 
     # ensure stopwords are A) not already stopwords, B) in the original documents, C) removed from
     # tokenized results
-    spacy = SpacyWrapper()
+    sp = SpacyWrapper()
     # first ensure that our custom stop words are not in the default list of stopwords (so that we
     # can later check that they are in the list of stopwords)
-    assert spacy.stop_words.isdisjoint(stopwords_add)
-    assert stopwords_remove < spacy.stop_words
+    assert sp.stop_words.isdisjoint(stopwords_add)
+    assert stopwords_remove < sp.stop_words
 
     def _clean(x):
         x = clean(x)
         return x.replace('-', ' ')
 
     cleaned_posts = [_clean(x) for x in reddit['post']]
-    results = spacy.extract(
+    results = sp.extract(
         documents=cleaned_posts,
         all_lemmas=True,
         partial_lemmas=True,
@@ -206,47 +247,47 @@ def test__SpacyWrapper(reddit):
     assert stopwords_remove < _flatten(results['all_lemmas'])  # ensure the stopwords that we want to remove appear in our dataset  # noqa
     _save_tokens(results['all_lemmas'], 'spacywrapper__all_lemmas')
 
-    assert spacy.stop_words.isdisjoint(_flatten(results['partial_lemmas']))
+    assert sp.stop_words.isdisjoint(_flatten(results['partial_lemmas']))
     # the stop words that we are going to remove should not appear (because they are currently stopwords)  # noqa
     assert stopwords_remove.isdisjoint(_flatten(results['partial_lemmas']))
     _save_tokens(results['partial_lemmas'], 'spacywrapper__partial_lemmas')
 
     bi_grams = _flatten([item.split('-') for sublist in results['bi_grams'] for item in sublist])
-    assert spacy.stop_words.isdisjoint(bi_grams)
+    assert sp.stop_words.isdisjoint(bi_grams)
     assert stopwords_remove.isdisjoint(bi_grams)
     _save_tokens(
         results['bi_grams'],
         'spacywrapper__bi_grams'
     )
 
-    assert spacy.stop_words.isdisjoint(_flatten(results['adjs_verbs']))
+    assert sp.stop_words.isdisjoint(_flatten(results['adjs_verbs']))
     _save_tokens(results['adjs_verbs'], 'spacywrapper__adjectives_verbs')
 
-    assert spacy.stop_words.isdisjoint(_flatten(results['nouns']))
+    assert sp.stop_words.isdisjoint(_flatten(results['nouns']))
     _save_tokens(results['nouns'], 'spacywrapper__nouns')
 
     noun_phrases = _flatten([item.split('-') for sublist in results['noun_phrases'] for item in sublist])  # noqa
-    assert noun_phrases.isdisjoint(spacy.stop_words)
+    assert noun_phrases.isdisjoint(sp.stop_words)
     assert stopwords_remove.isdisjoint(noun_phrases)
     _save_tokens(
         results['noun_phrases'],
         'spacywrapper__noun_phrases'
     )
 
-    assert spacy.stop_words.isdisjoint(_flatten(results['entities']))
+    assert sp.stop_words.isdisjoint(_flatten(results['entities']))
     _save_tokens(results['entities'], 'spacywrapper__named_entities')
 
     # test with additional stopwords
-    spacy = SpacyWrapper(
+    sp = SpacyWrapper(
         stopwords_to_add=stopwords_add,
         stopwords_to_remove=stopwords_remove,
     )
     # now our stopwords_add should be a subset of the stopwords
-    assert stopwords_add < spacy.stop_words
+    assert stopwords_add < sp.stop_words
     # and our stopwords_remove should not be a subset
-    assert stopwords_remove.isdisjoint(spacy.stop_words)
+    assert stopwords_remove.isdisjoint(sp.stop_words)
 
-    results = spacy.extract(
+    results = sp.extract(
         documents=cleaned_posts,
         all_lemmas=True,
         partial_lemmas=True,
@@ -261,13 +302,13 @@ def test__SpacyWrapper(reddit):
     assert stopwords_remove < _flatten(results['all_lemmas'])
     _save_tokens(results['all_lemmas'], 'spacywrapper__all_lemmas__stopwords')
 
-    assert spacy.stop_words.isdisjoint(_flatten(results['partial_lemmas']))
+    assert sp.stop_words.isdisjoint(_flatten(results['partial_lemmas']))
     # now that we have removed these stopwords they should show up
     assert stopwords_remove < _flatten(results['partial_lemmas'])
     _save_tokens(results['partial_lemmas'], 'spacywrapper__partial_lemmas__stopwords')
 
     bi_grams = _flatten([item.split('-') for sublist in results['bi_grams'] for item in sublist])
-    assert spacy.stop_words.isdisjoint(bi_grams)
+    assert sp.stop_words.isdisjoint(bi_grams)
     # now that we have removed these stopwords they should show up
     assert stopwords_remove < bi_grams
     _save_tokens(
@@ -275,22 +316,22 @@ def test__SpacyWrapper(reddit):
         'spacywrapper__bi_grams__stopwords'
     )
 
-    assert spacy.stop_words.isdisjoint(_flatten(results['adjs_verbs']))
+    assert sp.stop_words.isdisjoint(_flatten(results['adjs_verbs']))
     assert stopwords_remove < _flatten(results['adjs_verbs'])
     _save_tokens(results['adjs_verbs'], 'spacywrapper__adjectives_verbs__stopwords')
 
-    assert spacy.stop_words.isdisjoint(_flatten(results['nouns']))
+    assert sp.stop_words.isdisjoint(_flatten(results['nouns']))
     _save_tokens(results['nouns'], 'spacywrapper__nouns__stopwords')
 
     noun_phrases = _flatten([item.split('-') for sublist in results['noun_phrases'] for item in sublist])  # noqa
-    assert noun_phrases.isdisjoint(spacy.stop_words)
+    assert noun_phrases.isdisjoint(sp.stop_words)
     assert stopwords_remove < noun_phrases
     _save_tokens(
         results['noun_phrases'],
         'spacywrapper__noun_phrases__stopwords'
     )
 
-    assert spacy.stop_words.isdisjoint(_flatten(results['entities']))
+    assert sp.stop_words.isdisjoint(_flatten(results['entities']))
     _save_tokens(results['entities'], 'spacywrapper__named_entities__stopwords')
 
 

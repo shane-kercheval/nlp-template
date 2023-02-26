@@ -3,11 +3,14 @@ from typing import Callable, Collection, Optional, Union, List
 import pandas as pd
 import spacy.tokens.doc
 from spacy.language import Language
-
+import spacy.lang.en.stop_words as sw
 import re
 import textacy
 from spacy.tokenizer import Tokenizer
 from spacy.util import compile_prefix_regex, compile_infix_regex, compile_suffix_regex
+
+
+STOP_WORDS_DEFAULT = sw.STOP_WORDS.copy()
 
 
 class SpacyWrapper:
@@ -16,7 +19,11 @@ class SpacyWrapper:
             stopwords_to_add: Union[set[str], None] = None,
             stopwords_to_remove: Union[set[str], None] = None,
             tokenizer: Callable = None):
+        # spacy.load caches this language model and any stop words we have added/removed
+        # calling spacy.load on subsequent calls loads in the cached model, nothing is reset
+        # so we need reset the default stop words
         self._nlp = spacy.load('en_core_web_sm')
+        self._nlp.Defaults.stop_words = STOP_WORDS_DEFAULT.copy()
 
         # https://machinelearningknowledge.ai/tutorial-for-stopwords-in-spacy/#i_Stopwords_List_in_Spacy
         if stopwords_to_add is not None:
@@ -28,6 +35,29 @@ class SpacyWrapper:
             if isinstance(stopwords_to_remove, list):
                 stopwords_to_remove = set(stopwords_to_remove)
             self._nlp.Defaults.stop_words -= stopwords_to_remove
+
+        # this is dumb, but it appears that i have to call `spacy.load` again;
+        # because it doesn't look like token.is_stop updates immediately after
+        # nlp.Defaults.stop_words are updated
+        # it seems as though I have to call spacy.load again
+        # e.g. if I run the following code
+        #     nlp = spacy.load("en_core_web_sm")
+        #     print([t.is_stop for t in nlp("hello xyz")])
+        #     nlp.Defaults.stop_words |= {"xyz"}
+        #     print([t.is_stop for t in nlp("hello xyz")])
+        # it prints
+        #     [False, False]
+        #     [False, False]   # i would expect this to return [False, True]
+        # however if i run
+        #     nlp = spacy.load("en_core_web_sm")
+        #     print([t.is_stop for t in nlp("hello xyz")])
+        #     nlp.Defaults.stop_words |= {"xyz"}
+        #     nlp = spacy.load("en_core_web_sm")  # ***re-load
+        #     print([t.is_stop for t in nlp("hello xyz")])
+        # it prints
+        #    [False, False]
+        #    [False, True]   # returns [False, True] as expected
+        self._nlp = spacy.load('en_core_web_sm')
 
         if tokenizer is None:
             self._nlp.tokenizer = custom_tokenizer(self._nlp)
@@ -66,6 +96,36 @@ class SpacyWrapper:
 
         return _list_dicts_to_dict_lists(list_of_dicts=extracted_values)
 
+    def text_to_dataframe(self, text: str, include_punctuation: bool = False) -> pd.DataFrame:
+        """
+        This code takes a spaCy Doc and converts the doc into a pd.DataFrame
+
+        This code is modified from:
+            Blueprints for Text Analytics Using Python
+            by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
+            (O'Reilly, 2021), 978-1-492-07408-3.
+            https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch04/Data_Preparation.ipynb
+
+        Args:
+            doc: the doc to convert
+            include_punctuation: whether or not to return the punctuation in the DataFrame.
+        """
+        doc = self._nlp(text)
+        rows = []
+        for i, t in enumerate(doc):
+            if (not t.is_punct and t.pos_ != 'PUNCT') or include_punctuation:
+                row = {
+                    'token': i, 'text': t.text, 'lemma_': t.lemma_,
+                    'is_stop': t.is_stop, 'is_alpha': t.is_alpha,
+                    'pos_': t.pos_, 'dep_': t.dep_,
+                    'ent_type_': t.ent_type_, 'ent_iob_': t.ent_iob_
+                }
+                rows.append(row)
+
+        df = pd.DataFrame(rows).set_index('token')
+        df.index.name = None
+        return df
+
 
 def _list_dicts_to_dict_lists(list_of_dicts: list[dict]):
     """
@@ -90,36 +150,6 @@ assert _list_dicts_to_dict_lists(list_of_dicts) == expected
 list_of_dicts = [{'y': 10}, {'x': 2, 'y': 11}, {'x': 3}, {'x': 4}]
 expected = {'x': [2, 3, 4], 'y': [10, 11]}
 assert _list_dicts_to_dict_lists(list_of_dicts) == expected
-
-
-def doc_to_dataframe(doc: spacy.tokens.doc.Doc, include_punctuation: bool = False) -> pd.DataFrame:
-    """
-    This code takes a spaCy Doc and converts the doc into a pd.DataFrame
-
-    This code is modified from:
-        Blueprints for Text Analytics Using Python
-        by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
-        (O'Reilly, 2021), 978-1-492-07408-3.
-        https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch04/Data_Preparation.ipynb
-
-    Args:
-        doc: the doc to convert
-        include_punctuation: whether or not to return the punctuation in the DataFrame.
-    """
-    rows = []
-    for i, t in enumerate(doc):
-        if (not t.is_punct and t.pos_ != 'PUNCT') or include_punctuation:
-            row = {
-                'token': i, 'text': t.text, 'lemma_': t.lemma_,
-                'is_stop': t.is_stop, 'is_alpha': t.is_alpha,
-                'pos_': t.pos_, 'dep_': t.dep_,
-                'ent_type_': t.ent_type_, 'ent_iob_': t.ent_iob_
-            }
-            rows.append(row)
-
-    df = pd.DataFrame(rows).set_index('token')
-    df.index.name = None
-    return df
 
 
 def custom_tokenizer(nlp: Language):
