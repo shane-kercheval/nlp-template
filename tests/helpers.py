@@ -2,7 +2,7 @@ import os
 
 import pandas as pd
 from helpsk.pandas import print_dataframe
-from helpsk.utility import is_debugging, redirect_stdout_to_file
+from helpsk.utility import redirect_stdout_to_file
 
 
 def get_test_file_path(file_path) -> str:

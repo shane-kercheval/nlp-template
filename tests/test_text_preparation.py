@@ -203,7 +203,7 @@ def test__SpacyWrapper(reddit):
                 handle.writelines(' '.join(tokens) + "\n")
 
     assert stopwords_add < _flatten(results['all_lemmas'])  # ensure our extra stopwords appear
-    assert stopwords_remove < _flatten(results['all_lemmas'])  # ensure the stopwords that we want to remove appear in our dataset
+    assert stopwords_remove < _flatten(results['all_lemmas'])  # ensure the stopwords that we want to remove appear in our dataset  # noqa
     _save_tokens(results['all_lemmas'], 'spacywrapper__all_lemmas')
 
     assert spacy.stop_words.isdisjoint(_flatten(results['partial_lemmas']))
