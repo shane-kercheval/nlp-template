@@ -47,7 +47,7 @@ class SpacyWrapper:
             adjectives_verbs: bool = True,
             nouns: bool = True,
             noun_phrases: bool = True,
-            named_entities: bool = True) -> dict[list[str]]:
+            named_entities: bool = True) -> dict[list[list[str]]]:
         docs = self._nlp.pipe(documents)
 
         extracted_values = [None] * len(documents)
@@ -64,7 +64,32 @@ class SpacyWrapper:
                 named_entities=named_entities,
             )
 
-        return extracted_values
+        return _list_dicts_to_dict_lists(list_of_dicts=extracted_values)
+
+
+def _list_dicts_to_dict_lists(list_of_dicts: list[dict]):
+    """
+    Args:
+        list_of_dicts:
+            e.g. `[{'x': 1, 'y': 10}, {'x': 2, 'y': 11}, {'x': 3, 'y': 12}]`
+    Returns:
+        e.g. `{'x': [1, 2, 3], 'y': [10, 11, 12]}`
+    """
+    dict_of_lists = {}
+    for dictionary in list_of_dicts:
+        for key, value in dictionary.items():
+            dict_of_lists.setdefault(key, []).append(value)
+
+    return dict_of_lists
+
+
+list_of_dicts = [{'x': 1, 'y': 10}, {'x': 2, 'y': 11}, {'x': 3, 'y': 12}]
+expected = {'x': [1, 2, 3], 'y': [10, 11, 12]}
+assert _list_dicts_to_dict_lists(list_of_dicts) == expected
+
+list_of_dicts = [{'y': 10}, {'x': 2, 'y': 11}, {'x': 3}, {'x': 4}]
+expected = {'x': [2, 3, 4], 'y': [10, 11]}
+assert _list_dicts_to_dict_lists(list_of_dicts) == expected
 
 
 def doc_to_dataframe(doc: spacy.tokens.doc.Doc, include_punctuation: bool = False) -> pd.DataFrame:

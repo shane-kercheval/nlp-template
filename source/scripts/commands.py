@@ -19,7 +19,7 @@ import regex
 from source.library.text_analysis import impurity
 from source.library.text_cleaning_simple import prepare, get_n_grams, get_stop_words, tokenize
 from source.library.text_preparation import clean, predict_language
-from source.library.spacy import create_spacy_pipeline, custom_tokenizer, extract_from_doc
+from source.library.spacy import SpacyWrapper
 from source.library.utilities import create_batch_start_stop_indexes
 
 
@@ -77,11 +77,13 @@ def processing_text_data(df: pd.DataFrame):
 
 
 def _extract_from_doc(df: pd.DataFrame, text_column: str) -> dict:
-    nlp = create_spacy_pipeline(
+    sp = SpacyWrapper(
         stopwords_to_add={'dear', 'regards'},
         stopwords_to_remove={'down'},
-        tokenizer=custom_tokenizer
     )
+    results = sp.extract(df[text_column])
+
+
     extracted_values = {
         'all_lemmas': [None] * len(df),
         'partial_lemmas': [None] * len(df),
