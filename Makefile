@@ -70,8 +70,12 @@ topics_1_3:
 ## Run all topic-modeling
 topics: topics_1_3
 
+cosine_sim:
+	jupyter nbconvert --execute --to html source/notebooks/cosine_similarity.ipynb
+	mv source/notebooks/cosine_similarity.html output/models/topics/cosine_similarity.html
+
 ## Run entire workflow.
-all: tests data exploration topics
+all: tests data exploration topics cosine_sim
 
 ## Delete all generated files
 clean: clean_python
