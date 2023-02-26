@@ -31,7 +31,7 @@ linting:
 
 ## Run unit-tests.
 tests: linting
-	python -m unittest discover tests
+	pytest tests
 
 ## Extract Data
 data_extract:
