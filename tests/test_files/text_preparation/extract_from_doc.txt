@@ -3,12 +3,12 @@ all_lemmas
 partial_lemmas
 ['1999', 'amg', 'c43', '107k', 'mile', '<', 'lb', '>', 'mechanic', 'instal', 'new', 'starter', 'motor', 'january', '2016', 'start', 'die', 'take', 'today', 'say', 'starter', 'motor', 'require', 'grease', 'year', 'fail', 'recognize', 'year', 'say', 'january', 'instal', 'legit', 'find', 'new', 'mechanic', 'pretty', 'good', 'lifespan', 'car', 'start', 'wonder']
 bi_grams
-['1999 amg', 'amg c43', 'c43 107k', '107k mile', 'mile <', '< lb', 'lb >', 'mechanic instal', 'new starter', 'starter motor', 'january 2016', 'starter motor', 'motor require', 'require grease', 'new mechanic', 'pretty good']
+['1999-amg', 'amg-c43', 'c43-107k', '107k-mile', 'mile-<', '<-lb', 'lb->', 'mechanic-instal', 'new-starter', 'starter-motor', 'january-2016', 'starter-motor', 'motor-require', 'require-grease', 'new-mechanic', 'pretty-good']
 adjs_verbs
 ['instal', 'new', 'starter', 'start', 'die', 'take', 'say', 'starter', 'require', 'fail', 'recognize', 'say', 'instal', 'find', 'new', 'good', 'start', 'wonder']
 nouns
 ['amg', 'c43', 'mile', 'mechanic', 'motor', 'january', 'today', 'motor', 'grease', 'year', 'year', 'january', 'legit', 'mechanic', 'lifespan', 'car']
 noun_phrases
-['mechanic instal', 'starter motor', 'starter motor', 'motor require', 'require grease', 'new mechanic']
+['mechanic-instal', 'starter-motor', 'starter-motor', 'motor-require', 'require-grease', 'new-mechanic']
 entities
-['1999 (DATE)', 'c43 (LAW)', '107k mile (QUANTITY)', 'january 2016 (DATE)', 'today (DATE)', 'less than a year (DATE)', 'january (DATE)']
+['1999 (DATE)', 'C43 (LAW)', '107k mile (QUANTITY)', 'January 2016 (DATE)', 'today (DATE)', 'less than a year (DATE)', 'January (DATE)']

@@ -1,8 +1,8 @@
                          0
 0              1999 (DATE)
-1                c43 (LAW)
+1                C43 (LAW)
 2     107k mile (QUANTITY)
-3      january 2016 (DATE)
+3      January 2016 (DATE)
 4             today (DATE)
 5  less than a year (DATE)
-6           january (DATE)
+6           January (DATE)

@@ -84,7 +84,7 @@ def doc_to_dataframe(doc: spacy.tokens.doc.Doc, include_punctuation: bool = Fals
     """
     rows = []
     for i, t in enumerate(doc):
-        if not t.is_punct or include_punctuation:
+        if (not t.is_punct and t.pos_ != 'PUNCT') or include_punctuation:
             row = {
                 'token': i, 'text': t.text, 'lemma_': t.lemma_,
                 'is_stop': t.is_stop, 'is_alpha': t.is_alpha,

@@ -44,13 +44,13 @@ def test__clean(reddit):
         handle.writelines([clean(x) + "\n" for x in text_lines])
 
 def test__get_stopwords():
-    stopwords = get_stopwords()
-    assert len(stopwords) > 300
+    stop_words = SpacyWrapper().stop_words
+    assert len(stop_words) > 300
+    assert 'is' in stop_words
 
-def test__create_spacy_pipeline():
+def test__doc_to_dataframe():
     text = "This: _is_ _some_ #text down dear regards."
-
-    nlp = create_spacy_pipeline()
+    nlp = SpacyWrapper()._nlp
     assert isinstance(nlp, spacy.lang.en.English)
     # if we do nlp() rather than make_doc, we should still get lemmas/etc.
     doc = nlp(text)
@@ -58,8 +58,7 @@ def test__create_spacy_pipeline():
     assert not df.drop(columns=['ent_type_', 'ent_iob_']).replace('', np.nan).isna().any().any()
     default_tokens = [str(x) for x in doc]
     assert default_tokens == [
-        'This', ':', '_', 'is', '_', '_', 'some', '_', '#', 'text', 'down', 'dear',
-        'regards', '.'
+        'This', ':', '_is_', '_some_', '#text', 'down', 'dear', 'regards', '.'
     ]
     default_df = doc_to_dataframe(doc, include_punctuation=True)
     assert default_df.query("text == 'down'").is_stop.iloc[0]
@@ -68,11 +67,11 @@ def test__create_spacy_pipeline():
     assert (default_df['pos_'] == 'PUNCT').any()
     assert not (doc_to_dataframe(doc, include_punctuation=False)['pos_'] == 'PUNCT').any()
 
-    nlp = create_spacy_pipeline(
+    nlp = SpacyWrapper(
         stopwords_to_add={'dear', 'regards'},
         stopwords_to_remove={'down'},
         tokenizer=custom_tokenizer
-    )
+    )._nlp
     assert isinstance(nlp, spacy.lang.en.English)
     # if we do nlp() rather than make_doc, we should still get lemmas/etc.
     doc = nlp(text)
@@ -90,7 +89,7 @@ def test__create_spacy_pipeline():
 
 def test__extract_lemmas(reddit):
     text = reddit['post'].iloc[2]
-    doc = create_spacy_pipeline()(text)
+    doc = SpacyWrapper()._nlp(text)
     lemmas = extract_lemmas(doc)
     dataframe_to_text_file(
         pd.DataFrame(lemmas),
@@ -99,7 +98,7 @@ def test__extract_lemmas(reddit):
 
 def test__extract_noun_phrases(reddit):
     text = reddit['post'].iloc[2]
-    doc = create_spacy_pipeline()(text)
+    doc = SpacyWrapper()._nlp(text)
     phrases = extract_noun_phrases(doc)
     dataframe_to_text_file(
         pd.DataFrame(phrases),
@@ -108,7 +107,7 @@ def test__extract_noun_phrases(reddit):
 
 def test__extract_named_entities(reddit):
     text = reddit['post'].iloc[2]
-    doc = create_spacy_pipeline()(text)
+    doc = SpacyWrapper()._nlp(text)
     phrases = extract_named_entities(doc)
     dataframe_to_text_file(
         pd.DataFrame(phrases),
@@ -117,7 +116,7 @@ def test__extract_named_entities(reddit):
 
 def test__extract_bi_grams(reddit):
     text = reddit['post'].iloc[2]
-    doc = create_spacy_pipeline()(text)
+    doc = SpacyWrapper()._nlp(text)
     grams = extract_n_grams(doc)
     dataframe_to_text_file(
         pd.DataFrame(grams),
@@ -126,7 +125,7 @@ def test__extract_bi_grams(reddit):
 
 def test__extract_from_doc(reddit):
     text = reddit['post'].iloc[2]
-    doc = create_spacy_pipeline()(text)
+    doc = SpacyWrapper()._nlp(text)
     entities = extract_from_doc(doc)
     with open(get_test_file_path('text_preparation/extract_from_doc.txt'), 'w') as handle:
         for key, values in entities.items():
