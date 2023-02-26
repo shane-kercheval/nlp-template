@@ -17,6 +17,7 @@ fasttext
 jellyfish
 nltk
 pyLDAvis
+pytest
 regex
 spacy
 textacy

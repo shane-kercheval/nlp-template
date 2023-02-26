@@ -13,6 +13,8 @@ import pickle as pkl
 import plotly.express as px
 from pathlib import Path
 import helpsk as hlp
+import helpsk.plot as hlpp
+
 import plotly.io as pio
 from helpsk.logging import Timer
 
@@ -47,7 +49,7 @@ pd.set_option('display.html.use_mathjax', False)
 import matplotlib
 from matplotlib import pyplot as plt
 
-figure_size = (hlp.plot.STANDARD_WIDTH / 1.25, hlp.plot.STANDARD_HEIGHT / 1.25)
+figure_size = (hlpp.STANDARD_WIDTH / 1.25, hlpp.STANDARD_HEIGHT / 1.25)
 
 plot_params = {
     'figure.figsize': figure_size, 
