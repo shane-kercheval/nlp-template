@@ -76,30 +76,12 @@ def processing_text_data(df: pd.DataFrame):
     return (df)
 
 
-def _extract_from_doc(df: pd.DataFrame, text_column: str) -> dict:
+def _extract_from_doc(df: pd.DataFrame, text_column: str) -> dict[list]:
     sp = SpacyWrapper(
         stopwords_to_add={'dear', 'regards'},
         stopwords_to_remove={'down'},
     )
-    results = sp.extract(df[text_column])
-
-
-    extracted_values = {
-        'all_lemmas': [None] * len(df),
-        'partial_lemmas': [None] * len(df),
-        'bi_grams': [None] * len(df),
-        'adjs_verbs': [None] * len(df),
-        'nouns': [None] * len(df),
-        'noun_phrases': [None] * len(df),
-        'entities': [None] * len(df),
-    }
-    docs = nlp.pipe(df[text_column])
-    for j, doc in enumerate(docs):
-        _extraction = extract_from_doc(doc=doc)
-        for col, values in _extraction.items():
-            extracted_values[col][j] = values
-
-    return extracted_values
+    return sp.extract(df[text_column])
 
 
 @main.command()
@@ -192,8 +174,7 @@ def transform():
             text_column = ['post_clean'] * len(datasets)
             results = list(pool.map(_extract_from_doc, datasets, text_column))
 
-        reddit_transformed = pd.concat([pd.DataFrame(x) for x in results]).\
-            reset_index(drop=True)
+        reddit_transformed = pd.concat([pd.DataFrame(x) for x in results]).reset_index(drop=True)
         assert len(reddit_transformed) == len(reddit)
         expected_columns = {
             'all_lemmas', 'partial_lemmas', 'bi_grams', 'adjs_verbs', 'nouns', 'noun_phrases',
