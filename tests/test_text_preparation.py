@@ -146,17 +146,17 @@ def test__SpacyWrapper(reddit):
         '_number_',
         '_url_',
     }
-    # stopwords_remove = {
-    #     'down'
-    # }
-    
+    stopwords_remove = {
+        'down'
+    }
+
     # ensure stopwords are A) not already stopwords, B) in the original documents, C) removed from
     # tokenized results
     spacy = SpacyWrapper()
     # first ensure that our custom stop words are not in the default list of stopwords (so that we
     # can later check that they are in the list of stopwords)
     assert spacy.stop_words.isdisjoint(stopwords_add)
-    # assert stopwords_remove < spacy.stop_words
+    assert stopwords_remove < spacy.stop_words
 
     def _clean(x):
         x = clean(x)
@@ -184,41 +184,52 @@ def test__SpacyWrapper(reddit):
 
     all_lemmas = [x['all_lemmas'] for x in results]
     assert stopwords_add < _flatten(all_lemmas)  # ensure our extra stopwords appear
-    # assert stopwords_remove < _flatten(all_lemmas)  # ensure the stopwords that we want to remove appear in our dataset
+    assert stopwords_remove < _flatten(all_lemmas)  # ensure the stopwords that we want to remove appear in our dataset
     _save_tokens(all_lemmas, 'spacywrapper__all_lemmas')
+    
     partial_lemmas = [x['partial_lemmas'] for x in results]
     assert spacy.stop_words.isdisjoint(_flatten(partial_lemmas))
     # the stop words that we are going to remove should not appear (because they are currently stopwords)  # noqa
-    # assert stopwords_remove.isdisjoint(_flatten(partial_lemmas))
+    assert stopwords_remove.isdisjoint(_flatten(partial_lemmas))
     _save_tokens(partial_lemmas, 'spacywrapper__partial_lemmas')
+    
     bi_grams = _flatten([item.split('-') for sublist in results for item in sublist['bi_grams']])
     assert spacy.stop_words.isdisjoint(bi_grams)
-    # assert stopwords_remove.isdisjoint(bi_grams)
+    assert stopwords_remove.isdisjoint(bi_grams)
     _save_tokens(
         [x['bi_grams'] for x in results],
         'spacywrapper__bi_grams'
     )
+
     adjectives_verbs = [x['adjs_verbs'] for x in results]
     assert spacy.stop_words.isdisjoint(_flatten(adjectives_verbs))
     _save_tokens(adjectives_verbs, 'spacywrapper__adjectives_verbs')
+
     nouns = [x['nouns'] for x in results]
     assert spacy.stop_words.isdisjoint(_flatten(nouns))
     _save_tokens(nouns, 'spacywrapper__nouns')
+
     noun_phrases = _flatten([item.split('-') for sublist in results for item in sublist['noun_phrases']])  # noqa
     assert noun_phrases.isdisjoint(spacy.stop_words)
-    # assert stopwords_remove.isdisjoint(noun_phrases)
+    assert stopwords_remove.isdisjoint(noun_phrases)
     _save_tokens(
         [x['noun_phrases'] for x in results],
         'spacywrapper__noun_phrases'
     )
+
     named_entities = [x['entities'] for x in results]
     assert spacy.stop_words.isdisjoint(_flatten(named_entities))
     _save_tokens(named_entities, 'spacywrapper__named_entities')
 
     # test with additional stopwords
-    spacy = SpacyWrapper(stopwords_to_add=stopwords_add)
-    # now our extra_stopwords should be a subset of the stopwords
+    spacy = SpacyWrapper(
+        stopwords_to_add=stopwords_add,
+        stopwords_to_remove=stopwords_remove,
+    )
+    # now our stopwords_add should be a subset of the stopwords
     assert stopwords_add < spacy.stop_words
+    # and our stopwords_remove should not be a subset
+    assert stopwords_remove.isdisjoint(spacy.stop_words)
 
     results = spacy.extract(
         documents=cleaned_posts,
@@ -230,30 +241,44 @@ def test__SpacyWrapper(reddit):
         noun_phrases=True,
         named_entities=True,
     )
+
     all_lemmas = [x['all_lemmas'] for x in results]
     assert stopwords_add <= _flatten(all_lemmas)  # ensure our extra stopwords appear
+    assert stopwords_remove < _flatten(all_lemmas)
     _save_tokens(all_lemmas, 'spacywrapper__all_lemmas__stopwords')
+
     partial_lemmas = [x['partial_lemmas'] for x in results]
     assert spacy.stop_words.isdisjoint(_flatten(partial_lemmas))
+    # now that we have removed these stopwords they should show up
+    assert stopwords_remove < _flatten(partial_lemmas)
     _save_tokens(partial_lemmas, 'spacywrapper__partial_lemmas__stopwords')
+
     bi_grams = _flatten([item.split('-') for sublist in results for item in sublist['bi_grams']])
     assert spacy.stop_words.isdisjoint(bi_grams)
+    # now that we have removed these stopwords they should show up
+    assert stopwords_remove < bi_grams
     _save_tokens(
         [x['bi_grams'] for x in results],
         'spacywrapper__bi_grams__stopwords'
     )
+
     adjectives_verbs = [x['adjs_verbs'] for x in results]
     assert spacy.stop_words.isdisjoint(_flatten(adjectives_verbs))
+    assert stopwords_remove < _flatten(adjectives_verbs)
     _save_tokens(adjectives_verbs, 'spacywrapper__adjectives_verbs__stopwords')
+
     nouns = [x['nouns'] for x in results]
     assert spacy.stop_words.isdisjoint(_flatten(nouns))
     _save_tokens(nouns, 'spacywrapper__nouns__stopwords')
+
     noun_phrases = _flatten([item.split('-') for sublist in results for item in sublist['noun_phrases']])  # noqa
     assert noun_phrases.isdisjoint(spacy.stop_words)
+    assert stopwords_remove < noun_phrases
     _save_tokens(
         [x['noun_phrases'] for x in results],
         'spacywrapper__noun_phrases__stopwords'
     )
+
     named_entities = [x['entities'] for x in results]
     assert spacy.stop_words.isdisjoint(_flatten(named_entities))
     _save_tokens(named_entities, 'spacywrapper__named_entities__stopwords')
