@@ -1,12 +1,10 @@
 import fasttext
 import numpy as np
 import pandas as pd
-import spacy
-# from spacy.lang.en import English
 
-from source.library.spacy import STOP_WORDS_DEFAULT, SpacyWrapper, custom_tokenizer, \
-    extract_lemmas, extract_noun_phrases, extract_named_entities, extract_from_doc, \
-    extract_n_grams, _list_dicts_to_dict_lists
+from source.library.spacy import STOP_WORDS_DEFAULT, SpacyWrapper, extract_lemmas, \
+    extract_noun_phrases, extract_named_entities, extract_from_doc, extract_n_grams, \
+    _list_dicts_to_dict_lists
 from source.library.text_preparation import clean, predict_language
 from tests.helpers import get_test_file_path, dataframe_to_text_file
 
@@ -70,7 +68,6 @@ def test__spacywrapper_stop_words_reset():
     assert stop_words_to_ad.isdisjoint(STOP_WORDS_DEFAULT)
     assert stop_words_to_remove < STOP_WORDS_DEFAULT
     assert [x.is_stop for x in sp._nlp("dear regard down")] == [True, True, False]
-
 
     sp = SpacyWrapper()
     assert sp.stop_words == STOP_WORDS_DEFAULT
