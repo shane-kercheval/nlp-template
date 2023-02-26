@@ -17,7 +17,7 @@ class SpacyWrapper:
             stopwords_to_remove: Union[set[str], None] = None,
             tokenizer: Callable = None):
         self._nlp = spacy.load('en_core_web_sm')
-        
+
         # https://machinelearningknowledge.ai/tutorial-for-stopwords-in-spacy/#i_Stopwords_List_in_Spacy
         if stopwords_to_add is not None:
             if isinstance(stopwords_to_add, list):
@@ -37,7 +37,6 @@ class SpacyWrapper:
     @property
     def stop_words(self) -> set[str]:
         return self._nlp.Defaults.stop_words
-    
 
     def extract(
             self,
@@ -51,7 +50,7 @@ class SpacyWrapper:
             named_entities: bool = True) -> dict[list[str]]:
         docs = self._nlp.pipe(documents)
 
-        extracted_values = [None] * len(documents)        
+        extracted_values = [None] * len(documents)
         for j, doc in enumerate(docs):
             extracted_values[j] = extract_from_doc(
                 doc=doc,
@@ -96,8 +95,6 @@ def doc_to_dataframe(doc: spacy.tokens.doc.Doc, include_punctuation: bool = Fals
     df = pd.DataFrame(rows).set_index('token')
     df.index.name = None
     return df
-
-
 
 
 def custom_tokenizer(nlp: Language):
