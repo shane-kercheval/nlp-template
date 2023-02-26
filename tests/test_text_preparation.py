@@ -10,7 +10,6 @@ from source.library.text_preparation import clean, predict_language
 from tests.helpers import get_test_file_path, dataframe_to_text_file
 
 
-
 def test__clean(reddit):
     text = "<This> 😩😬 [sentence] [sentence]& a & [link to something](www.hotmail.com) " \
         "stuff && abc --- -   https://www.google.com/search?q=asdfa; john.doe@gmail.com " \
@@ -43,10 +42,12 @@ def test__clean(reddit):
     with open(get_test_file_path('text_preparation/example_clean.txt'), 'w') as handle:
         handle.writelines([clean(x) + "\n" for x in text_lines])
 
+
 def test__get_stopwords():
     stop_words = SpacyWrapper().stop_words
     assert len(stop_words) > 300
     assert 'is' in stop_words
+
 
 def test__doc_to_dataframe():
     text = "This: _is_ _some_ #text down dear regards."
@@ -87,6 +88,7 @@ def test__doc_to_dataframe():
     assert default_df.query("text == 'regards'").is_stop.iloc[0]
     assert (default_df['pos_'] == 'PUNCT').any()
 
+
 def test__extract_lemmas(reddit):
     text = reddit['post'].iloc[2]
     doc = SpacyWrapper()._nlp(text)
@@ -95,6 +97,7 @@ def test__extract_lemmas(reddit):
         pd.DataFrame(lemmas),
         get_test_file_path('text_preparation/extract_lemmas.txt')
     )
+
 
 def test__extract_noun_phrases(reddit):
     text = reddit['post'].iloc[2]
@@ -105,6 +108,7 @@ def test__extract_noun_phrases(reddit):
         get_test_file_path('text_preparation/extract_noun_phrases.txt')
     )
 
+
 def test__extract_named_entities(reddit):
     text = reddit['post'].iloc[2]
     doc = SpacyWrapper()._nlp(text)
@@ -114,6 +118,7 @@ def test__extract_named_entities(reddit):
         get_test_file_path('text_preparation/extract_named_entities.txt')
     )
 
+
 def test__extract_bi_grams(reddit):
     text = reddit['post'].iloc[2]
     doc = SpacyWrapper()._nlp(text)
@@ -122,6 +127,7 @@ def test__extract_bi_grams(reddit):
         pd.DataFrame(grams),
         get_test_file_path('text_preparation/extract_bi_grams.txt')
     )
+
 
 def test__extract_from_doc(reddit):
     text = reddit['post'].iloc[2]
@@ -198,7 +204,6 @@ def test__SpacyWrapper(reddit):
     named_entities = [x['entities'] for x in results]
     assert spacy.stop_words.isdisjoint(_flatten(named_entities))
     _save_tokens(named_entities, 'spacywrapper__named_entities')
-    
 
     # test with additional stopwords
     spacy = SpacyWrapper(stopwords_to_add=extra_stopwords)
@@ -242,38 +247,7 @@ def test__SpacyWrapper(reddit):
     named_entities = [x['entities'] for x in results]
     assert spacy.stop_words.isdisjoint(_flatten(named_entities))
     _save_tokens(named_entities, 'spacywrapper__named_entities__stopwords')
-    
 
-
-    # nlp = create_spacy_pipeline()
-    # docs = nlp.pipe(reddit['post'])
-
-    # results = [None]* len(reddit)
-    # for i, doc in enumerate(docs):
-    #     results[i] = extract_from_doc(
-    #         doc=doc,
-    #         all_lemmas=True,
-    #         partial_lemmas=True,
-    #         bi_grams=True,
-    #         adjectives_verbs=True,
-    #         nouns=True,
-    #         noun_phrases=True,
-    #         named_entities=True,
-    #     )
-    
-    # stop_words = get_stopwords()
-    # assert all([set(x['partial_lemmas']).isdisjoint(stop_words) for x in results])
-
-    # temp =  [x['partial_lemmas'] for x in results]
-    # [x for x in temp[2] if x in stop_words]
-
-
-
-    # entities = extract_from_doc(doc)
-    # with open(get_test_file_path('text_preparation/extract_from_doc.txt'), 'w') as handle:
-    #     for key, values in entities.items():
-    #         handle.writelines(key + "\n")
-    #         handle.writelines(str(values) + "\n")
 
 def test__predict_language():
     model = fasttext.load_model("/fasttext/lid.176.ftz")
