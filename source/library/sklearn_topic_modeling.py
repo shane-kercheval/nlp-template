@@ -417,8 +417,8 @@ class KMeansTopicExplorer(TopicModelExplorerBase):
             def _surround_keywords(text: str):
                 for word in top_words_per_topic[topic]:
                     text = regex.sub(
-                        word,
-                        f'{surround_matches}{word}{surround_matches}',
+                        fr'\W{word}\W',
+                        f' {surround_matches}{word}{surround_matches} ',
                         text,
                         flags=regex.IGNORECASE
                     )
@@ -521,9 +521,12 @@ class TopicModelExplorer(TopicModelExplorerBase):
 
                 if surround_matches is not None and surround_matches != '':
                     for word in top_words_per_topic[topic]:
-                        text = regex.sub(word, f'{surround_matches}{word}{surround_matches}',
-                                         text,
-                                         flags=regex.IGNORECASE)
+                        text = regex.sub(
+                            fr'\W{word}\W',
+                            f' {surround_matches}{word}{surround_matches} ',
+                            text,
+                            flags=regex.IGNORECASE
+                        )
 
                 indexes += [text_series.index[index]]
                 examples += [{
