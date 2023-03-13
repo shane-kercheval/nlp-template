@@ -1,0 +1,16 @@
+           text        lemma  is_stop_word                                          embedding part_of_speech  is_punctuation  is_special  is_alpha  is_numeric  is_ascii       dep entity_type  sentiment
+0          This         this          True  [1.6849, 1.9826, -0.77743, -4.7383, 5.5418, -1...           PRON           False       False      True       False      True     nsubj                    0.0
+1            is           be          True  [1.475, 6.0078, 1.1205, -3.5874, 3.7638, 3.198...            AUX           False       False      True       False      True      ROOT                    0.0
+2      _NUMBER_     _number_         False  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ...           NOUN           False       False     False       False      True  compound                    0.0
+3      document     document         False  [0.11681, -3.0633, 1.8432, 0.2876, 3.5357, -1....           NOUN           False       False      True       False      True      attr                    0.0
+4          that         that          True  [-1.1026, 2.9549, -2.8606, -1.3667, 1.4727, 0....           PRON           False       False      True       False      True     nsubj                    0.0
+5           has         have          True  [4.3099, 8.9084, -6.856, 0.69537, 0.42271, -1....           VERB           False       False      True       False      True     relcl                    0.0
+6          very         very          True  [0.42554, -0.25366, -1.4694, -4.0964, 2.8658, ...            ADV           False       False      True       False      True    advmod                    0.0
+7     important    important         False  [1.5277, 3.2951, -0.24009, -0.37673, 5.4905, 0...            ADJ           False       False      True       False      True      amod                    0.0
+8   information  information         False  [3.3318, -3.3207, 3.116, -0.58441, 4.2977, -2....           NOUN           False       False      True       False      True      dobj                    0.0
+9           and          and          True  [-3.3477, -6.0854, -3.6366, 0.5348, 8.4195, 1....          CCONJ           False       False      True       False      True        cc                    0.0
+10         some         some          True  [-0.91138, -1.2467, -1.4404, 3.228, -1.5045, -...            DET           False       False      True       False      True  quantmod       MONEY        0.0
+11            $            $         False  [-8.2424, -6.6154, -36.677, 6.7505, 1.3295, -4...            SYM           False        True     False       False      True  quantmod       MONEY        0.0
+12            #            #         False  [6.8889, 2.3343, 1.7634, 0.37986, -1.2576, -2....           NOUN            True       False     False       False      True  compound       MONEY        0.0
+13   characters    character         False  [-3.1433, 0.23694, -1.9759, -3.1085, 3.4101, 0...           NOUN           False       False      True       False      True      attr                    0.0
+14            .            .         False  [-0.076454, -4.6896, -4.0431, -3.4333, 11.758,...          PUNCT            True       False     False       False      True     punct                    0.0

@@ -1,40 +1,200 @@
+from functools import cached_property, lru_cache, singledispatchmethod
 from typing import Callable, Collection, Optional, Union, List
 
 import pandas as pd
-import spacy.tokens.doc
-from spacy.language import Language
-import spacy.lang.en.stop_words as sw
+import numpy as np
 import re
 import textacy
-from spacy.tokenizer import Tokenizer
+import spacy
+from spacy.language import Language
+import spacy.lang.en.stop_words as sw
+import spacy.tokenizer as stz
+import spacy.tokens as st
+import spacy.tokens.doc as sd
+
+
 from spacy.util import compile_prefix_regex, compile_infix_regex, compile_suffix_regex
 
 
 STOP_WORDS_DEFAULT = sw.STOP_WORDS.copy()
+IMPORTANT_TOKEN_EXCLUDE_POS = set(['PART', 'PUNCT', 'DET', 'PRON', 'SYM', 'SPACE'])
+NOUN_POS = set(['NOUN', 'PROPN'])
+ADJ_VERB_POS = set(['ADJ', 'VERB'])
 
 
-class SpacyWrapper:
+class Token:
+    """
+    This class extracts the essential information from a SpacyToken
+    """
+    def __init__(self, token: st.Token, stop_words: set[str]) -> None:
+        _lemma = token.lemma_.lower()
+        self.text = token.text
+        self.lemma = _lemma
+        self.is_stop_word = token.is_stop or \
+            _lemma in stop_words or \
+            token.text.lower() in stop_words
+        self.embedding = token.vector
+        self.part_of_speech = token.pos_
+        self.is_punctuation = token.is_punct or \
+            token.dep_ == 'punct' or \
+            token.pos_ == 'PUNCT'
+        # TODO this isn't working
+        self.is_special = token.pos_ == 'SYM' or (token.pos_ == 'X' and not token.is_alpha)
+        self.is_alpha = token.is_alpha
+        self.is_numeric = token.is_digit
+        self.is_ascii = token.is_ascii
+        self.dep = token.dep_
+        self.entity_type = token.ent_type_
+        self.sentiment = token.sentiment
+
+    def __str__(self) -> str:
+        return self.text
+
+    def to_dict(self) -> dict:
+        return self.__dict__
+
+    @property
+    def important(self):
+        return not self.is_stop_word and self.part_of_speech not in IMPORTANT_TOKEN_EXCLUDE_POS
+
+
+class Document:
+    def __init__(self, text: str, tokens: list[Token], text_original: Optional[str] = None):
+        self.text = text
+        self.text_original = text_original
+        self._tokens = tokens
+
+    @property
+    def tokens(self) -> list[str]:
+        return (t.text for t in self._tokens)
+
+    # @lru_cache()
+    def to_dict(self):
+        token_keys = self._tokens[0].to_dict().keys()
+        _dict = {x: [None] * len(self) for x in token_keys}
+        for i, token in enumerate(self):
+            for k in token_keys:
+                _dict[k][i] = getattr(token, k)
+        return _dict
+
+    # @lru_cache()
+    def lemmas(self) -> list:
+        """
+        This function returns the lemmas of the important tokens (i.e. not a stop word and not
+        punctuation).
+        """
+        return [t.lemma for t in self._tokens if t.important]
+
+    def token_embeddings(self) -> np.array:
+        """
+        This function returns the vectors of the important tokens (i.e. not a stop word and not
+        punctuation).
+        """
+        return np.array([t.embedding for t in self._tokens if t.important])
+
+    # @lru_cache()
+    def document_embedding(self, aggregation: str = 'average') -> list[str]:
+        """This function aggregates the individual token vectors into one document vector."""
+        # print('hello')
+        if aggregation == 'average':
+            return self.token_embeddings().mean(axis=0)
+        else:
+            raise ValueError(f"{aggregation} value not supported for `vector()`")
+
+    # @lru_cache()
+    def n_grams(self, n: int = 2, separator: str = ' ') -> list[str]:
+        _tokens = [t for t in self._tokens if not t.is_punctuation or t.text == '.']
+        return [
+            separator.join(t.lemma for t in ngram) for ngram in zip(*[_tokens[i:] for i in range(n)])  # noqa
+            if all(t.important for t in ngram)
+        ]
+
+    # @lru_cache()
+    def nouns(self) -> list[str]:
+        return [t.lemma for t in self._tokens if t.part_of_speech in NOUN_POS]
+
+    def noun_phrases(self) -> list[str]:
+        pass
+
+    # @lru_cache()
+    def adjectives_verbs(self) -> list[str]:
+        return [t.lemma for t in self._tokens if t.part_of_speech in ADJ_VERB_POS]
+
+    # @lru_cache()
+    def entities(self) -> list[str]:
+        return [(t.text, t.entity_type) for t in self._tokens if t.entity_type]
+
+    def diff(self) -> str:
+        pass
+
+    def sentiment(self) -> float:
+        _sentiment = [t.sentiment for t in self._tokens if t.important]
+        return sum(_sentiment) / len(_sentiment)
+
+    def impurity(self) -> float:
+        pass
+
+    def __str__(self) -> str:
+        return self.text
+
+    def __len__(self):
+        return len(self._tokens)
+
+    def __iter__(self):
+        for token in self._tokens:
+            yield token
+
+    def __getitem__(self, index):
+        if isinstance(index, int):
+            return self._tokens[index]
+        elif isinstance(index, slice):
+            return self._tokens[index.start:index.stop:index.step]
+        else:
+            raise TypeError("Invalid index type")
+
+
+class Corpus:
     def __init__(
             self,
-            stopwords_to_add: Union[set[str], None] = None,
-            stopwords_to_remove: Union[set[str], None] = None,
-            tokenizer: Callable = None):
+            stop_words_to_add: Union[set[str], None] = None,
+            stop_words_to_remove: Union[set[str], None] = None,
+            tokenizer: Optional[stz.Tokenizer] = None,
+            pre_process: Optional[Callable] = None,
+            spacy_model: str = 'en_core_web_sm'):
+        """
+        Args:
+            stopwords_to_add: stop words to add
+            stopwords_to_remove: stop words to remove
+            tokenizer: a custom tokenizer
+            pre_process:
+                a function that takes a string as input and returns the string after cleaning/
+                pre-processing (this function will be called before tokenizing.)
+            spacy_model:
+                the spacy model to use
+                (e.g. 'en_core_web_sm', 'en_core_web_md', 'en_core_web_lg')
+        """
         # spacy.load caches this language model and any stop words we have added/removed
         # calling spacy.load on subsequent calls loads in the cached model, nothing is reset
         # so we need reset the default stop words
-        self._nlp = spacy.load('en_core_web_sm')
+        self.documents = None
+        self._count_vectorizer = None
+        self._count_matrix = None
+        self._tf_idf_vectorizer = None
+        self._tf_idf_matrix = None
+        self.pre_process = pre_process
+        self._nlp = spacy.load(spacy_model)
         self._nlp.Defaults.stop_words = STOP_WORDS_DEFAULT.copy()
 
         # https://machinelearningknowledge.ai/tutorial-for-stopwords-in-spacy/#i_Stopwords_List_in_Spacy
-        if stopwords_to_add is not None:
-            if isinstance(stopwords_to_add, list):
-                stopwords_to_add = set(stopwords_to_add)
-            self._nlp.Defaults.stop_words |= stopwords_to_add
+        if stop_words_to_add is not None:
+            if isinstance(stop_words_to_add, list):
+                stop_words_to_add = set(stop_words_to_add)
+            self._nlp.Defaults.stop_words |= stop_words_to_add
 
-        if stopwords_to_remove is not None:
-            if isinstance(stopwords_to_remove, list):
-                stopwords_to_remove = set(stopwords_to_remove)
-            self._nlp.Defaults.stop_words -= stopwords_to_remove
+        if stop_words_to_remove is not None:
+            if isinstance(stop_words_to_remove, list):
+                stop_words_to_remove = set(stop_words_to_remove)
+            self._nlp.Defaults.stop_words -= stop_words_to_remove
 
         # this is dumb, but it appears that i have to call `spacy.load` again;
         # because it doesn't look like token.is_stop updates immediately after
@@ -57,74 +217,284 @@ class SpacyWrapper:
         # it prints
         #    [False, False]
         #    [False, True]   # returns [False, True] as expected
-        self._nlp = spacy.load('en_core_web_sm')
-
-        if tokenizer is None:
-            self._nlp.tokenizer = custom_tokenizer(self._nlp)
-        else:
+        self._nlp = spacy.load(spacy_model)
+        if tokenizer:
             self._nlp.tokenizer = tokenizer(self._nlp)
+        else:
+            self._nlp.tokenizer = custom_tokenizer(self._nlp)
 
     @property
     def stop_words(self) -> set[str]:
         return self._nlp.Defaults.stop_words
 
-    def extract(
-            self,
-            documents: Collection[str],
-            all_lemmas: bool = True,
-            partial_lemmas: bool = True,
-            bi_grams: bool = True,
-            adjectives_verbs: bool = True,
-            nouns: bool = True,
-            noun_phrases: bool = True,
-            named_entities: bool = True) -> dict[list[list[str]]]:
+    def fit(self, documents: Collection[str]):
+        _original = documents.copy()
+        if self.pre_process:
+            documents = [self.pre_process(x) for x in documents]
         docs = self._nlp.pipe(documents)
+        documents = [None] * len(documents)
+        for i, doc in enumerate(docs):
+            tokens = [None] * len(doc)
+            for j, token in enumerate(doc):
+                tokens[j] = Token(token=token, stop_words=self.stop_words)
+            documents[i] = Document(text=str(doc), tokens=tokens, text_original=_original[i])
 
-        extracted_values = [None] * len(documents)
-        for j, doc in enumerate(docs):
-            extracted_values[j] = extract_from_doc(
-                doc=doc,
-                stop_words=self.stop_words,
-                all_lemmas=all_lemmas,
-                partial_lemmas=partial_lemmas,
-                bi_grams=bi_grams,
-                adjectives_verbs=adjectives_verbs,
-                nouns=nouns,
-                noun_phrases=noun_phrases,
-                named_entities=named_entities,
-            )
+        self.documents = documents
 
-        return _list_dicts_to_dict_lists(list_of_dicts=extracted_values)
+    def text(self):
+        return [d.text for d in self.documents]
 
-    def text_to_dataframe(self, text: str, include_punctuation: bool = False) -> pd.DataFrame:
+    # @lru_cache()
+    def lemmas(self):
+        return [d.lemmas() for d in self.documents]
+
+    def embeddings_matrix(self, aggregation):
+        return np.array([d.document_embedding(aggregation='average') for d in self.documents])
+
+    def bi_grams(self):
+        return [d.n_grams(n=2) for d in self.documents]
+
+    def nouns(self):
+        return [d.nouns() for d in self.documents]
+
+    def noun_phrases(self):
+        return [d.noun_phrases() for d in self.documents]
+
+    def adjectives_verbs(self):
+        return [d.adjectives_verbs() for d in self.documents]
+
+    def entities(self):
+        return [d.entities() for d in self.documents]
+
+    def diff(self):
+        pass
+
+    def count_vectorizer(self):
+        if self._count_vectorizer is None:
+            from sklearn.feature_extraction.text import CountVectorizer
+            docs = [' '.join(x) for x in self.lemmas()]
+            self._count_vectorizer = CountVectorizer()
+            self._count_vectorizer.fit(docs)
+
+        return self._count_vectorizer
+
+    def count_matrix(self):
+        if self._count_matrix is None:
+            docs = [' '.join(x) for x in self.lemmas()]
+            self._count_matrix = self.count_vectorizer().transform(docs)
+
+        return self._count_matrix
+
+    def tf_idf_vectorizer(self):
+        if self._tf_idf_vectorizer is None:
+            from sklearn.feature_extraction.text import TfidfVectorizer
+            docs = [' '.join(x) for x in self.lemmas()]
+            self._tf_idf_vectorizer = TfidfVectorizer()
+            self._tf_idf_vectorizer.fit(docs)
+
+        return self._tf_idf_vectorizer
+
+    def tf_idf_matrix(self):
+        if self._tf_idf_matrix is None:
+            docs = [' '.join(x) for x in self.lemmas()]
+            self._tf_idf_matrix = self.tf_idf_vectorizer().transform(docs)
+
+        return self._tf_idf_matrix
+
+    def token_count(self, groups: list) -> pd.DataFrame:
         """
-        This code takes a spaCy Doc and converts the doc into a pd.DataFrame
+        The value in index `i` in `groups` corresponds to document `i` in the corpus; groups must
+        pass list of values equal to the amount of documents in teh corpus.
+        """
+        df = pd.DataFrame(dict(
+            tokens=self.count_vectorizer().get_feature_names_out(),
+            count=self.count_matrix().sum(axis=0).A1,
+        ))
+        df.sort_values('count', ascending=False, inplace=True)
+        return df
 
-        This code is modified from:
-            Blueprints for Text Analytics Using Python
-            by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
-            (O'Reilly, 2021), 978-1-492-07408-3.
-            https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch04/Data_Preparation.ipynb
+    def tf_idf(self, groups: list) -> pd.DataFrame:
+        """
+        The value in index `i` in `groups` corresponds to document `i` in the corpus; groups must
+        pass list of values equal to the amount of documents in teh corpus.
+        """
+        df = pd.DataFrame(dict(
+            tokens=self.tf_idf_vectorizer().get_feature_names_out(),
+            tf_idf=self.tf_idf_matrix().sum(axis=0).A1,
+        ))
+        df.sort_values('tf_idf', ascending=False, inplace=True)
+        return df
 
+    def similarity_matrix():
+        """based on what? TF-IDF matrix? Document embedding matrix? (average?)"""
+        pass
+
+    def calculate_similarity(self, text: str):
+        """Based on what? TF-IDF matrix? Document Embedding? (average??)"""
+        _original = text
+        if self.pre_process:
+            text = self.pre_process(text)
+        doc = self._nlp(text)
+        tokens = [None] * len(doc)
+        for j, token in enumerate(doc):
+            tokens[j] = Token(token=token, stop_words=self.stop_words)
+        
+        doc = Document(text=str(doc), tokens=tokens, text_original=_original)
+        
+        #???
+        doc.document_embedding
+
+        #????
+        _doc = ' '.join(doc.lemmas)
+        self.tf_idf_vectorizer().transform([_doc])
+
+
+    @singledispatchmethod
+    def get_similar_docs(self, obj: object, top_n: int):
+        raise NotImplementedError("Invalid Type")
+
+    @get_similar_docs.register
+    def _(self, index: int, top_n: int = 10):
+        # based on document at `index`, what are the `top_n` most similar docs
+        return "pass integer"
+
+    @get_similar_docs.register
+    def _(self, doc: str, top_n: int = 10):
+        # based on document `doc`, what are the `top_n` most similar docs
+        return "pass string"
+
+    def plot_word_cloud():
+        pass
+
+    def get_context():
+        pass
+    # def __str__(self) -> str:
+    #     return [t.text for t in self.tokens]
+
+    def __len__(self):
+        return len(self.documents)
+
+    def __iter__(self):
+        for document in self.documents:
+            yield document
+
+    def __getitem__(self, index):
+        if isinstance(index, int):
+            return self.documents[index]
+        elif isinstance(index, slice):
+            return self.documents[index.start:index.stop:index.step]
+        else:
+            raise TypeError("Invalid index type")
+
+
+# class DocumentProcessor:
+    
+
+    # def extract(
+    #         self,
+    #         documents: Collection[str],
+    #         all_lemmas: bool = True,
+    #         partial_lemmas: bool = True,
+    #         bi_grams: bool = True,
+    #         adjectives_verbs: bool = True,
+    #         nouns: bool = True,
+    #         noun_phrases: bool = True,
+    #         named_entities: bool = True) -> dict[list[list[str]]]:
+    #     if self.pre_process:
+    #         documents = [self.pre_process(x) for x in documents]
+    #     docs = self._nlp.pipe(documents)
+
+    #     extracted_values = [None] * len(documents)
+    #     for j, doc in enumerate(docs):
+    #         extracted_values[j] = extract_from_doc(
+    #             doc=doc,
+    #             stop_words=self.stop_words,
+    #             all_lemmas=all_lemmas,
+    #             partial_lemmas=partial_lemmas,
+    #             bi_grams=bi_grams,
+    #             adjectives_verbs=adjectives_verbs,
+    #             nouns=nouns,
+    #             noun_phrases=noun_phrases,
+    #             named_entities=named_entities,
+    #         )
+
+    #     return _list_dicts_to_dict_lists(list_of_dicts=extracted_values)
+
+    def text_to_dict(self, text: str) -> dict[list[str]]:
+        """
+        This code takes text and returns a dictionary of various attributes extracted from spaCy.
         Args:
-            doc: the doc to convert
-            include_punctuation: whether or not to return the punctuation in the DataFrame.
+            text: the text to process
+            stop_words: stop-words
         """
         doc = self._nlp(text)
-        rows = []
-        for i, t in enumerate(doc):
-            if (not t.is_punct and t.pos_ != 'PUNCT') or include_punctuation:
-                row = {
-                    'token': i, 'text': t.text, 'lemma_': t.lemma_,
-                    'is_stop': t.is_stop, 'is_alpha': t.is_alpha,
-                    'pos_': t.pos_, 'dep_': t.dep_,
-                    'ent_type_': t.ent_type_, 'ent_iob_': t.ent_iob_
-                }
-                rows.append(row)
+        tokens = dict(
+            text=[None] * len(doc),
+            lemma=[None] * len(doc),
+            is_stop=[None] * len(doc),
+            is_punct=[None] * len(doc),
+            vector=[None] * len(doc),
+            is_punctuation=[None] * len(doc),
+            is_special=[None] * len(doc),
+            is_alpha=[None] * len(doc),
+            is_numeric=[None] * len(doc),
+            is_ascii=[None] * len(doc),
+            dep=[None] * len(doc),
+            part_of_speech=[None] * len(doc),
+            entity_type=[None] * len(doc),
+            sentiment=[None] * len(doc),
+        )
+        for i, token in enumerate(doc):
+            _lemma = token.lemma_.lower()
+            tokens['text'][i] = token.text
+            tokens['lemma'][i] = _lemma
+            tokens['is_stop'][i] = token.is_stop or \
+                _lemma in self.stop_words or \
+                text.lower() in self.stop_words
+            tokens['is_punct'][i] = token.pos_ == 'X' and not token.is_alpha
+            tokens['vector'][i] = token.vector
+            tokens['is_punctuation'][i] = token.is_punct or \
+                token.dep_ == 'punct' or \
+                token.pos_ == 'PUNCT'
+            tokens['is_special'][i] = token.pos_ == 'SYM' or (token.pos_ == 'X' and not token.is_alpha)
+            tokens['is_alpha'][i] = token.is_alpha
+            tokens['is_numeric'][i] = token.is_numeric
+            tokens['is_ascii'][i] = token.is_ascii
+            tokens['dep'][i] = token.dep_
+            tokens['part_of_speech'][i] = token.pos_
+            tokens['entity_type'][i] = token.ent_type_
+            tokens['sentiment'][i] = token.sentiment
+        return tokens
 
-        df = pd.DataFrame(rows).set_index('token')
-        df.index.name = None
-        return df
+    # def text_to_dataframe(self, text: str, include_punctuation: bool = False) -> pd.DataFrame:
+    #     """
+    #     This code takes a spaCy Doc and converts the doc into a pd.DataFrame
+
+    #     This code is modified from:
+    #         Blueprints for Text Analytics Using Python
+    #         by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
+    #         (O'Reilly, 2021), 978-1-492-07408-3.
+    #         https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch04/Data_Preparation.ipynb
+
+    #     Args:
+    #         doc: the doc to convert
+    #         include_punctuation: whether or not to return the punctuation in the DataFrame.
+    #     """
+    #     doc = self._nlp(text)
+    #     rows = []
+    #     for i, t in enumerate(doc):
+    #         if (not t.is_punct and t.pos_ != 'PUNCT') or include_punctuation:
+    #             row = {
+    #                 'token': i, 'text': t.text, 'lemma_': t.lemma_,
+    #                 'is_stop': t.is_stop, 'is_alpha': t.is_alpha,
+    #                 'pos_': t.pos_, 'dep_': t.dep_,
+    #                 'ent_type_': t.ent_type_, 'ent_iob_': t.ent_iob_
+    #             }
+    #             rows.append(row)
+
+    #     df = pd.DataFrame(rows).set_index('token')
+    #     df.index.name = None
+    #     return df
 
 
 def _list_dicts_to_dict_lists(list_of_dicts: list[dict]):
@@ -152,7 +522,7 @@ expected = {'x': [2, 3, 4], 'y': [10, 11]}
 assert _list_dicts_to_dict_lists(list_of_dicts) == expected
 
 
-def custom_tokenizer(nlp: Language):
+def custom_tokenizer(nlp: Language) -> stz.Tokenizer:
     """
     This code creates a custom tokenizer, as described on pg. 108 of
 
@@ -170,11 +540,12 @@ def custom_tokenizer(nlp: Language):
     suffixes = [
         pattern for pattern in nlp.Defaults.suffixes if pattern not in ['_']
     ]
-    infixes = [
-        pattern for pattern in nlp.Defaults.infixes if not re.search(pattern, 'xx-xx')
-    ]
+    infixes = nlp.Defaults.infixes
+    #     [
+    #     pattern for pattern in nlp.Defaults.infixes if not re.search(pattern, 'xx-xx')
+    # ]
 
-    return Tokenizer(
+    return stz.Tokenizer(
         vocab=nlp.vocab,
         rules=nlp.Defaults.tokenizer_exceptions,
         prefix_search=compile_prefix_regex(prefixes).search,
@@ -222,6 +593,8 @@ def extract_lemmas(doc: spacy.tokens.doc.Doc,
         exclude_pos=exclude_part_of_speech,
         min_freq=min_frequency,
     )
+    temp = next(words)
+    temp.vector.shape
     tokens = [token if (token := t.lemma_.lower()) != 'datum' else 'data' for t in words]
     if exclude_stopwords and stop_words:
         # exclude_stopwords appears to remove pre-lemmatized stop-words
@@ -414,7 +787,18 @@ def extract_from_doc(doc: spacy.tokens.doc.Doc,
         noun_phrases: if True, return noun_phrases
         named_entities: if True, return named_entities
     """
+
+    words = textacy.extract.words(  # noqa
+        doc,
+        filter_stops=False,
+        filter_punct=True,
+        filter_nums=False,
+        # include_pos=include_part_of_speech,
+        # exclude_pos=exclude_part_of_speech,
+        min_freq=1,
+    )
     results = dict()
+
     if all_lemmas:
         results['all_lemmas'] = extract_lemmas(
             doc,

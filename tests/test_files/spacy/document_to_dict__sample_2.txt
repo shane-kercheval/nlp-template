@@ -1,0 +1,22 @@
+         text     lemma  is_stop_word                                          embedding part_of_speech  is_punctuation  is_special  is_alpha  is_numeric  is_ascii       dep entity_type  sentiment
+0     However   however          True  [-1.9782, -0.91843, 0.44626, -1.5787, 3.492, 0...            ADV           False       False      True       False      True    advmod                    0.0
+1           ,         ,         False  [-3.3899, -4.7034, -0.56101, 1.2291, 4.3298, -...          PUNCT            True       False     False       False      True     punct                    0.0
+2        this      this          True  [2.179, 4.382, -3.6766, -3.066, 4.6297, -0.356...           PRON           False       False      True       False      True     nsubj                    0.0
+3          is        be          True  [1.475, 6.0078, 1.1205, -3.5874, 3.7638, 3.198...            AUX           False       False      True       False      True      ROOT                    0.0
+4           '         '         False  [2.1733, 2.2656, 11.688, -3.2787, 11.763, -9.7...          PUNCT            True       False     False       False      True     punct                    0.0
+5     another   another          True  [-1.5995, 1.9483, -2.604, 1.5251, 5.0179, 1.89...            DET           False       False      True       False      True       det                    0.0
+6           '         '         False  [2.1733, 2.2656, 11.688, -3.2787, 11.763, -9.7...          PUNCT            True       False     False       False      True     punct                    0.0
+7    document  document         False  [0.11681, -3.0633, 1.8432, 0.2876, 3.5357, -1....           NOUN           False       False      True       False      True      attr                    0.0
+8        with      with          True  [-7.3029, -1.8444, -0.76674, 2.971, 8.2274, -0...            ADP           False       False      True       False      True      prep                    0.0
+9      hyphen    hyphen         False  [-0.70212, 3.3906, 6.5538, 0.71597, 2.7266, 0....           NOUN           False       False      True       False      True  compound                    0.0
+10          -         -         False  [-5.2115, 3.509, -1.2917, 11.139, 9.1501, 1.15...          PUNCT            True       False     False       False      True     punct                    0.0
+11       word      word         False  [3.5758, 3.2752, 7.475, -0.70439, 0.19339, 1.9...           NOUN           False       False      True       False      True      pobj                    0.0
+12          .         .         False  [-0.076454, -4.6896, -4.0431, -3.4333, 11.758,...          PUNCT            True       False     False       False      True     punct                    0.0
+13         It        it          True  [8.6598, 4.9852, -4.7702, -4.0454, 2.6053, 2.4...           PRON           False       False      True       False      True     nsubj                    0.0
+14        has      have          True  [4.3099, 8.9084, -6.856, 0.69537, 0.42271, -1....           VERB           False       False      True       False      True      ROOT                    0.0
+15        two       two          True  [-12.355, -3.874, 2.6894, 7.2089, 5.9747, 5.27...            NUM           False       False      True       False      True    nummod    CARDINAL        0.0
+16  sentences  sentence         False  [-3.2804, -1.2361, 1.7857, -0.1322, 4.8005, 0....           NOUN           False       False      True       False      True      dobj                    0.0
+17        and       and          True  [-3.3477, -6.0854, -3.6366, 0.5348, 8.4195, 1....          CCONJ           False       False      True       False      True        cc                    0.0
+18         is        be          True  [1.475, 6.0078, 1.1205, -3.5874, 3.7638, 3.198...            AUX           False       False      True       False      True      conj                    0.0
+19       dumb      dumb         False  [-0.37904, 2.3706, 1.251, -0.18268, -4.0747, 6...            ADJ           False       False      True       False      True     acomp                    0.0
+20          .         .         False  [-0.076454, -4.6896, -4.0431, -3.4333, 11.758,...          PUNCT            True       False     False       False      True     punct                    0.0
