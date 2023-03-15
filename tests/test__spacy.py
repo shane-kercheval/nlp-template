@@ -58,36 +58,34 @@ def test__DocumentProcessor__simple():
     assert corpus.count_matrix().shape == corpus.tf_idf_matrix().shape
     corpus.count_matrix().toarray()
 
-    corpus.count_vectorizer().get_feature_names_out()
+    corpus.count_token_names()
     corpus.count_matrix().sum(axis=0)[[0]]
+    assert len(corpus.count_token_names()) == corpus.count_matrix().shape[1]
 
-    corpus.tf_idf_vectorizer().get_feature_names_out()
+    corpus.tf_idf_token_names()
     corpus.tf_idf_matrix().sum(axis=0)
+    assert len(corpus.tf_idf_token_names()) == corpus.tf_idf_matrix().shape[1]
+    assert (corpus.count_token_names() == corpus.tf_idf_token_names()).all()
 
     corpus.tf_idf_matrix().toarray()
     corpus.tf_idf()
 
     with open(get_test_file_path('spacy/document_diff__sample_1.html'), 'w') as file:
         file.write(corpus[0].diff())
-    
+
     with open(get_test_file_path('spacy/document_diff__sample_1__use_lemmas.html'), 'w') as file:
         file.write(corpus[0].diff(use_lemmas=True))
 
     with open(get_test_file_path('spacy/corpus_diff__sample.html'), 'w') as file:
         file.write(corpus.diff())
-    
+
     with open(get_test_file_path('spacy/corpus_diff__sample__first_2.html'), 'w') as file:
         file.write(corpus.diff(first_n=2))
 
     with open(get_test_file_path('spacy/corpus_diff__sample__use_lemmas.html'), 'w') as file:
         file.write(corpus.diff(use_lemmas=True))
 
-
-
         
-    corpus.diff()
-    corpus[0].diff()
-
 
     # Test Corpus functionality
 

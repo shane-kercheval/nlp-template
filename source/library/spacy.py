@@ -277,7 +277,7 @@ class Corpus:
         return [d.lemmas(important_only=important_only) for d in self.documents]
 
     def embeddings_matrix(self, aggregation):
-        return np.array([d.document_embedding(aggregation='average') for d in self.documents])
+        return np.array([d.embeddings(aggregation='average') for d in self.documents])
 
     def bi_grams(self):
         return [d.n_grams(n=2) for d in self.documents]
@@ -328,6 +328,9 @@ class Corpus:
 
         return self._count_vectorizer
 
+    def count_token_names(self):
+        return self.count_vectorizer().get_feature_names_out()
+
     def count_matrix(self):
         if self._count_matrix is None:
             docs = [' '.join(x) for x in self.lemmas()]
@@ -344,6 +347,9 @@ class Corpus:
 
         return self._tf_idf_vectorizer
 
+    def tf_idf_token_names(self):
+        return self.tf_idf_vectorizer().get_feature_names_out()
+
     def tf_idf_matrix(self):
         if self._tf_idf_matrix is None:
             docs = [' '.join(x) for x in self.lemmas()]
@@ -357,7 +363,7 @@ class Corpus:
         pass list of values equal to the amount of documents in teh corpus.
         """
         df = pd.DataFrame(dict(
-            tokens=self.count_vectorizer().get_feature_names_out(),
+            tokens=self.count_token_names(),
             count=self.count_matrix().sum(axis=0).A1,
         ))
         df.sort_values('count', ascending=False, inplace=True)
@@ -369,7 +375,7 @@ class Corpus:
         pass list of values equal to the amount of documents in teh corpus.
         """
         df = pd.DataFrame(dict(
-            tokens=self.tf_idf_vectorizer().get_feature_names_out(),
+            tokens=self.tf_idf_token_names(),
             tf_idf=self.tf_idf_matrix().sum(axis=0).A1,
         ))
         df.sort_values('tf_idf', ascending=False, inplace=True)
