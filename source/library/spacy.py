@@ -248,6 +248,9 @@ class Corpus:
         return self._nlp.Defaults.stop_words
 
     def fit(self, documents: Collection[str]):
+
+        # TODO: implement parallel processing logic
+
         _original = documents.copy()
         if self.pre_process:
             documents = [self.pre_process(x) for x in documents]
@@ -276,8 +279,15 @@ class Corpus:
         """
         return [d.lemmas(important_only=important_only) for d in self.documents]
 
-    def embeddings_matrix(self, aggregation):
-        return np.array([d.embeddings(aggregation='average') for d in self.documents])
+    def embeddings_matrix(self, aggregation='average'):
+        """
+        e.g.
+            average
+            or weight by tf-idf... if this option; then i need to used.token_embeddings so that I 
+                can weight the tokens for a given doc against the tf-idf values (row in matrix)
+                for the same doc.
+        """
+        return np.array([d.embeddings(aggregation=aggregation) for d in self.documents])
 
     def bi_grams(self):
         return [d.n_grams(n=2) for d in self.documents]
@@ -381,12 +391,24 @@ class Corpus:
         df.sort_values('tf_idf', ascending=False, inplace=True)
         return df
 
-    def similarity_matrix():
-        """based on what? TF-IDF matrix? Document embedding matrix? (average?)"""
+    @lru_cache()
+    def similarity_matrix(type: str):
+        """based on what? should i pass in enum?
+            Count Matrix?
+            TF-IDF matrix?
+            Document embedding matrix? (average)
+            Document embedding matrix? (TF-IDF weighted)
+        """
         pass
 
-    def calculate_similarity(self, text: str):
-        """Based on what? TF-IDF matrix? Document Embedding? (average??)"""
+    @lru_cache()
+    def calculate_similarity(self, text: str, type: str):
+        """based on what? should i pass in enum?
+            Count Matrix?
+            TF-IDF matrix?
+            Document embedding matrix? (average)
+            Document embedding matrix? (TF-IDF weighted)
+        """
         _original = text
         if self.pre_process:
             text = self.pre_process(text)
