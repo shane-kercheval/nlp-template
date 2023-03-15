@@ -12,6 +12,7 @@ import spacy.tokenizer as stz
 import spacy.tokens as st
 import spacy.tokens.doc as sd
 
+from helpsk.diff import diff_text
 
 from spacy.util import compile_prefix_regex, compile_infix_regex, compile_suffix_regex
 
@@ -33,7 +34,7 @@ class Token:
         self.is_stop_word = token.is_stop or \
             _lemma in stop_words or \
             token.text.lower() in stop_words
-        self.embedding = token.vector
+        self.embeddings = token.vector
         self.part_of_speech = token.pos_
         self.is_punctuation = token.is_punct or \
             token.dep_ == 'punct' or \
@@ -78,22 +79,28 @@ class Document:
         return _dict
 
     # @lru_cache()
-    def lemmas(self) -> list:
+    def lemmas(self, important_only: bool = True) -> list:
         """
         This function returns the lemmas of the important tokens (i.e. not a stop word and not
         punctuation).
+
+        Args:
+            important_only: if True, return the lemma if the Token's `important` property is True.
         """
-        return [t.lemma for t in self._tokens if t.important]
+        if important_only:
+            return [t.lemma for t in self._tokens if t.important]
+        else:
+            return [t.lemma for t in self._tokens]
 
     def token_embeddings(self) -> np.array:
         """
         This function returns the vectors of the important tokens (i.e. not a stop word and not
         punctuation).
         """
-        return np.array([t.embedding for t in self._tokens if t.important])
+        return np.array([t.embeddings for t in self._tokens if t.important])
 
     # @lru_cache()
-    def document_embedding(self, aggregation: str = 'average') -> list[str]:
+    def embeddings(self, aggregation: str = 'average') -> list[str]:
         """This function aggregates the individual token vectors into one document vector."""
         # print('hello')
         if aggregation == 'average':
@@ -124,8 +131,21 @@ class Document:
     def entities(self) -> list[str]:
         return [(t.text, t.entity_type) for t in self._tokens if t.entity_type]
 
-    def diff(self) -> str:
-        pass
+    def diff(self, use_lemmas: bool = False) -> str:
+        """
+        Returns HTML containing diff between `text_original` and `text.
+        
+        Args:
+            use_lemmas:
+                If `True`, diff the original text of against all of the lemmas.
+        """
+        if use_lemmas:
+            return diff_text(
+                text_a=self.text_original,
+                text_b=' '.join(self.lemmas(important_only=False))
+            )
+        else:
+            return diff_text(text_a=self.text_original, text_b=self.text)
 
     def sentiment(self) -> float:
         _sentiment = [t.sentiment for t in self._tokens if t.important]
@@ -245,8 +265,16 @@ class Corpus:
         return [d.text for d in self.documents]
 
     # @lru_cache()
-    def lemmas(self):
-        return [d.lemmas() for d in self.documents]
+    def lemmas(self, important_only: bool = True) -> list:
+        """
+        This function returns the lemmas of the important tokens (i.e. not a stop word and not
+        punctuation).
+
+        Args:
+            important_only: if True, for each documment return the lemmas if the Token's
+            `important` property is True.
+        """
+        return [d.lemmas(important_only=important_only) for d in self.documents]
 
     def embeddings_matrix(self, aggregation):
         return np.array([d.document_embedding(aggregation='average') for d in self.documents])
@@ -266,8 +294,30 @@ class Corpus:
     def entities(self):
         return [d.entities() for d in self.documents]
 
-    def diff(self):
-        pass
+    def diff(self, first_n: Optional[int] = None, use_lemmas: bool = False) -> str:
+        """
+        Returns HTML containing diff between `text_original` and `text for each document.
+
+        Args:
+            first_n: int:
+                if None, return diff for all documents; if int, return the diff for the `first_n`
+                documents.
+            use_lemmas:
+                If `True`, diff the original text of against all of the lemmas.
+        """
+        if not first_n:
+            first_n = len(self.documents)
+
+        if use_lemmas:
+            return diff_text(
+                text_a=[x.text_original for x in self.documents[0:first_n]],
+                text_b=[' '.join(x) for x in self.lemmas(important_only=False)[0:first_n]]
+            )
+        else:
+            return diff_text(
+                text_a=[x.text_original for x in self.documents[0:first_n]],
+                text_b=[x.text for x in self.documents[0:first_n]]
+            )
 
     def count_vectorizer(self):
         if self._count_vectorizer is None:
@@ -342,7 +392,7 @@ class Corpus:
         doc = Document(text=str(doc), tokens=tokens, text_original=_original)
         
         #???
-        doc.document_embedding
+        doc.embeddings
 
         #????
         _doc = ' '.join(doc.lemmas)

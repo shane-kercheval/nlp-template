@@ -42,7 +42,7 @@ def test__DocumentProcessor__simple():
             get_test_file_path(f'spacy/document_to_dict__sample_{index}.txt')
         )
 
-    assert corpus[0].document_embedding().shape == corpus[0][0].embedding.shape
+    assert corpus[0].embeddings().shape == corpus[0][0].embeddings.shape
     assert all(len(d.lemmas()) > 0 for d in corpus)
     assert all(len(d.n_grams()) > 0 for d in corpus)
     assert all(len(d.nouns()) > 0 for d in corpus)
@@ -51,76 +51,79 @@ def test__DocumentProcessor__simple():
     assert all(len(d.n_grams()) > 0 for d in corpus)
     assert corpus[0].sentiment() == 0  # not working yet
 
-
     corpus.embeddings_matrix().shape
-
 
     assert corpus.count_matrix().shape[0] == len(corpus)
     assert corpus.tf_idf_matrix().shape[0] == len(corpus)
     assert corpus.count_matrix().shape == corpus.tf_idf_matrix().shape
     corpus.count_matrix().toarray()
 
-
-    import pandas as pd
-    pd.DataFrame(dict(
-        tokens=corpus.count_vectorizer().get_feature_names_out(),
-        tf_idf=corpus.count_matrix().sum(axis=0).A1,
-    )).sort_values('tf_idf', ascending=False)
-    
     corpus.count_vectorizer().get_feature_names_out()
-
     corpus.count_matrix().sum(axis=0)[[0]]
-
 
     corpus.tf_idf_vectorizer().get_feature_names_out()
     corpus.tf_idf_matrix().sum(axis=0)
 
-
     corpus.tf_idf_matrix().toarray()
+    corpus.tf_idf()
+
+    with open(get_test_file_path('spacy/document_diff__sample_1.html'), 'w') as file:
+        file.write(corpus[0].diff())
+    
+    with open(get_test_file_path('spacy/document_diff__sample_1__use_lemmas.html'), 'w') as file:
+        file.write(corpus[0].diff(use_lemmas=True))
+
+    with open(get_test_file_path('spacy/corpus_diff__sample.html'), 'w') as file:
+        file.write(corpus.diff())
+    
+    with open(get_test_file_path('spacy/corpus_diff__sample__first_2.html'), 'w') as file:
+        file.write(corpus.diff(first_n=2))
+
+    with open(get_test_file_path('spacy/corpus_diff__sample__use_lemmas.html'), 'w') as file:
+        file.write(corpus.diff(use_lemmas=True))
+
+
+
+        
+    corpus.diff()
+    corpus[0].diff()
 
 
     # Test Corpus functionality
 
+# def test__DocumentProcessor__reddit(reddit):
 
-
-
-
-def test__DocumentProcessor__reddit(reddit):
-
-
-
-
-    # Test Token specific characteristics
+#     # Test Token specific characteristics
     
-    docs_str = reddit.apply(lambda x: x['title'] + ' ... ' + x['post'], axis=1)
-    documents = processor.process(documents=docs_str)
-    assert len(documents) == len(reddit)
+#     docs_str = reddit.apply(lambda x: x['title'] + ' ... ' + x['post'], axis=1)
+#     documents = processor.process(documents=docs_str)
+#     assert len(documents) == len(reddit)
 
 
-    # Test Document specific characteristics
-    assert str(documents[0]) == documents[0].text
+#     # Test Document specific characteristics
+#     assert str(documents[0]) == documents[0].text
 
 
-    documents[0][0].__dict__.keys()
+#     documents[0][0].__dict__.keys()
 
 
-    # Test Token specific characteristics
+    # # Test Token specific characteristics
 
 
-    str(documents[0])
-    documents[0][0].text
-    reddit['title']
+    # str(documents[0])
+    # documents[0][0].text
+    # reddit['title']
 
 
-    documents.term_freq_inverse_doc_freq()
-    documents.term_freq()
-    documents.plot_wordcloud()
-    documents.search()
-    documents.similarity_matrix()
-    documents.find_similar()
+    # documents.term_freq_inverse_doc_freq()
+    # documents.term_freq()
+    # documents.plot_wordcloud()
+    # documents.search()
+    # documents.similarity_matrix()
+    # documents.find_similar()
 
 
-    post_a = documents[0]
-    post_a.sentiment
+    # post_a = documents[0]
+    # post_a.sentiment
 
 

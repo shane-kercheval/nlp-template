@@ -1,4 +1,4 @@
-         text     lemma  is_stop_word                                          embedding part_of_speech  is_punctuation  is_special  is_alpha  is_numeric  is_ascii       dep entity_type  sentiment
+         text     lemma  is_stop_word                                         embeddings part_of_speech  is_punctuation  is_special  is_alpha  is_numeric  is_ascii       dep entity_type  sentiment
 0     However   however          True  [-1.9782, -0.91843, 0.44626, -1.5787, 3.492, 0...            ADV           False       False      True       False      True    advmod                    0.0
 1           ,         ,         False  [-3.3899, -4.7034, -0.56101, 1.2291, 4.3298, -...          PUNCT            True       False     False       False      True     punct                    0.0
 2        this      this          True  [2.179, 4.382, -3.6766, -3.066, 4.6297, -0.356...           PRON           False       False      True       False      True     nsubj                    0.0
