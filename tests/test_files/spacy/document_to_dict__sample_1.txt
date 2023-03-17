@@ -4,15 +4,16 @@
 2       another      another          True  [-1.5995, 1.9483, -2.604, 1.5251, 5.0179, 1.89...           PRON           False       False      True       False      True      attr                    0.0
 3             (            (         False  [-7.8392, -10.463, 11.759, 1.8131, 0.046077, -...          PUNCT            True       False     False       False      True     punct                    0.0
 4           the          the          True  [-5.1043, 2.3496, 3.2472, 2.8424, 11.459, -2.4...            DET           False       False      True       False      True       det                    0.0
-5           2nd          2nd         False  [-3.3606, -4.8288, 3.7581, 4.7422, 2.5184, -0....            ADJ           False       False     False       False      True      amod     ORDINAL        0.0
+5           2nd          2nd         False  [-3.3606, -4.8288, 3.7581, 4.7422, 2.5184, -0....            ADJ           False       False     False       False      True      nmod     ORDINAL        0.0
 6          i.e.         i.e.         False  [-5.6896, -1.3033, 2.5028, 2.8574, 6.2943, 2.5...              X           False        True     False       False      True      nmod                    0.0
-7      _NUMBER_     _number_         False  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ...              X           False        True     False       False      True      nmod                    0.0
+7      _NUMBER_     _number_         False  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ...              X           False        True     False       False      True  npadvmod                    0.0
 8             )            )         False  [-7.9729, -8.4028, 11.931, 1.4241, -6.2634, -3...          PUNCT            True       False     False       False      True     punct                    0.0
-9      document     document         False  [0.11681, -3.0633, 1.8432, 0.2876, 3.5357, -1....           NOUN           False       False      True       False      True     appos                    0.0
-10         with         with          True  [-7.3029, -1.8444, -0.76674, 2.971, 8.2274, -0...            ADP           False       False      True       False      True      prep                    0.0
-11       almost       almost          True  [-0.22939, -1.1667, -2.0192, -1.3399, 6.1487, ...            ADV           False       False      True       False      True    advmod                    0.0
-12           no           no          True  [1.4541, 11.515, 7.0664, 4.0232, -2.0607, -7.7...           PRON           False       False      True       False      True    nummod                    0.0
-13        _TAG_        _tag_         False  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ...           PRON           False       False     False       False      True  compound                    0.0
-14  information  information         False  [3.3318, -3.3207, 3.116, -0.58441, 4.2977, -2....           NOUN           False       False      True       False      True      pobj                    0.0
-15            !            !         False  [5.0891, -3.3753, -4.2695, -4.8156, 3.8904, 6....          PUNCT            True       False     False       False      True     punct                    0.0
+9   unimportant  unimportant         False  [1.5277, 3.2951, -0.24009, -0.37673, 5.4905, 0...            ADJ           False       False      True       False      True      amod                    0.0
+10     document     document         False  [0.11681, -3.0633, 1.8432, 0.2876, 3.5357, -1....           NOUN           False       False      True       False      True     appos                    0.0
+11         with         with          True  [-7.3029, -1.8444, -0.76674, 2.971, 8.2274, -0...            ADP           False       False      True       False      True      prep                    0.0
+12       almost       almost          True  [-0.22939, -1.1667, -2.0192, -1.3399, 6.1487, ...            ADV           False       False      True       False      True    advmod                    0.0
+13           no           no          True  [1.4541, 11.515, 7.0664, 4.0232, -2.0607, -7.7...           PRON           False       False      True       False      True    nummod                    0.0
+14        _TAG_        _tag_         False  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ...           PRON           False       False     False       False      True  compound                    0.0
+15  information  information         False  [3.3318, -3.3207, 3.116, -0.58441, 4.2977, -2....           NOUN           False       False      True       False      True      pobj                    0.0
 16            !            !         False  [5.0891, -3.3753, -4.2695, -4.8156, 3.8904, 6....          PUNCT            True       False     False       False      True     punct                    0.0
+17            !            !         False  [5.0891, -3.3753, -4.2695, -4.8156, 3.8904, 6....          PUNCT            True       False     False       False      True     punct                    0.0

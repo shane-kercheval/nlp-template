@@ -23,13 +23,15 @@ def test__DocumentProcessor__simple():
 
     docs_str = [
         '<b>This is 1 document that has very important information</b> and some $ & # characters.',
-        'This is another (the 2nd i.e. 2) document with almost no #awesome information!!',
+        'This is another (the 2nd i.e. 2) unimportant document with almost no #awesome information!!',  # noqa
         "However, this is 'another' document with hyphen-word. It has two sentences and is dumb."
     ]
     corpus.fit(documents=docs_str)
     assert len(corpus) == len(docs_str)
 
+    ####
     # Test Document functionality
+    ####
     with open(get_test_file_path(f'spacy/document_processor__text.txt'), 'w') as handle:  # noqa
         handle.writelines([d.text + "\n" for d in corpus])
 
@@ -42,13 +44,17 @@ def test__DocumentProcessor__simple():
             get_test_file_path(f'spacy/document_to_dict__sample_{index}.txt')
         )
 
-    assert corpus[0].embeddings().shape == corpus[0][0].embeddings.shape
+    embedding_shape = corpus[0][0].embeddings.shape
+    assert corpus[0].embeddings().shape == embedding_shape
+    assert all((d.embeddings() > 0).any() for d in corpus)
+    assert all([d.token_embeddings().shape  == (d.num_important(), embedding_shape[0]) for d in corpus])  # noqa
+    assert all(len(d.tokens()) > 0 for d in corpus)
     assert all(len(d.lemmas()) > 0 for d in corpus)
     assert all(len(d.n_grams()) > 0 for d in corpus)
     assert all(len(d.nouns()) > 0 for d in corpus)
+    assert all(len(d.noun_phrases()) > 0 for d in corpus)
     assert all(len(d.adjectives_verbs()) > 0 for d in corpus)
     assert all(len(d.entities()) > 0 for d in corpus)
-    assert all(len(d.n_grams()) > 0 for d in corpus)
     assert corpus[0].sentiment() == 0  # not working yet
 
     corpus.embeddings_matrix().shape

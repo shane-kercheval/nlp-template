@@ -4,6 +4,7 @@ from typing import Callable, Collection, Optional, Union, List
 import pandas as pd
 import numpy as np
 import re
+import regex
 import textacy
 import spacy
 from spacy.language import Language
@@ -16,11 +17,14 @@ from helpsk.diff import diff_text
 
 from spacy.util import compile_prefix_regex, compile_infix_regex, compile_suffix_regex
 
+import source.library.regex_patterns as rp
+
 
 STOP_WORDS_DEFAULT = sw.STOP_WORDS.copy()
 IMPORTANT_TOKEN_EXCLUDE_POS = set(['PART', 'PUNCT', 'DET', 'PRON', 'SYM', 'SPACE'])
 NOUN_POS = set(['NOUN', 'PROPN'])
 ADJ_VERB_POS = set(['ADJ', 'VERB'])
+NOUN_ADJ_VERB_POS = set(['NOUN', 'ADJ', 'VERB'])
 
 
 class Token:
@@ -59,6 +63,16 @@ class Token:
         return not self.is_stop_word and self.part_of_speech not in IMPORTANT_TOKEN_EXCLUDE_POS
 
 
+def _valid_noun_phrase(token_a: Token, token_b: Token) -> bool:
+    """
+    This function defines the logic to determine if two tokens combine to form a valid noun-phrase.
+    """
+    return token_a.important and \
+        token_b.important and \
+        token_a.part_of_speech in NOUN_ADJ_VERB_POS and \
+        token_b.part_of_speech in NOUN_ADJ_VERB_POS
+
+
 class Document:
     def __init__(self, text: str, tokens: list[Token], text_original: Optional[str] = None):
         self.text = text
@@ -68,6 +82,9 @@ class Document:
     @property
     def tokens(self) -> list[str]:
         return (t.text for t in self._tokens)
+
+    def num_important(self) -> int:
+        return sum(t.important for t in self._tokens)
 
     # @lru_cache()
     def to_dict(self):
@@ -102,14 +119,13 @@ class Document:
     # @lru_cache()
     def embeddings(self, aggregation: str = 'average') -> list[str]:
         """This function aggregates the individual token vectors into one document vector."""
-        # print('hello')
         if aggregation == 'average':
             return self.token_embeddings().mean(axis=0)
         else:
             raise ValueError(f"{aggregation} value not supported for `vector()`")
 
     # @lru_cache()
-    def n_grams(self, n: int = 2, separator: str = ' ') -> list[str]:
+    def n_grams(self, n: int = 2, separator: str = '-') -> list[str]:
         _tokens = [t for t in self._tokens if not t.is_punctuation or t.text == '.']
         return [
             separator.join(t.lemma for t in ngram) for ngram in zip(*[_tokens[i:] for i in range(n)])  # noqa
@@ -120,8 +136,12 @@ class Document:
     def nouns(self) -> list[str]:
         return [t.lemma for t in self._tokens if t.part_of_speech in NOUN_POS]
 
-    def noun_phrases(self) -> list[str]:
-        pass
+    def noun_phrases(self, separator: str = '-') -> list[str]:
+        _tokens = [t for t in self._tokens if not t.is_punctuation or t.text == '.']
+        return [
+            separator.join(t.lemma for t in ngram) for ngram in zip(*[_tokens[i:] for i in range(2)])  # noqa
+            if _valid_noun_phrase(token_a=ngram[0], token_b=ngram[1])
+        ]
 
     # @lru_cache()
     def adjectives_verbs(self) -> list[str]:
@@ -134,7 +154,7 @@ class Document:
     def diff(self, use_lemmas: bool = False) -> str:
         """
         Returns HTML containing diff between `text_original` and `text.
-        
+
         Args:
             use_lemmas:
                 If `True`, diff the original text of against all of the lemmas.
@@ -151,8 +171,32 @@ class Document:
         _sentiment = [t.sentiment for t in self._tokens if t.important]
         return sum(_sentiment) / len(_sentiment)
 
-    def impurity(self) -> float:
-        pass
+    def impurity(self, pattern: str = rp.SUSPICIOUS, min_length: int = 10, original=True) -> float:
+        """
+        Returns the percent of characters matching regex_patterns.SUSPICIOUS from either the
+        `text_original` property (if `original` is `True`) or the `text` property (or other pattern
+        passed in).
+
+        Args:
+            pattern:
+                regex pattern to use to search for suspicious characters; default is
+                regex_patterns.SUSPICIOUS
+            min_length:
+                the minimum length of `text` required to return a score; if `text` is less than the
+                minimum length, then a value of np.nan is returned.
+            original:
+                if True use `text_original`, if False, use `text.
+        Copied from:
+            Blueprints for Text Analytics Using Python
+            by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
+            (O'Reilly, 2021), 978-1-492-07408-3.
+            https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch04/Data_Preparation.ipynb
+        """
+        text = self.text_original if original else self.text
+        if text is None or len(text) < min_length:
+            return np.nan
+        else:
+            return len(regex.findall(pattern, text))/len(text)
 
     def __str__(self) -> str:
         return self.text
@@ -329,10 +373,21 @@ class Corpus:
                 text_b=[x.text for x in self.documents[0:first_n]]
             )
 
-    def count_vectorizer(self):
+    def count_vectorizer(
+            self,
+            include_bi_grams: bool = True,
+            max_tokens: Optional[int] = None,
+            max_bi_grams: Optional[int] = None):
         if self._count_vectorizer is None:
             from sklearn.feature_extraction.text import CountVectorizer
+
+            max_tokens
+            max_bi_grams
             docs = [' '.join(x) for x in self.lemmas()]
+            # TODO: e.g. add option for bi_grams
+            if include_bi_grams:
+                pass
+
             self._count_vectorizer = CountVectorizer()
             self._count_vectorizer.fit(docs)
 
@@ -348,10 +403,27 @@ class Corpus:
 
         return self._count_matrix
 
-    def tf_idf_vectorizer(self):
+    def tf_idf_vectorizer_transform():
+        pass
+
+    def tf_idf_vectorizer(
+            self,
+            include_bi_grams: bool = True,
+            max_tokens: Optional[int] = None,    # TODO: not sure where these parameters should be
+            # maybe they should be on constructor e.g. `vectorizer_max_tokens`
+            # and we shouldn't expose the vectorizers, but should only expose the .transform()
+            # eg. tf_idf_vectors() which calls .transform() and has the logic for processing ???
+            max_bi_grams: Optional[int] = None):
         if self._tf_idf_vectorizer is None:
             from sklearn.feature_extraction.text import TfidfVectorizer
+
+            max_tokens
+            max_bi_grams
             docs = [' '.join(x) for x in self.lemmas()]
+            # TODO: e.g. add option for bi_grams
+            if include_bi_grams:
+                pass
+
             self._tf_idf_vectorizer = TfidfVectorizer()
             self._tf_idf_vectorizer.fit(docs)
 
@@ -362,6 +434,9 @@ class Corpus:
 
     def tf_idf_matrix(self):
         if self._tf_idf_matrix is None:
+            # this logic should be in specific function to make sure all vectors are prepared in
+            # the same way whether we are creating the overall doc matrix or creating new vectors
+            # (e.g. for similarity)
             docs = [' '.join(x) for x in self.lemmas()]
             self._tf_idf_matrix = self.tf_idf_vectorizer().transform(docs)
 
@@ -409,6 +484,9 @@ class Corpus:
             Document embedding matrix? (average)
             Document embedding matrix? (TF-IDF weighted)
         """
+        # TODO: test this by giving it the same text as one of the original documents; we should
+        # get a similarity of 1 regardless how we calculate similarity
+
         _original = text
         if self.pre_process:
             text = self.pre_process(text)
@@ -416,16 +494,17 @@ class Corpus:
         tokens = [None] * len(doc)
         for j, token in enumerate(doc):
             tokens[j] = Token(token=token, stop_words=self.stop_words)
-        
+
         doc = Document(text=str(doc), tokens=tokens, text_original=_original)
-        
-        #???
+
+        # ???
         doc.embeddings
 
-        #????
+        # ????
+        # TODO: we actually have to prepare the lemmas and bi-grams (and min/max tokens/bigrams)
+        # in the same way!!!
         _doc = ' '.join(doc.lemmas)
         self.tf_idf_vectorizer().transform([_doc])
-
 
     @singledispatchmethod
     def get_similar_docs(self, obj: object, top_n: int):
