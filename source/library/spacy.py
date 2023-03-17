@@ -287,14 +287,8 @@ class Corpus:
         else:
             self._nlp.tokenizer = custom_tokenizer(self._nlp)
 
-    @property
-    def stop_words(self) -> set[str]:
-        return self._nlp.Defaults.stop_words
-
     def fit(self, documents: Collection[str]):
-
         # TODO: implement parallel processing logic
-
         _original = documents.copy()
         if self.pre_process:
             documents = [self.pre_process(x) for x in documents]
@@ -305,8 +299,11 @@ class Corpus:
             for j, token in enumerate(doc):
                 tokens[j] = Token(token=token, stop_words=self.stop_words)
             documents[i] = Document(text=str(doc), tokens=tokens, text_original=_original[i])
-
         self.documents = documents
+
+    @property
+    def stop_words(self) -> set[str]:
+        return self._nlp.Defaults.stop_words
 
     def text(self):
         return [d.text for d in self.documents]
