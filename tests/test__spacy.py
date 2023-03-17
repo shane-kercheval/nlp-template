@@ -24,7 +24,7 @@ def test__DocumentProcessor__simple():
     docs_str = [
         '<b>This is 1 document that has very important information</b> and some $ & # characters.',
         'This is another (the 2nd i.e. 2) unimportant document with almost no #awesome information!!',  # noqa
-        "However, this is 'another' document with hyphen-word. It has two sentences and is dumb."
+        "However, this is 'another' document with hyphen-word. & It has two sentences and is dumb."
     ]
     corpus.fit(documents=docs_str)
     assert len(corpus) == len(docs_str)
@@ -46,18 +46,32 @@ def test__DocumentProcessor__simple():
 
     embedding_shape = corpus[0][0].embeddings.shape
     assert corpus[0].embeddings().shape == embedding_shape
-    assert all((d.embeddings() > 0).any() for d in corpus)
     assert all([d.token_embeddings().shape  == (d.num_important(), embedding_shape[0]) for d in corpus])  # noqa
-    assert all(len(d.tokens()) > 0 for d in corpus)
-    assert all(len(d.lemmas()) > 0 for d in corpus)
-    assert all(len(d.n_grams()) > 0 for d in corpus)
-    assert all(len(d.nouns()) > 0 for d in corpus)
-    assert all(len(d.noun_phrases()) > 0 for d in corpus)
-    assert all(len(d.adjectives_verbs()) > 0 for d in corpus)
-    assert all(len(d.entities()) > 0 for d in corpus)
+    assert all((d.embeddings() > 0).any() for d in corpus)
+    assert all(len(list(d.tokens)) > 0 for d in corpus)
+    assert all(len(list(d.lemmas())) > 0 for d in corpus)
+    assert all(len(list(d.n_grams())) > 0 for d in corpus)
+    assert all(len(list(d.nouns())) > 0 for d in corpus)
+    assert all(len(list(d.noun_phrases())) > 0 for d in corpus)
+    assert all(len(list(d.adjectives_verbs())) > 0 for d in corpus)
+    assert all(len(list(d.entities())) > 0 for d in corpus)
     assert corpus[0].sentiment() == 0  # not working yet
 
-    corpus.embeddings_matrix().shape
+    # sanity check cache (e.g. which could fail with generators)
+    assert corpus[0].impurity(original=False) == corpus[0].impurity(original=False)
+    assert corpus[0].impurity(original=True) == corpus[0].impurity(original=True)
+    assert all(d.impurity(original=True) > 0 for d in corpus)
+    assert all(d.impurity(original=True) > d.impurity(original=False) for d in corpus)
+
+    # sanity check cache (e.g. which could fail with generators)
+    assert corpus[0].diff(use_lemmas=False) == corpus[0].diff(use_lemmas=False)
+    assert corpus[0].diff(use_lemmas=True) == corpus[0].diff(use_lemmas=True)
+    assert len(corpus[0].diff(use_lemmas=False)) > 0
+    assert len(corpus[0].diff(use_lemmas=True)) > 0
+
+    ####
+    # Test Corpus functionality
+    ####
 
     assert corpus.count_matrix().shape[0] == len(corpus)
     assert corpus.tf_idf_matrix().shape[0] == len(corpus)

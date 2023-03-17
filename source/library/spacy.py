@@ -1,5 +1,5 @@
 from functools import cached_property, lru_cache, singledispatchmethod
-from typing import Callable, Collection, Optional, Union, List
+from typing import Callable, Collection, Iterable, Optional, Union, List
 
 import pandas as pd
 import numpy as np
@@ -80,13 +80,12 @@ class Document:
         self._tokens = tokens
 
     @property
-    def tokens(self) -> list[str]:
+    def tokens(self) -> Iterable[str]:
         return (t.text for t in self._tokens)
 
     def num_important(self) -> int:
         return sum(t.important for t in self._tokens)
 
-    # @lru_cache()
     def to_dict(self):
         token_keys = self._tokens[0].to_dict().keys()
         _dict = {x: [None] * len(self) for x in token_keys}
@@ -95,8 +94,7 @@ class Document:
                 _dict[k][i] = getattr(token, k)
         return _dict
 
-    # @lru_cache()
-    def lemmas(self, important_only: bool = True) -> list:
+    def lemmas(self, important_only: bool = True) -> Iterable[str]:
         """
         This function returns the lemmas of the important tokens (i.e. not a stop word and not
         punctuation).
@@ -105,9 +103,9 @@ class Document:
             important_only: if True, return the lemma if the Token's `important` property is True.
         """
         if important_only:
-            return [t.lemma for t in self._tokens if t.important]
+            return (t.lemma for t in self._tokens if t.important)
         else:
-            return [t.lemma for t in self._tokens]
+            return (t.lemma for t in self._tokens)
 
     def token_embeddings(self) -> np.array:
         """
@@ -116,41 +114,37 @@ class Document:
         """
         return np.array([t.embeddings for t in self._tokens if t.important])
 
-    # @lru_cache()
-    def embeddings(self, aggregation: str = 'average') -> list[str]:
+    def embeddings(self, aggregation: str = 'average') -> np.array:
         """This function aggregates the individual token vectors into one document vector."""
         if aggregation == 'average':
             return self.token_embeddings().mean(axis=0)
         else:
             raise ValueError(f"{aggregation} value not supported for `vector()`")
 
-    # @lru_cache()
-    def n_grams(self, n: int = 2, separator: str = '-') -> list[str]:
+    def n_grams(self, n: int = 2, separator: str = '-') -> Iterable[str]:
         _tokens = [t for t in self._tokens if not t.is_punctuation or t.text == '.']
-        return [
+        return (
             separator.join(t.lemma for t in ngram) for ngram in zip(*[_tokens[i:] for i in range(n)])  # noqa
             if all(t.important for t in ngram)
-        ]
+        )
 
-    # @lru_cache()
-    def nouns(self) -> list[str]:
-        return [t.lemma for t in self._tokens if t.part_of_speech in NOUN_POS]
+    def nouns(self) -> Iterable[str]:
+        return (t.lemma for t in self._tokens if t.part_of_speech in NOUN_POS)
 
-    def noun_phrases(self, separator: str = '-') -> list[str]:
+    def noun_phrases(self, separator: str = '-') -> Iterable[str]:
         _tokens = [t for t in self._tokens if not t.is_punctuation or t.text == '.']
-        return [
+        return (
             separator.join(t.lemma for t in ngram) for ngram in zip(*[_tokens[i:] for i in range(2)])  # noqa
             if _valid_noun_phrase(token_a=ngram[0], token_b=ngram[1])
-        ]
+        )
 
-    # @lru_cache()
-    def adjectives_verbs(self) -> list[str]:
-        return [t.lemma for t in self._tokens if t.part_of_speech in ADJ_VERB_POS]
+    def adjectives_verbs(self) -> Iterable[str]:
+        return (t.lemma for t in self._tokens if t.part_of_speech in ADJ_VERB_POS)
 
-    # @lru_cache()
-    def entities(self) -> list[str]:
-        return [(t.text, t.entity_type) for t in self._tokens if t.entity_type]
+    def entities(self) -> Iterable[str]:
+        return ((t.text, t.entity_type) for t in self._tokens if t.entity_type)
 
+    @lru_cache()
     def diff(self, use_lemmas: bool = False) -> str:
         """
         Returns HTML containing diff between `text_original` and `text.
@@ -167,15 +161,21 @@ class Document:
         else:
             return diff_text(text_a=self.text_original, text_b=self.text)
 
+    @lru_cache()
     def sentiment(self) -> float:
         _sentiment = [t.sentiment for t in self._tokens if t.important]
         return sum(_sentiment) / len(_sentiment)
 
-    def impurity(self, pattern: str = rp.SUSPICIOUS, min_length: int = 10, original=True) -> float:
+    @lru_cache()
+    def impurity(
+            self,
+            pattern: str = rp.SUSPICIOUS,
+            min_length: int = 10,
+            original=False) -> float:
         """
         Returns the percent of characters matching regex_patterns.SUSPICIOUS from either the
-        `text_original` property (if `original` is `True`) or the `text` property (or other pattern
-        passed in).
+        cleaned text (i.e. `text` property) if `original` if False) or the `text_original` property
+        (if `original` is `True`).
 
         Args:
             pattern:
@@ -199,7 +199,7 @@ class Document:
             return len(regex.findall(pattern, text))/len(text)
 
     def __str__(self) -> str:
-        return self.text
+        return self.text_original if self.text_original else self.text
 
     def __len__(self):
         return len(self._tokens)
