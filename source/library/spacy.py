@@ -59,7 +59,7 @@ class Token:
         return self.__dict__
 
     @property
-    def important(self):
+    def is_important(self):
         return not self.is_stop_word and self.part_of_speech not in IMPORTANT_TOKEN_EXCLUDE_POS
 
 
@@ -67,8 +67,8 @@ def _valid_noun_phrase(token_a: Token, token_b: Token) -> bool:
     """
     This function defines the logic to determine if two tokens combine to form a valid noun-phrase.
     """
-    return token_a.important and \
-        token_b.important and \
+    return token_a.is_important and \
+        token_b.is_important and \
         token_a.part_of_speech in NOUN_ADJ_VERB_POS and \
         token_b.part_of_speech in NOUN_ADJ_VERB_POS
 
@@ -85,12 +85,8 @@ class Document:
         else:
             return self._text_cleaned
 
-    @property
-    def tokens(self) -> Iterable[str]:
-        return (t.text for t in self._tokens)
-
-    def num_important(self) -> int:
-        return sum(t.important for t in self._tokens)
+    def num_important_tokens(self) -> int:
+        return sum(t.is_important for t in self._tokens)
 
     def to_dict(self):
         token_keys = self._tokens[0].to_dict().keys()
@@ -109,7 +105,7 @@ class Document:
             important_only: if True, return the lemma if the Token's `important` property is True.
         """
         if important_only:
-            return (t.lemma for t in self._tokens if t.important)
+            return (t.lemma for t in self._tokens if t.is_important)
         else:
             return (t.lemma for t in self._tokens)
 
@@ -117,7 +113,7 @@ class Document:
         _tokens = [t for t in self._tokens if not t.is_punctuation or t.text == '.']
         return (
             separator.join(t.lemma for t in ngram) for ngram in zip(*[_tokens[i:] for i in range(n)])  # noqa
-            if all(t.important for t in ngram)
+            if all(t.is_important for t in ngram)
         )
 
     def nouns(self) -> Iterable[str]:
@@ -141,7 +137,7 @@ class Document:
         This function returns the vectors of the important tokens (i.e. not a stop word and not
         punctuation).
         """
-        return np.array([t.embeddings for t in self._tokens if t.important])
+        return np.array([t.embeddings for t in self._tokens if t.is_important])
 
     def embeddings(self, aggregation: str = 'average') -> np.array:
         """This function aggregates the individual token vectors into one document vector."""
@@ -170,7 +166,7 @@ class Document:
 
     @lru_cache()
     def sentiment(self) -> float:
-        _sentiment = [t.sentiment for t in self._tokens if t.important]
+        _sentiment = [t.sentiment for t in self._tokens if t.is_important]
         return sum(_sentiment) / len(_sentiment)
 
     @lru_cache()

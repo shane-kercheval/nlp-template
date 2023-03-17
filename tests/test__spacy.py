@@ -45,9 +45,8 @@ def test__DocumentProcessor__simple():
 
     embedding_shape = corpus[0][0].embeddings.shape
     assert corpus[0].embeddings().shape == embedding_shape
-    assert all([d.token_embeddings().shape  == (d.num_important(), embedding_shape[0]) for d in corpus])  # noqa
+    assert all([d.token_embeddings().shape  == (d.num_important_tokens(), embedding_shape[0]) for d in corpus])  # noqa
     assert all((d.embeddings() > 0).any() for d in corpus)
-    assert all(len(list(d.tokens)) > 0 for d in corpus)
     assert all(len(list(d.lemmas())) > 0 for d in corpus)
     assert all(len(list(d.n_grams())) > 0 for d in corpus)
     assert all(len(list(d.nouns())) > 0 for d in corpus)
