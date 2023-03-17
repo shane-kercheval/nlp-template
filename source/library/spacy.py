@@ -287,7 +287,7 @@ class Corpus:
         else:
             self._nlp.tokenizer = custom_tokenizer(self._nlp)
 
-    def fit(self, documents: Collection[str]):
+    def fit(self, documents: list[str]):
         # TODO: implement parallel processing logic
         _original = documents.copy()
         if self.pre_process:
