@@ -74,10 +74,16 @@ def _valid_noun_phrase(token_a: Token, token_b: Token) -> bool:
 
 
 class Document:
-    def __init__(self, text: str, tokens: list[Token], text_original: Optional[str] = None):
-        self.text = text
-        self.text_original = text_original
+    def __init__(self, text_cleaned: str, tokens: list[Token], text_original: Optional[str] = None):
+        self._text_cleaned = text_cleaned
+        self._text_original = text_original
         self._tokens = tokens
+
+    def text(self, original=True):
+        if original:
+            return self._text_original
+        else:
+            return self._text_cleaned
 
     @property
     def tokens(self) -> Iterable[str]:
@@ -107,20 +113,6 @@ class Document:
         else:
             return (t.lemma for t in self._tokens)
 
-    def token_embeddings(self) -> np.array:
-        """
-        This function returns the vectors of the important tokens (i.e. not a stop word and not
-        punctuation).
-        """
-        return np.array([t.embeddings for t in self._tokens if t.important])
-
-    def embeddings(self, aggregation: str = 'average') -> np.array:
-        """This function aggregates the individual token vectors into one document vector."""
-        if aggregation == 'average':
-            return self.token_embeddings().mean(axis=0)
-        else:
-            raise ValueError(f"{aggregation} value not supported for `vector()`")
-
     def n_grams(self, n: int = 2, separator: str = '-') -> Iterable[str]:
         _tokens = [t for t in self._tokens if not t.is_punctuation or t.text == '.']
         return (
@@ -144,10 +136,25 @@ class Document:
     def entities(self) -> Iterable[str]:
         return ((t.text, t.entity_type) for t in self._tokens if t.entity_type)
 
+    def token_embeddings(self) -> np.array:
+        """
+        This function returns the vectors of the important tokens (i.e. not a stop word and not
+        punctuation).
+        """
+        return np.array([t.embeddings for t in self._tokens if t.important])
+
+    def embeddings(self, aggregation: str = 'average') -> np.array:
+        """This function aggregates the individual token vectors into one document vector."""
+        if aggregation == 'average':
+            return self.token_embeddings().mean(axis=0)
+        else:
+            raise ValueError(f"{aggregation} value not supported for `vector()`")
+
     @lru_cache()
     def diff(self, use_lemmas: bool = False) -> str:
         """
-        Returns HTML containing diff between `text_original` and `text.
+        Returns HTML containing diff between `text_original` and either the cleaned text or,
+        optionally, the lemmas.
 
         Args:
             use_lemmas:
@@ -155,11 +162,11 @@ class Document:
         """
         if use_lemmas:
             return diff_text(
-                text_a=self.text_original,
+                text_a=self._text_original,
                 text_b=' '.join(self.lemmas(important_only=False))
             )
         else:
-            return diff_text(text_a=self.text_original, text_b=self.text)
+            return diff_text(text_a=self._text_original, text_b=self._text_cleaned)
 
     @lru_cache()
     def sentiment(self) -> float:
@@ -192,14 +199,14 @@ class Document:
             (O'Reilly, 2021), 978-1-492-07408-3.
             https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch04/Data_Preparation.ipynb
         """
-        text = self.text_original if original else self.text
+        text = self._text_original if original else self._text_cleaned
         if text is None or len(text) < min_length:
             return np.nan
         else:
             return len(regex.findall(pattern, text))/len(text)
 
     def __str__(self) -> str:
-        return self.text_original if self.text_original else self.text
+        return self._text_original if self._text_original else self._text_cleaned
 
     def __len__(self):
         return len(self._tokens)
@@ -298,18 +305,17 @@ class Corpus:
             tokens = [None] * len(doc)
             for j, token in enumerate(doc):
                 tokens[j] = Token(token=token, stop_words=self.stop_words)
-            documents[i] = Document(text=str(doc), tokens=tokens, text_original=_original[i])
+            documents[i] = Document(text_cleaned=str(doc), tokens=tokens, text_original=_original[i])
         self.documents = documents
 
     @property
     def stop_words(self) -> set[str]:
         return self._nlp.Defaults.stop_words
 
-    def text(self):
-        return [d.text for d in self.documents]
+    def text(self, original=True) -> Iterable[str]:
+        return (d.text(original=original) for d in self.documents)
 
-    # @lru_cache()
-    def lemmas(self, important_only: bool = True) -> list:
+    def lemmas(self, important_only: bool = True) -> Iterable[str]:
         """
         This function returns the lemmas of the important tokens (i.e. not a stop word and not
         punctuation).
@@ -318,7 +324,7 @@ class Corpus:
             important_only: if True, for each documment return the lemmas if the Token's
             `important` property is True.
         """
-        return [d.lemmas(important_only=important_only) for d in self.documents]
+        return (d.lemmas(important_only=important_only) for d in self.documents)
 
     def embeddings_matrix(self, aggregation='average'):
         """
@@ -492,7 +498,7 @@ class Corpus:
         for j, token in enumerate(doc):
             tokens[j] = Token(token=token, stop_words=self.stop_words)
 
-        doc = Document(text=str(doc), tokens=tokens, text_original=_original)
+        doc = Document(text_cleaned=str(doc), tokens=tokens, text_original=_original)
 
         # ???
         doc.embeddings

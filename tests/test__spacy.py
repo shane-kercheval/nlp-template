@@ -33,12 +33,11 @@ def test__DocumentProcessor__simple():
     # Test Document functionality
     ####
     with open(get_test_file_path(f'spacy/document_processor__text.txt'), 'w') as handle:  # noqa
-        handle.writelines([d.text + "\n" for d in corpus])
+        handle.writelines([d.text(original=False) + "\n" for d in corpus])
 
     for index in range(len(docs_str)):
-        assert [x.text for x in corpus[index]] == [x.text for x in corpus[index]._tokens]
+        assert [t.text for t in corpus[index]] == [t.text for t in corpus[index]._tokens]
         assert len(corpus[index]) == len(corpus[index]._tokens)
-
         dataframe_to_text_file(
             pd.DataFrame(corpus[index].to_dict()),
             get_test_file_path(f'spacy/document_to_dict__sample_{index}.txt')
