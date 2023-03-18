@@ -75,16 +75,17 @@ def _valid_noun_phrase(token_a: Token, token_b: Token) -> bool:
 
 
 class Document:
-    def __init__(self, text_cleaned: str, tokens: list[Token], text_original: Optional[str] = None):
-        self._text_cleaned = text_cleaned
-        self._text_original = text_original
+    def __init__(self, tokens: list[Token], text_original: str, text_cleaned: str):
         self._tokens = tokens
+        self._text_original = text_original
+        self._text_cleaned = text_cleaned
 
     def text(self, original=True):
         if original:
             return self._text_original
         else:
             return self._text_cleaned
+
 
     def num_important_tokens(self) -> int:
         return sum(t.is_important for t in self._tokens)
@@ -228,7 +229,10 @@ class Corpus:
             stop_words_to_remove: Union[set[str], None] = None,
             tokenizer: Optional[stz.Tokenizer] = None,
             pre_process: Optional[Callable] = None,
-            spacy_model: str = 'en_core_web_sm'):
+            spacy_model: str = 'en_core_web_sm',
+            sklearn_tokenenizer_include_bi_grams: bool = True,
+            sklearn_tokenenizer_max_tokens: Optional[int] = None,
+            sklearn_tokenenizer_max_bi_grams: Optional[int] = None):
         """
         Args:
             stopwords_to_add: stop words to add
@@ -245,13 +249,16 @@ class Corpus:
         # calling spacy.load on subsequent calls loads in the cached model, nothing is reset
         # so we need reset the default stop words
         self.documents = None
-        self._count_vectorizer = None
+        self.__count_vectorizer = None
         self._count_matrix = None
-        self._tf_idf_vectorizer = None
+        self.__tf_idf_vectorizer = None
         self._tf_idf_matrix = None
         self.pre_process = pre_process
         self._nlp = spacy.load(spacy_model)
         self._nlp.Defaults.stop_words = STOP_WORDS_DEFAULT.copy()
+        self._include_bi_grams = sklearn_tokenenizer_include_bi_grams
+        self._max_tokens = sklearn_tokenenizer_max_tokens
+        self._max_bi_grams = sklearn_tokenenizer_max_bi_grams
 
         # https://machinelearningknowledge.ai/tutorial-for-stopwords-in-spacy/#i_Stopwords_List_in_Spacy
         if stop_words_to_add is not None:
@@ -303,11 +310,35 @@ class Corpus:
             for j, token in enumerate(doc):
                 tokens[j] = Token(token=token, stop_words=self.stop_words)
             documents[i] = Document(
-                text_cleaned=str(doc),
                 tokens=tokens,
-                text_original=_original[i]
+                text_original=_original[i],
+                text_cleaned=str(doc),
             )
         self.documents = documents
+
+    def _text_to_doc(self, text: str) -> Document:
+        text_original = text
+        text_clean = text
+        if self.pre_process:
+            text_clean = self.pre_process(text_clean)
+        doc = self._nlp(text_clean)
+        tokens = [None] * len(doc)
+        for j, token in enumerate(doc):
+            tokens[j] = Token(token=token, stop_words=self.stop_words)
+        return Document(tokens=tokens, text_original=text_original, text_cleaned=text_clean)
+
+    def _prepare_doc_for_vectorizer(self, document: Document) -> str:
+        max_lemmas = self._max_tokens or len(document)
+        lemmas = itertools.islice(document.lemmas(important_only=True), max_lemmas)
+        vectorizer_text = ' '.join(lemmas)
+        if self._include_bi_grams:
+            max_bi_grams = self._max_bi_grams or len(document)
+            bi_grams = itertools.islice(document.n_grams(n=2), max_bi_grams)
+            bi_grams = ' '.join(bi_grams)
+            vectorizer_text += ' ' + bi_grams
+
+        return vectorizer_text
+        
 
     @property
     def stop_words(self) -> set[str]:
@@ -380,74 +411,61 @@ class Corpus:
         """
         return np.array([d.embeddings(aggregation=aggregation) for d in self.documents])
 
+    # we need the abiliyt to process text consistanly
+    # a) original documents
+    # b) new documents
+    # new documents for e.g. embeddings, tfidf
 
-    def count_vectorizer(
-            self,
-            include_bi_grams: bool = True,
-            max_tokens: Optional[int] = None,
-            max_bi_grams: Optional[int] = None):
-        if self._count_vectorizer is None:
+    def _count_vectorizer(self):
+        if self.__count_vectorizer is None:
             from sklearn.feature_extraction.text import CountVectorizer
+            vectorizer_text = [self._prepare_doc_for_vectorizer(d) for d in self.documents]
+            self.__count_vectorizer = CountVectorizer(
+                stop_words=None,  # already removed via _prepare_doc_for_vectorizer via
+                token_pattern="(?u)\\b[\\w-]+\\b",
+                min_df=5,
+            )
+            self.__count_vectorizer.fit(vectorizer_text)
 
-            max_tokens
-            max_bi_grams
-            docs = [' '.join(x) for x in self.lemmas()]
-            # TODO: e.g. add option for bi_grams
-            if include_bi_grams:
-                pass
+        return self.__count_vectorizer
 
-            self._count_vectorizer = CountVectorizer()
-            self._count_vectorizer.fit(docs)
-
-        return self._count_vectorizer
+    def text_to_count_vector(self, text):
+        document = self._text_to_doc(text=text)
+        vectorizer_text = self._prepare_doc_for_vectorizer(document=document)
+        return self._count_vectorizer.transformer(vectorizer_text)
 
     def count_token_names(self):
-        return self.count_vectorizer().get_feature_names_out()
+        return self._count_vectorizer().get_feature_names_out()
 
     def count_matrix(self):
         if self._count_matrix is None:
-            docs = [' '.join(x) for x in self.lemmas()]
-            self._count_matrix = self.count_vectorizer().transform(docs)
-
+            _ = self._count_vectorizer()  # run vectorizer and initial matrix
         return self._count_matrix
 
-    def tf_idf_vectorizer_transform():
-        pass
-
-    def tf_idf_vectorizer(
-            self,
-            include_bi_grams: bool = True,
-            max_tokens: Optional[int] = None,    # TODO: not sure where these parameters should be
-            # maybe they should be on constructor e.g. `vectorizer_max_tokens`
-            # and we shouldn't expose the vectorizers, but should only expose the .transform()
-            # eg. tf_idf_vectors() which calls .transform() and has the logic for processing ???
-            max_bi_grams: Optional[int] = None):
-        if self._tf_idf_vectorizer is None:
+    def _tf_idf_vectorizer(self):
+        if self.__tf_idf_vectorizer is None:
             from sklearn.feature_extraction.text import TfidfVectorizer
+            vectorizer_text = [self._prepare_doc_for_vectorizer(d) for d in self.documents]
+            self.__tf_idf_vectorizer = TfidfVectorizer(
+                stop_words=None,  # already removed via _prepare_doc_for_vectorizer
+                token_pattern="(?u)\\b[\\w-]+\\b",
+                min_df=5,
+            )
+            self._count_matrix = self.__tf_idf_vectorizer.fit(vectorizer_text)
 
-            max_tokens
-            max_bi_grams
-            docs = [' '.join(x) for x in self.lemmas()]
-            # TODO: e.g. add option for bi_grams
-            if include_bi_grams:
-                pass
+        return self.__tf_idf_vectorizer
 
-            self._tf_idf_vectorizer = TfidfVectorizer()
-            self._tf_idf_vectorizer.fit(docs)
-
-        return self._tf_idf_vectorizer
+    def text_to_tf_idf_vector(self, text):
+        document = self._text_to_doc(text=text)
+        vectorizer_text = self._prepare_doc_for_vectorizer(document=document)
+        return self._tf_idf_vectorizer.transformer(vectorizer_text)
 
     def tf_idf_token_names(self):
-        return self.tf_idf_vectorizer().get_feature_names_out()
+        return self._tf_idf_vectorizer().get_feature_names_out()
 
     def tf_idf_matrix(self):
         if self._tf_idf_matrix is None:
-            # this logic should be in specific function to make sure all vectors are prepared in
-            # the same way whether we are creating the overall doc matrix or creating new vectors
-            # (e.g. for similarity)
-            docs = [' '.join(x) for x in self.lemmas()]
-            self._tf_idf_matrix = self.tf_idf_vectorizer().transform(docs)
-
+            _ = self._tf_idf_vectorizer()  # run vectorizer and initial matrix
         return self._tf_idf_matrix
 
     def token_count(self, groups: list) -> pd.DataFrame:
@@ -473,8 +491,6 @@ class Corpus:
         ))
         df.sort_values('tf_idf', ascending=False, inplace=True)
         return df
-
-
 
     @lru_cache()
     def similarity_matrix(type: str):
@@ -526,7 +542,7 @@ class Corpus:
         return "pass integer"
 
     @get_similar_docs.register
-    def _(self, doc: str, top_n: int = 10):
+    def _(self, text: str, top_n: int = 10):
         # based on document `doc`, what are the `top_n` most similar docs
         return "pass string"
 
