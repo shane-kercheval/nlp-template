@@ -1,45 +1,38 @@
-# import fasttext
-# import numpy as np
-# import pandas as pd
-
-# from source.library.spacy import STOP_WORDS_DEFAULT, SpacyWrapper, extract_lemmas, \
-#     extract_noun_phrases, extract_named_entities, extract_from_doc, extract_n_grams, \
-#     _list_dicts_to_dict_lists
-# from source.library.text_preparation import clean, predict_language
-# from tests.helpers import get_test_file_path, dataframe_to_text_file
+from source.library.text_preparation import clean
+from tests.helpers import get_test_file_path
 
 
-# def test__clean(reddit):
-#     text = "<This> 😩😬 [sentence] [sentence]& a & [link to something](www.hotmail.com) " \
-#         "stuff && abc --- -   https://www.google.com/search?q=asdfa; john.doe@gmail.com " \
-#         "#remove 445 583.345.7833 @shane"
-#     clean_text = clean(text)
-#     expected_text = '_EMOJI_ _EMOJI_ a link to something stuff abc - _URL_ _EMAIL_ _TAG_ ' \
-#         '_NUMBER_ _PHONE_ _USER_'
-#     assert expected_text == clean_text
+def test__clean(reddit):
+    text = "<This> 😩😬 [sentence] [sentence]& a & [link to something](www.hotmail.com) " \
+        "stuff && abc --- -   https://www.google.com/search?q=asdfa; john.doe@gmail.com " \
+        "#remove 445 583.345.7833 @shane"
+    clean_text = clean(text)
+    expected_text = '_EMOJI_ _EMOJI_ a link to something stuff abc - _URL_ _EMAIL_ _TAG_ remove ' \
+        '_NUMBER_ _PHONE_ _USER_'
+    assert expected_text == clean_text
 
-#     clean_text = clean(
-#         text,
-#         remove_angle_bracket_content=False,
-#         remove_bracket_content=False,
-#         replace_urls=None,
-#         replace_hashtags=None,
-#         replace_numbers=None,
-#         replace_user_handles=None,
-#         replace_emoji=None,
-#     )
-#     expected_text = 'This 😩😬 sentence sentence a link to something stuff abc - ' \
-#         'https://www.google.com/search?q=asdfa; _EMAIL_ #remove 445 _PHONE_ @shane'
-#     assert expected_text == clean_text
+    clean_text = clean(
+        text,
+        remove_angle_bracket_content=False,
+        remove_bracket_content=False,
+        replace_urls=None,
+        replace_hashtags=None,
+        replace_numbers=None,
+        replace_user_handles=None,
+        replace_emoji=None,
+    )
+    expected_text = 'This 😩😬 sentence sentence a link to something stuff abc - ' \
+        'https://www.google.com/search?q=asdfa; _EMAIL_ #remove 445 _PHONE_ @shane'
+    assert expected_text == clean_text
 
-#     with open(get_test_file_path('text_preparation/clean__reddit.txt'), 'w') as handle:
-#         handle.writelines([x + "\n" for x in reddit['post'].apply(clean)])
+    with open(get_test_file_path('text_preparation/clean__reddit.txt'), 'w') as handle:
+        handle.writelines([x + "\n" for x in reddit['post'].apply(clean)])
 
-#     with open(get_test_file_path('text_preparation/example_unclean.txt'), 'r') as handle:
-#         text_lines = handle.readlines()
+    with open(get_test_file_path('text_preparation/example_unclean.txt'), 'r') as handle:
+        text_lines = handle.readlines()
 
-#     with open(get_test_file_path('text_preparation/example_clean.txt'), 'w') as handle:
-#         handle.writelines([clean(x) + "\n" for x in text_lines])
+    with open(get_test_file_path('text_preparation/example_clean.txt'), 'w') as handle:
+        handle.writelines([clean(x) + "\n" for x in text_lines])
 
 
 # def test__get_stopwords():

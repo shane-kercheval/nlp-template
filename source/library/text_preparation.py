@@ -4,6 +4,7 @@ from typing import Union
 import numpy as np
 import pandas as pd
 import regex
+import re
 import textacy.preprocessing as prep
 import source.library.regex_patterns as rx
 
@@ -47,7 +48,8 @@ def clean(
             (default is "_URL_"); if None, then urls are left as is.
         replace_hashtags:
             If `replace_hashtags` contains a string then hashtags are replaced with that string
-            value, (default is "_TAG_"); if None, then hashtags are left as is.
+            value plus the word that is captured in the hashtag, (default is "_TAG_");
+            if None, then hashtags are left as is.
         replace_numbers:
             If `replace_numbers` contains a string then numbers are replaced with that string
             value, (default is "_NUMBER_"); if None, then numbers are left as is.
@@ -90,7 +92,12 @@ def clean(
     text = prep.replace.emails(text, repl=" _EMAIL_ ")
 
     if replace_hashtags is not None:
-        text = prep.replace.hashtags(text, repl=replace_hashtags)
+        hashtag_regex = re.compile(r"(?:^|(?<![\w#＃.]))(#|＃)((?!\d)\w+)", flags=re.IGNORECASE)
+
+        def _replace_hashtag(match):
+            return replace_hashtags + " " + match.group(2)
+
+        text = re.sub(hashtag_regex, _replace_hashtag, text)
 
     text = prep.replace.phone_numbers(text, repl=" _PHONE_ ")
 
