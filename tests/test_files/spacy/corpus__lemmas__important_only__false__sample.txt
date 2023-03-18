@@ -1,3 +1,3 @@
-this|be|_number_|document|that|have|very|important|information|and|some|$|#|character|.
-this|be|another|(|the|2nd|i.e.|_number_|)|unimportant|document|with|almost|no|_tag_|awesome|information|!|!
-however|,|this|be|'|another|'|document|with|hyphen|-|word|.|it|have|two|sentence|and|be|dumb|.
+this|be|_number_|document|that|have|very|important|information|and|some|character|.
+this|be|another|the|2nd|unimportant|document|with|almost|no|_tag_|awesome|information
+however|this|be|another|document|with|hyphen|word|.|it|have|two|sentence|and|be|dumb|.
