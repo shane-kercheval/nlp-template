@@ -564,11 +564,10 @@ class Corpus:
 
     @lru_cache()
     def similarity_matrix(self, how: str):
-        """based on what? should i pass in enum?
-            Count Matrix?
-            TF-IDF matrix?
-            Document embedding matrix? (average)
-            Document embedding matrix? (TF-IDF weighted)
+        """
+        Uses cosine_similarity.
+        NOTE: the similarity matrix for a given document/row will have all values of 0 if the
+        document is empty. In scikit-learn, the cosine_similarity of two vectors of all 0's is 0.
         """
         if how == 'embedding-average':
             return cosine_similarity(X=self.embeddings_matrix(aggregation='average'))

@@ -233,7 +233,6 @@ def test__DocumentProcessor__simple():
     empty_text_vector = corpus.text_to_tf_idf_vector(text='').toarray()[0]
     assert empty_text_vector.shape == (len(corpus.tf_idf_vocabulary()), )
     assert (empty_text_vector == 0).all()
-
     # text text_to_tf_idf_vector by confirming if we pass in the same text we originally passed in
     # then it will get processed and vectorized in the same way and therefore have the same vector
     # values
@@ -243,32 +242,39 @@ def test__DocumentProcessor__simple():
         assert vector.shape == tf_idf_matrix[i].shape
         assert (vector.round(5) == tf_idf_matrix[i].round(5)).all()
 
-    def _check_sim_matrix(sim_matrix):
-        for i in range(len(corpus)):
-            for j in range(len(corpus)):
-                if i == j:
-                    assert sim_matrix[i, j].round(5) == 1
-                else:
-                    assert sim_matrix[i, j].round(5) != 1
-                    assert sim_matrix[i, j].round(5) != 0
-
     ####
     # Test Similarity Matrix
     ####
+    def _check_sim_matrix(sim_matrix):
+        assert (sim_matrix[0] == 0).all()
+        assert (sim_matrix[:, 0] == 0).all()
+        assert (sim_matrix[2] == 0).all()
+        assert (sim_matrix[:, 2] == 0).all()
+        assert (sim_matrix[4] == 0).all()
+        assert (sim_matrix[:, 4] == 0).all()
+        # diagnals of non-empty docs
+        assert (sim_matrix[[1, 3, 5], [1, 3, 5]].round(5) == 1).all()
+
     sim_matrix_emb_average = corpus.similarity_matrix(how='embedding-average')
     assert sim_matrix_emb_average.shape == (len(corpus), len(corpus))
     _check_sim_matrix(sim_matrix_emb_average)
+    with open(get_test_file_path('spacy/corpus__similarity_matrix__embeddings_average.html'), 'w') as file:  # noqa
+        file.write(str(sim_matrix_emb_average))
 
     sim_matrix_emb_tf_idf = corpus.similarity_matrix(how='embedding-tf_idf')
     assert sim_matrix_emb_tf_idf.shape == (len(corpus), len(corpus))
     _check_sim_matrix(sim_matrix_emb_tf_idf)
     assert (sim_matrix_emb_average.round(5) != sim_matrix_emb_tf_idf.round(5)).any()
+    with open(get_test_file_path('spacy/corpus__similarity_matrix__embeddings_tf_idf.html'), 'w') as file:  # noqa
+        file.write(str(sim_matrix_emb_tf_idf))
 
     sim_matrix_count = corpus.similarity_matrix(how='count')
     assert sim_matrix_count.shape == (len(corpus), len(corpus))
     _check_sim_matrix(sim_matrix_count)
     assert (sim_matrix_count.round(5) != sim_matrix_emb_average.round(5)).any()
     assert (sim_matrix_count.round(5) != sim_matrix_emb_tf_idf.round(5)).any()
+    with open(get_test_file_path('spacy/corpus__similarity_matrix__count.html'), 'w') as file:  # noqa
+        file.write(str(sim_matrix_count))
 
     sim_matrix_tf_idf = corpus.similarity_matrix(how='tf_idf')
     assert sim_matrix_tf_idf.shape == (len(corpus), len(corpus))
@@ -276,6 +282,8 @@ def test__DocumentProcessor__simple():
     assert (sim_matrix_tf_idf.round(5) != sim_matrix_count.round(5)).any()
     assert (sim_matrix_tf_idf.round(5) != sim_matrix_emb_average.round(5)).any()
     assert (sim_matrix_tf_idf.round(5) != sim_matrix_emb_tf_idf.round(5)).any()
+    with open(get_test_file_path('spacy/corpus__similarity_matrix__tf_idf.html'), 'w') as file:  # noqa
+        file.write(str(sim_matrix_tf_idf))
 
 
     corpus.calculate_similarity(text='', how='tf_idf')
