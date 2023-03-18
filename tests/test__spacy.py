@@ -120,14 +120,32 @@ def test__DocumentProcessor__simple():
     with open(get_test_file_path('spacy/corpus_diff__sample__use_lemmas.html'), 'w') as file:
         file.write(corpus.diff(use_lemmas=True))
 
+    expected_embeddings_length = corpus[0][0].embeddings.shape[0]
+    embeddings_matrix = corpus.embeddings_matrix()
+    assert embeddings_matrix.shape == (len(corpus), expected_embeddings_length)
+    # same test to maek sure lru_cache plays nice with generators
+    assert (corpus.embeddings_matrix() == embeddings_matrix).all()
+    assert (embeddings_matrix != 0).any()
+
     assert corpus.count_matrix().shape[0] == len(corpus)
-    _count_matrx = pd.DataFrame(corpus.count_matrix().toarray())
-    _count_matrx.columns = corpus.count_token_names()
+    count_matrix = corpus.count_matrix().toarray()
+    assert (count_matrix > 0).any()
+    _count_df = pd.DataFrame(count_matrix)
+    _count_df.columns = corpus.count_token_names()
     dataframe_to_text_file(
-        _count_matrx.transpose(),
+        _count_df.transpose(),
         get_test_file_path('spacy/corpus__count_matrix__sample.txt')
     )
-    
+    # text text_to_count_vector by confirming if we pass in the same text we originally passed in
+    # then it will get processed and vectorized in the same way and therefore have the same vector
+    # values
+    for i in range(len(corpus)):
+        vector = corpus.text_to_count_vector(text=docs_str[i])
+        vector = vector.toarray()[0]
+        assert vector.shape == count_matrix[i].shape
+        assert all(vector == count_matrix[i])
+
+
 
 
     assert corpus.tf_idf_matrix().shape[0] == len(corpus)

@@ -441,7 +441,7 @@ class Corpus:
     def text_to_count_vector(self, text):
         document = self._text_to_doc(text=text)
         vectorizer_text = self._prepare_doc_for_vectorizer(document=document)
-        return self._count_vectorizer.transformer(vectorizer_text)
+        return self._count_vectorizer().transform([vectorizer_text])
 
     def count_token_names(self):
         return self._count_vectorizer().get_feature_names_out()
