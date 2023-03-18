@@ -86,6 +86,12 @@ def test__DocumentProcessor__simple():
     with open(get_test_file_path('spacy/corpus__lemmas__important_only__false__sample.txt'), 'w') as handle:  # noqa
         handle.writelines('|'.join(x) + "\n" for x in corpus.lemmas(important_only=False))
 
+    with open(get_test_file_path('spacy/corpus__n_grams__2__sample.txt'), 'w') as handle:  # noqa
+        handle.writelines('|'.join(x) + "\n" for x in corpus.n_grams(2))
+
+    with open(get_test_file_path('spacy/corpus__n_grams__3__sample.txt'), 'w') as handle:  # noqa
+        handle.writelines('|'.join(x) + "\n" for x in corpus.n_grams(3))
+
 
     _temp = pd.DataFrame(corpus[1].to_dict())
     corpus[1][13].text

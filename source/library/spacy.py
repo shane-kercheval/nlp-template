@@ -365,8 +365,8 @@ class Corpus:
         """
         return (d.lemmas(important_only=important_only) for d in self.documents)
 
-    def bi_grams(self, separator: str = '-') -> Iterable[str]:
-        return (d.n_grams(n=2, separator=separator) for d in self.documents)
+    def n_grams(self, n: int = 2, separator: str = '-') -> Iterable[str]:
+        return (d.n_grams(n=n, separator=separator) for d in self.documents)
 
     def nouns(self) -> Iterable[str]:
         return (d.nouns() for d in self.documents)
