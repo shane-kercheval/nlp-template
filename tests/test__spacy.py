@@ -6,20 +6,21 @@ from tests.helpers import dataframe_to_text_file, get_test_file_path
 
 
 def test__DocumentProcessor__simple():
+    stop_words_to_add = {'dear', 'regard'}
+    stop_words_to_remove = {'down', 'no', 'none', 'nothing', 'keep'}
+
     corpus = Corpus()
-    assert 'dear' not in corpus.stop_words
-    assert 'regard' not in corpus.stop_words
-    assert 'down' in corpus.stop_words
+    assert all(x not in corpus.stop_words for x in stop_words_to_add)
+    assert all(x in corpus.stop_words for x in stop_words_to_remove)
 
     corpus = Corpus(
-        stop_words_to_add={'dear', 'regard'},
-        stop_words_to_remove={'down'},
+        stop_words_to_add=stop_words_to_add,
+        stop_words_to_remove=stop_words_to_remove,
         pre_process=clean,
         spacy_model='en_core_web_md'
     )
-    assert 'dear' in corpus.stop_words
-    assert 'regard' in corpus.stop_words
-    assert 'down' not in corpus.stop_words
+    assert all(x in corpus.stop_words for x in stop_words_to_add)
+    assert all(x not in corpus.stop_words for x in stop_words_to_remove)
 
     docs_str = [
         '<b>This is 1 document that has very important information</b> and some $ & # characters.',
@@ -28,6 +29,9 @@ def test__DocumentProcessor__simple():
     ]
     corpus.fit(documents=docs_str)
     assert len(corpus) == len(docs_str)
+    # make sure these didn't reset during fitting
+    assert all(x in corpus.stop_words for x in stop_words_to_add)
+    assert all(x not in corpus.stop_words for x in stop_words_to_remove)
 
     ####
     # Test Document functionality
@@ -70,6 +74,26 @@ def test__DocumentProcessor__simple():
     ####
     # Test Corpus functionality
     ####
+    with open(get_test_file_path('spacy/corpus__text__original__sample.txt'), 'w') as handle:
+        handle.writelines(t + "\n" for t in corpus.text())
+
+    with open(get_test_file_path('spacy/corpus__text__clean__sample.txt'), 'w') as handle:
+        handle.writelines(t + "\n" for t in corpus.text(original=False))
+
+    with open(get_test_file_path('spacy/corpus__lemmas__important_only__sample.txt'), 'w') as handle:  # noqa
+        handle.writelines('|'.join(x) + "\n" for x in corpus.lemmas())
+
+    with open(get_test_file_path('spacy/corpus__lemmas__important_only__false__sample.txt'), 'w') as handle:  # noqa
+        handle.writelines('|'.join(x) + "\n" for x in corpus.lemmas(important_only=False))
+
+
+    _temp = pd.DataFrame(corpus[1].to_dict())
+    corpus[1][13].text
+    corpus[1][13].is_important
+    corpus[1][13].part_of_speech
+
+    'another' in corpus.stop_words
+
     assert corpus.count_matrix().shape[0] == len(corpus)
     assert corpus.tf_idf_matrix().shape[0] == len(corpus)
     assert corpus.count_matrix().shape == corpus.tf_idf_matrix().shape

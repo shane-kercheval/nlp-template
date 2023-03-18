@@ -26,6 +26,7 @@ IMPORTANT_TOKEN_EXCLUDE_POS = set(['PART', 'PUNCT', 'DET', 'PRON', 'SYM', 'SPACE
 NOUN_POS = set(['NOUN', 'PROPN'])
 ADJ_VERB_POS = set(['ADJ', 'VERB'])
 NOUN_ADJ_VERB_POS = set(['NOUN', 'ADJ', 'VERB'])
+END_OF_SENTENCE_PUNCT = {'.', '?', '!'}
 
 
 class Token:
@@ -86,7 +87,6 @@ class Document:
         else:
             return self._text_cleaned
 
-
     def num_important_tokens(self) -> int:
         return sum(t.is_important for t in self._tokens)
 
@@ -100,19 +100,25 @@ class Document:
 
     def lemmas(self, important_only: bool = True) -> Iterable[str]:
         """
-        This function returns the lemmas of the important tokens (i.e. not a stop word and not
-        punctuation).
+        This function returns the lemmas of the document.
 
         Args:
-            important_only: if True, return the lemma if the Token's `important` property is True.
+            important_only:
+                if True, return the lemma if the Token's `is_important` property is True.
+                if False, return the lemma if the Token's `is_important` property is True.
         """
         if important_only:
             return (t.lemma for t in self._tokens if t.is_important)
         else:
-            return (t.lemma for t in self._tokens)
+            return (
+                t.lemma for t in self._tokens
+                if (not t.is_punctuation and not t.is_special) or (t.text in END_OF_SENTENCE_PUNCT)
+            )
 
     def n_grams(self, n: int = 2, separator: str = '-') -> Iterable[str]:
-        _tokens = [t for t in self._tokens if not t.is_punctuation or t.text == '.']
+        _tokens = [
+            t for t in self._tokens if not t.is_punctuation or t.text in END_OF_SENTENCE_PUNCT
+        ]
         return (
             separator.join(t.lemma for t in ngram) for ngram in zip(*[_tokens[i:] for i in range(n)])  # noqa
             if all(t.is_important for t in ngram)
@@ -122,7 +128,9 @@ class Document:
         return (t.lemma for t in self._tokens if t.part_of_speech in NOUN_POS)
 
     def noun_phrases(self, separator: str = '-') -> Iterable[str]:
-        _tokens = [t for t in self._tokens if not t.is_punctuation or t.text == '.']
+        _tokens = [
+            t for t in self._tokens if not t.is_punctuation or t.text in END_OF_SENTENCE_PUNCT
+        ]
         return (
             separator.join(t.lemma for t in ngram) for ngram in zip(*[_tokens[i:] for i in range(2)])  # noqa
             if _valid_noun_phrase(token_a=ngram[0], token_b=ngram[1])
@@ -338,7 +346,6 @@ class Corpus:
             vectorizer_text += ' ' + bi_grams
 
         return vectorizer_text
-        
 
     @property
     def stop_words(self) -> set[str]:
@@ -503,34 +510,25 @@ class Corpus:
         pass
 
     @lru_cache()
-    def calculate_similarity(self, text: str, type: str):
+    def calculate_similarity(self, text: str, how: str) -> np.array:
         """based on what? should i pass in enum?
             Count Matrix?
             TF-IDF matrix?
             Document embedding matrix? (average)
             Document embedding matrix? (TF-IDF weighted)
         """
-        # TODO: test this by giving it the same text as one of the original documents; we should
-        # get a similarity of 1 regardless how we calculate similarity
-
-        _original = text
-        if self.pre_process:
-            text = self.pre_process(text)
-        doc = self._nlp(text)
-        tokens = [None] * len(doc)
-        for j, token in enumerate(doc):
-            tokens[j] = Token(token=token, stop_words=self.stop_words)
-
-        doc = Document(text_cleaned=str(doc), tokens=tokens, text_original=_original)
-
-        # ???
-        doc.embeddings
-
-        # ????
-        # TODO: we actually have to prepare the lemmas and bi-grams (and min/max tokens/bigrams)
-        # in the same way!!!
-        _doc = ' '.join(doc.lemmas)
-        self.tf_idf_vectorizer().transform([_doc])
+        doc = self._text_to_doc(text=text)
+        if how == 'embedding-average':
+            doc.embeddings
+            self.embeddings_matrix
+        elif how == 'embedding-tf_idf':
+            doc.token_embeddings
+        elif how == 'tf_idf':
+            pass
+        elif how == 'count':
+            pass
+        else:
+            raise ValueError("Invalid value passed to `how`")
 
     @singledispatchmethod
     def get_similar_docs(self, obj: object, top_n: int):
