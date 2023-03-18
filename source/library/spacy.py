@@ -420,7 +420,41 @@ class Corpus:
         )
 
     def _doc_to_tf_idf_embeddings(self, document: Document) -> np.array:
+        """
+        This function takes a document and returns a vector of aggregated token embeddings based
+        weighted by the tf_idf matrix.
+        """
+        # we'll use idf as the weight, which has greater values for words that are less
+        # frequent across all documents
+        # we ignore the Term-Frequency part because that is the number of times the term
+        # appears in a document, which will already be handled as we iterate through each
+        # token. So if a particular token appears multiple times in a doc it will get weighted
+        # multple times
+        idf_lookup = dict(zip(
+            self.tf_idf_vocabulary(),
+            self._tf_idf_vectorizer().idf_
+        ))
+        # each row in `token_embeddings` matrix corresponds to a lemma in
+        # `lemmas(important_only=True)` and the lemma's embedding
+        token_embeddings = document.token_embeddings()
+        if len(token_embeddings) == 0:
+            return np.array([])
 
+        assert token_embeddings.shape[0] == document.num_important_tokens()
+        lemmas = list(document.lemmas(important_only=True))
+        assert len(lemmas) == token_embeddings.shape[0]
+        # for each lemma (which corresponds to a row in the token_embeddings matrix) let's
+        # get the **IDF** weight
+        # some lemmas (e.g. _number_ or lemmas that didn't make the minimum document
+        # frequency) will not have IDF values and so we'll assign them a value/weight of 0
+        weights = np.array([idf_lookup.get(x, 0) for x in lemmas])
+        # Normalize the weights to sum to 1; when used with the dot product will get a
+        # weighted average
+        weights = weights / np.sum(weights)
+        assert len(weights) == token_embeddings.shape[0]
+        doc_weighted_embedding = weights.dot(token_embeddings)
+        assert doc_weighted_embedding.shape == (token_embeddings.shape[1],)
+        return doc_weighted_embedding
 
     @lru_cache()
     def embeddings_matrix(self, aggregation='average') -> np.array:
@@ -452,39 +486,9 @@ class Corpus:
             return np.array(_pad_vectors(embeddings_vectors))
 
         elif aggregation == 'tf_idf':
-            # we'll use idf as the weight, which has greater values for words that are less
-            # frequent across all documents
-            # we ignore the Term-Frequency part because that is the number of times the term
-            # appears in a document, which will already be handled as we iterate through each
-            # token. So if a particular token appears multiple times in a doc it will get weighted
-            # multple times
-            idf_lookup = dict(zip(
-                self.tf_idf_vocabulary(),
-                self._tf_idf_vectorizer().idf_
-            ))
             embeddings_vectors = [None] * len(self)
             for i, document in enumerate(self):
-                # each row in `token_embeddings` matrix corresponds to a lemma in
-                # `lemmas(important_only=True)` and the lemma's embedding
-                token_embeddings = document.token_embeddings()
-                if len(token_embeddings) == 0:
-                    embeddings_vectors[i] = np.array([])
-                else:
-                    assert token_embeddings.shape[0] == document.num_important_tokens()
-                    lemmas = list(document.lemmas(important_only=True))
-                    assert len(lemmas) == token_embeddings.shape[0]
-                    # for each lemma (which corresponds to a row in the token_embeddings matrix) let's
-                    # get the **IDF** weight
-                    # some lemmas (e.g. _number_ or lemmas that didn't make the minimum document
-                    # frequency) will not have IDF values and so we'll assign them a value/weight of 0
-                    weights = np.array([idf_lookup.get(x, 0) for x in lemmas])
-                    # Normalize the weights to sum to 1; when used with the dot product will get a
-                    # weighted average
-                    weights = weights / np.sum(weights)
-                    assert len(weights) == token_embeddings.shape[0]
-                    doc_weighted_embedding = weights.dot(token_embeddings)
-                    assert doc_weighted_embedding.shape == (token_embeddings.shape[1],)
-                    embeddings_vectors[i] = doc_weighted_embedding
+                embeddings_vectors[i] = self._doc_to_tf_idf_embeddings(document=document)
 
             return np.array(_pad_vectors(embeddings_vectors))
 
@@ -592,12 +596,22 @@ class Corpus:
         """
         if how == 'embedding-average':
             document = self._text_to_doc(text=text)
+            document_embeddings = document.embeddings(aggregation='average')
+            if len(document_embeddings) == 0:
+                return np.zeros(len(self))
             return cosine_similarity(
                 X=self.embeddings_matrix(aggregation='average'),
-                Y=document.embeddings(aggregation='average')
+                Y=document.embeddings(aggregation='average').reshape(1, -1)
             ).flatten()
         elif how == 'embedding-tf_idf':
-            return cosine_similarity(X=self.embeddings_matrix(aggregation='tf_idf')).flatten()
+            document = self._text_to_doc(text=text)
+            document_embeddings = self._doc_to_tf_idf_embeddings(document=document)
+            if len(document_embeddings) == 0:
+                return np.zeros(len(self))
+            return cosine_similarity(
+                X=self.embeddings_matrix(aggregation='tf_idf'),
+                Y=document_embeddings.reshape(1, -1)
+            ).flatten()
         elif how == 'count':
             count_vector = self.text_to_count_vector(text=text)
             return cosine_similarity(X=self.count_matrix(), Y=count_vector).flatten()

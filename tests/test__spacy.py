@@ -181,7 +181,6 @@ def test__DocumentProcessor__simple():
         for index in range(len(_T)):
             file.write(str(_T[index]) + "\n")
 
-
     # tf-idf embeddings
     embeddings_tf_idf = corpus.embeddings_matrix(aggregation='tf_idf')
     assert embeddings_tf_idf.shape == embeddings_average.shape
@@ -197,7 +196,6 @@ def test__DocumentProcessor__simple():
         _T = embeddings_tf_idf.T
         for index in range(len(_T)):
             file.write(str(_T[index]) + "\n")
-
 
     ####
     # Test Count/Vectors
