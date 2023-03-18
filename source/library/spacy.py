@@ -412,18 +412,51 @@ class Corpus:
     @lru_cache()
     def embeddings_matrix(self, aggregation='average'):
         """
-        e.g.
-            average
-            or weight by tf-idf... if this option; then i need to used.token_embeddings so that I 
-                can weight the tokens for a given doc against the tf-idf values (row in matrix)
-                for the same doc.
-        """
-        return np.array([d.embeddings(aggregation=aggregation) for d in self.documents])
+        Returns the embeddings_matrix for the corpus, where each row of the matrix is the
+        corresponding document's aggregated embeddings (from the individual Token's embeddings).
+        Embeddings can be aggregated either by averaging all of the token's embeddings or weighting
+        each of the token's embeddings by the TF-IDF values for that document/token.
 
-    # we need the abiliyt to process text consistanly
-    # a) original documents
-    # b) new documents
-    # new documents for e.g. embeddings, tfidf
+        Args:
+            aggregation: values can be `average` or `tf_idf`, as described above.
+        """
+        if aggregation == 'average':
+            return np.array([d.embeddings(aggregation=aggregation) for d in self.documents])
+        elif aggregation == 'tf_idf':
+            # we'll use idf as the weight, which has greater values for words that are less
+            # frequent across all documents
+            # we ignore the Term-Frequency part because that is the number of times the term
+            # appears in a document, which will already be handled as we iterate through each
+            # token. So if a particular token appears multiple times in a doc it will get weighted
+            # multple times
+            idf_lookup = dict(zip(
+                self.tf_idf_vocabulary(),
+                self._tf_idf_vectorizer().idf_
+            ))
+            embeddings_matrix = [None] * len(self)
+            for i, document in enumerate(self):
+                # each row in `token_embeddings` matrix corresponds to a lemma in
+                # `lemmas(important_only=True)` and the lemma's embedding
+                token_embeddings = document.token_embeddings()
+                assert token_embeddings.shape[0] == document.num_important_tokens()
+                lemmas = list(document.lemmas(important_only=True))
+                assert len(lemmas) == token_embeddings.shape[0]
+                # for each lemma (which corresponds to a row in the token_embeddings matrix) let's
+                # get the **IDF** weight
+                # some lemmas (e.g. _number_ or lemmas that didn't make the minimum document
+                # frequency) will not have IDF values and so we'll assign them a value/weight of 0
+                weights = np.array([idf_lookup.get(x, 0) for x in lemmas])
+                # Normalize the weights to sum to 1; when used with the dot product will get a
+                # weighted average
+                weights = weights / np.sum(weights)
+                assert len(weights) == token_embeddings.shape[0]
+                doc_weighted_embedding = weights.dot(token_embeddings)
+                assert doc_weighted_embedding.shape == (token_embeddings.shape[1],)
+                embeddings_matrix[i] = doc_weighted_embedding
+            
+            return np.array(embeddings_matrix)
+        else:
+            raise ValueError(f"Invalid value of `aggregation`: '{aggregation}'")
 
     def _count_vectorizer(self):
         if self.__count_vectorizer is None:
@@ -443,7 +476,7 @@ class Corpus:
         vectorizer_text = self._prepare_doc_for_vectorizer(document=document)
         return self._count_vectorizer().transform([vectorizer_text])
 
-    def count_token_names(self):
+    def count_vocabulary(self):
         return self._count_vectorizer().get_feature_names_out()
 
     def count_matrix(self):
@@ -469,7 +502,7 @@ class Corpus:
         vectorizer_text = self._prepare_doc_for_vectorizer(document=document)
         return self._tf_idf_vectorizer().transform([vectorizer_text])
 
-    def tf_idf_token_names(self):
+    def tf_idf_vocabulary(self):
         return self._tf_idf_vectorizer().get_feature_names_out()
 
     def tf_idf_matrix(self):
@@ -483,7 +516,7 @@ class Corpus:
         pass list of values equal to the amount of documents in teh corpus.
         """
         df = pd.DataFrame(dict(
-            tokens=self.count_token_names(),
+            tokens=self.count_vocabulary(),
             count=self.count_matrix().sum(axis=0).A1,
         ))
         df.sort_values('count', ascending=False, inplace=True)
@@ -495,7 +528,7 @@ class Corpus:
         pass list of values equal to the amount of documents in teh corpus.
         """
         df = pd.DataFrame(dict(
-            tokens=self.tf_idf_token_names(),
+            tokens=self.tf_idf_vocabulary(),
             tf_idf=self.tf_idf_matrix().sum(axis=0).A1,
         ))
         df.sort_values('tf_idf', ascending=False, inplace=True)
