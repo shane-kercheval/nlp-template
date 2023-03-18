@@ -183,30 +183,40 @@ def test__DocumentProcessor__simple():
         assert vector.shape == tf_idf_matrix[i].shape
         assert (vector.round(5) == tf_idf_matrix[i].round(5)).all()
 
+    def _check_sim_matrix(sim_matrix):
+        for i in range(len(corpus)):
+            for j in range(len(corpus)):
+                if i == j:
+                    assert sim_matrix[i, j].round(5) == 1
+                else:
+                    assert sim_matrix[i, j].round(5) != 1
+                    assert sim_matrix[i, j].round(5) != 0
+
+    sim_matrix_emb_average = corpus.similarity_matrix(how='embedding-average')
+    assert sim_matrix_emb_average.shape == (len(corpus), len(corpus))
+    _check_sim_matrix(sim_matrix_emb_average)
+
+    sim_matrix_emb_tf_idf = corpus.similarity_matrix(how='embedding-tf_idf')
+    assert sim_matrix_emb_tf_idf.shape == (len(corpus), len(corpus))
+    _check_sim_matrix(sim_matrix_emb_tf_idf)
+    assert (sim_matrix_emb_average.round(5) != sim_matrix_emb_tf_idf.round(5)).any()
+
+    sim_matrix_count = corpus.similarity_matrix(how='count')
+    assert sim_matrix_count.shape == (len(corpus), len(corpus))
+    _check_sim_matrix(sim_matrix_count)
+    assert (sim_matrix_count.round(5) != sim_matrix_emb_average.round(5)).any()
+    assert (sim_matrix_count.round(5) != sim_matrix_emb_tf_idf.round(5)).any()
+
+    sim_matrix_tf_idf = corpus.similarity_matrix(how='tf_idf')
+    assert sim_matrix_tf_idf.shape == (len(corpus), len(corpus))
+    _check_sim_matrix(sim_matrix_tf_idf)
+    assert (sim_matrix_tf_idf.round(5) != sim_matrix_count.round(5)).any()
+    assert (sim_matrix_tf_idf.round(5) != sim_matrix_emb_average.round(5)).any()
+    assert (sim_matrix_tf_idf.round(5) != sim_matrix_emb_tf_idf.round(5)).any()
 
 
 
 
-
-
-
-
-
-    assert corpus.tf_idf_matrix().shape[0] == len(corpus)
-    assert corpus.count_matrix().shape == corpus.tf_idf_matrix().shape
-    corpus.count_matrix().toarray()
-
-    corpus.count_vocabulary()
-    corpus.count_matrix().sum(axis=0)[[0]]
-    assert len(corpus.count_vocabulary()) == corpus.count_matrix().shape[1]
-
-    corpus.tf_idf_vocabulary()
-    corpus.tf_idf_matrix().sum(axis=0)
-    assert len(corpus.tf_idf_vocabulary()) == corpus.tf_idf_matrix().shape[1]
-    assert (corpus.count_vocabulary() == corpus.tf_idf_vocabulary()).all()
-
-    corpus.tf_idf_matrix().toarray()
-    corpus.tf_idf()
 
         
 

@@ -13,6 +13,8 @@ import spacy.lang.en.stop_words as sw
 import spacy.tokenizer as stz
 import spacy.tokens as st
 import spacy.tokens.doc as sd
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 from helpsk.diff import diff_text
 
@@ -453,14 +455,13 @@ class Corpus:
                 doc_weighted_embedding = weights.dot(token_embeddings)
                 assert doc_weighted_embedding.shape == (token_embeddings.shape[1],)
                 embeddings_matrix[i] = doc_weighted_embedding
-            
+
             return np.array(embeddings_matrix)
         else:
             raise ValueError(f"Invalid value of `aggregation`: '{aggregation}'")
 
     def _count_vectorizer(self):
         if self.__count_vectorizer is None:
-            from sklearn.feature_extraction.text import CountVectorizer
             vectorizer_text = [self._prepare_doc_for_vectorizer(d) for d in self.documents]
             self.__count_vectorizer = CountVectorizer(
                 stop_words=None,  # already removed via _prepare_doc_for_vectorizer via
@@ -486,7 +487,6 @@ class Corpus:
 
     def _tf_idf_vectorizer(self):
         if self.__tf_idf_vectorizer is None:
-            from sklearn.feature_extraction.text import TfidfVectorizer
             vectorizer_text = [self._prepare_doc_for_vectorizer(d) for d in self.documents]
             self.__tf_idf_vectorizer = TfidfVectorizer(
                 stop_words=None,  # already removed via _prepare_doc_for_vectorizer
@@ -535,14 +535,24 @@ class Corpus:
         return df
 
     @lru_cache()
-    def similarity_matrix(how: str):
+    def similarity_matrix(self, how: str):
         """based on what? should i pass in enum?
             Count Matrix?
             TF-IDF matrix?
             Document embedding matrix? (average)
             Document embedding matrix? (TF-IDF weighted)
         """
-        pass
+        if how == 'embedding-average':
+            return cosine_similarity(X=self.embeddings_matrix(aggregation='average'))
+        elif how == 'embedding-tf-idf':
+            return cosine_similarity(X=self.embeddings_matrix(aggregation='tf_idf'))
+        elif how == 'tf_idf':
+            return cosine_similarity(X=self.tf_idf_matrix())
+        elif how == 'count':
+            return cosine_similarity(X=self.count_matrix())
+        else:
+            raise ValueError("Invalid value passed to `how`")
+
 
     @lru_cache()
     def calculate_similarity(self, text: str, how: str) -> np.array:
