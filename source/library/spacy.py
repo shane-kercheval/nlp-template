@@ -622,15 +622,20 @@ class Corpus:
             raise ValueError("Invalid value passed to `how`")
 
     @singledispatchmethod
-    def get_similar_docs(self, obj: object, top_n: int):
+    def get_similar_doc_indexes(self, obj: object, top_n: int):
+        """
+        Returns a tuple of two np.arrays.
+        The first array is the index of documents in order of most similar to least similar.
+        The second array is the corresponding similarity score for each index.
+        """
         raise NotImplementedError("Invalid Type")
 
-    @get_similar_docs.register
+    @get_similar_doc_indexes.register
     def _(self, index: int, top_n: int = 10):
         # based on document at `index`, what are the `top_n` most similar docs
         return "pass integer"
 
-    @get_similar_docs.register
+    @get_similar_doc_indexes.register
     def _(self, text: str, top_n: int = 10):
         # based on document `doc`, what are the `top_n` most similar docs
         return "pass string"
