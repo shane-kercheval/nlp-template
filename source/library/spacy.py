@@ -1,4 +1,5 @@
 from functools import cached_property, lru_cache, singledispatchmethod
+import itertools
 from typing import Callable, Collection, Iterable, Optional, Union, List
 
 import pandas as pd
@@ -301,7 +302,11 @@ class Corpus:
             tokens = [None] * len(doc)
             for j, token in enumerate(doc):
                 tokens[j] = Token(token=token, stop_words=self.stop_words)
-            documents[i] = Document(text_cleaned=str(doc), tokens=tokens, text_original=_original[i])
+            documents[i] = Document(
+                text_cleaned=str(doc),
+                tokens=tokens,
+                text_original=_original[i]
+            )
         self.documents = documents
 
     @property
@@ -322,6 +327,49 @@ class Corpus:
         """
         return (d.lemmas(important_only=important_only) for d in self.documents)
 
+    def bi_grams(self, separator: str = '-') -> Iterable[str]:
+        return (d.n_grams(n=2, separator=separator) for d in self.documents)
+
+    def nouns(self) -> Iterable[str]:
+        return (d.nouns() for d in self.documents)
+
+    def noun_phrases(self, separator: str = '-') -> Iterable[str]:
+        return (d.noun_phrases(separator=separator) for d in self.document)
+
+    def adjectives_verbs(self) -> Iterable[str]:
+        return (d.adjectives_verbs() for d in self.documents)
+
+    def entities(self) -> Iterable[str]:
+        return (d.entities() for d in self.documents)
+
+    def diff(self, first_n: Optional[int] = None, use_lemmas: bool = False) -> str:
+        """
+        Returns HTML containing diff between the original and cleaned text for each document.
+
+        Args:
+            first_n: int:
+                if None, return diff for all documents; if int, return the diff for the `first_n`
+                documents.
+            use_lemmas:
+                If `True`, diff the original text of against all of the lemmas instead of the
+                cleaned text.
+        """
+        if not first_n:
+            first_n = len(self.documents)
+
+        if use_lemmas:
+            _lemmas = itertools.islice(self.lemmas(important_only=False), first_n)
+            text_b = [' '.join(x) for x in _lemmas]
+        else:
+            _documents = itertools.islice(self.documents, first_n)
+            text_b = [x.text(original=False) for x in _documents]
+
+        return diff_text(
+            text_a=[x.text(original=True) for x in self.documents[0:first_n]],
+            text_b=text_b
+        )
+
+    @lru_cache()
     def embeddings_matrix(self, aggregation='average'):
         """
         e.g.
@@ -332,45 +380,6 @@ class Corpus:
         """
         return np.array([d.embeddings(aggregation=aggregation) for d in self.documents])
 
-    def bi_grams(self):
-        return [d.n_grams(n=2) for d in self.documents]
-
-    def nouns(self):
-        return [d.nouns() for d in self.documents]
-
-    def noun_phrases(self):
-        return [d.noun_phrases() for d in self.documents]
-
-    def adjectives_verbs(self):
-        return [d.adjectives_verbs() for d in self.documents]
-
-    def entities(self):
-        return [d.entities() for d in self.documents]
-
-    def diff(self, first_n: Optional[int] = None, use_lemmas: bool = False) -> str:
-        """
-        Returns HTML containing diff between `text_original` and `text for each document.
-
-        Args:
-            first_n: int:
-                if None, return diff for all documents; if int, return the diff for the `first_n`
-                documents.
-            use_lemmas:
-                If `True`, diff the original text of against all of the lemmas.
-        """
-        if not first_n:
-            first_n = len(self.documents)
-
-        if use_lemmas:
-            return diff_text(
-                text_a=[x.text_original for x in self.documents[0:first_n]],
-                text_b=[' '.join(x) for x in self.lemmas(important_only=False)[0:first_n]]
-            )
-        else:
-            return diff_text(
-                text_a=[x.text_original for x in self.documents[0:first_n]],
-                text_b=[x.text for x in self.documents[0:first_n]]
-            )
 
     def count_vectorizer(
             self,
@@ -464,6 +473,8 @@ class Corpus:
         ))
         df.sort_values('tf_idf', ascending=False, inplace=True)
         return df
+
+
 
     @lru_cache()
     def similarity_matrix(type: str):

@@ -70,7 +70,6 @@ def test__DocumentProcessor__simple():
     ####
     # Test Corpus functionality
     ####
-
     assert corpus.count_matrix().shape[0] == len(corpus)
     assert corpus.tf_idf_matrix().shape[0] == len(corpus)
     assert corpus.count_matrix().shape == corpus.tf_idf_matrix().shape
