@@ -164,21 +164,6 @@ def test__DocumentProcessor__simple():
     corpus.tf_idf_matrix().toarray()
     corpus.tf_idf()
 
-    with open(get_test_file_path('spacy/document_diff__sample_1.html'), 'w') as file:
-        file.write(corpus[0].diff())
-
-    with open(get_test_file_path('spacy/document_diff__sample_1__use_lemmas.html'), 'w') as file:
-        file.write(corpus[0].diff(use_lemmas=True))
-
-    with open(get_test_file_path('spacy/corpus_diff__sample.html'), 'w') as file:
-        file.write(corpus.diff())
-
-    with open(get_test_file_path('spacy/corpus_diff__sample__first_2.html'), 'w') as file:
-        file.write(corpus.diff(first_n=2))
-
-    with open(get_test_file_path('spacy/corpus_diff__sample__use_lemmas.html'), 'w') as file:
-        file.write(corpus.diff(use_lemmas=True))
-
         
 
     # Test Corpus functionality
