@@ -467,7 +467,7 @@ class Corpus:
     def text_to_tf_idf_vector(self, text):
         document = self._text_to_doc(text=text)
         vectorizer_text = self._prepare_doc_for_vectorizer(document=document)
-        return self._tf_idf_vectorizer.transformer(vectorizer_text)
+        return self._tf_idf_vectorizer().transform([vectorizer_text])
 
     def tf_idf_token_names(self):
         return self._tf_idf_vectorizer().get_feature_names_out()
@@ -502,7 +502,7 @@ class Corpus:
         return df
 
     @lru_cache()
-    def similarity_matrix(type: str):
+    def similarity_matrix(how: str):
         """based on what? should i pass in enum?
             Count Matrix?
             TF-IDF matrix?

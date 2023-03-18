@@ -120,6 +120,9 @@ def test__DocumentProcessor__simple():
     with open(get_test_file_path('spacy/corpus_diff__sample__use_lemmas.html'), 'w') as file:
         file.write(corpus.diff(use_lemmas=True))
 
+    ####
+    # Test Embeddings
+    ####
     expected_embeddings_length = corpus[0][0].embeddings.shape[0]
     embeddings_matrix = corpus.embeddings_matrix()
     assert embeddings_matrix.shape == (len(corpus), expected_embeddings_length)
@@ -127,6 +130,9 @@ def test__DocumentProcessor__simple():
     assert (corpus.embeddings_matrix() == embeddings_matrix).all()
     assert (embeddings_matrix != 0).any()
 
+    ####
+    # Test Count/Vectors
+    ####
     assert corpus.count_matrix().shape[0] == len(corpus)
     count_matrix = corpus.count_matrix().toarray()
     assert (count_matrix > 0).any()
@@ -144,6 +150,30 @@ def test__DocumentProcessor__simple():
         vector = vector.toarray()[0]
         assert vector.shape == count_matrix[i].shape
         assert all(vector == count_matrix[i])
+
+    ####
+    # Test TF-IDF/Vectors
+    ####
+    assert corpus.tf_idf_matrix().shape[0] == len(corpus)
+    tf_idf_matrix = corpus.tf_idf_matrix().toarray()
+    assert (tf_idf_matrix > 0).any()
+    _tf_idf_df = pd.DataFrame(tf_idf_matrix)
+    _tf_idf_df.columns = corpus.tf_idf_token_names()
+    dataframe_to_text_file(
+        _tf_idf_df.transpose(),
+        get_test_file_path('spacy/corpus__tf_idf_matrix__sample.txt')
+    )
+    # text text_to_tf_idf_vector by confirming if we pass in the same text we originally passed in
+    # then it will get processed and vectorized in the same way and therefore have the same vector
+    # values
+    for i in range(len(corpus)):
+        vector = corpus.text_to_tf_idf_vector(text=docs_str[i])
+        vector = vector.toarray()[0]
+        assert vector.shape == tf_idf_matrix[i].shape
+        assert (vector.round(5) == tf_idf_matrix[i].round(5)).all()
+
+
+
 
 
 
