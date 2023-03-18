@@ -24,8 +24,11 @@ def test__DocumentProcessor__simple():
     assert all(x not in corpus.stop_words for x in stop_words_to_remove)
 
     docs_str = [
+        '',
         '<b>This is 1 document that has very important information</b> and some $ & # characters.',
+        'I',
         'This is another (the 2nd i.e. 2) unimportant document with almost no #awesome information!!',  # noqa
+        '  ',
         "However, this is 'another' document with hyphen-word. & It has two sentences and is dumb."
     ]
     corpus.fit(documents=docs_str)
@@ -33,6 +36,25 @@ def test__DocumentProcessor__simple():
     # make sure these didn't reset during fitting
     assert all(x in corpus.stop_words for x in stop_words_to_add)
     assert all(x not in corpus.stop_words for x in stop_words_to_remove)
+
+    # first let's check the documents with edge cases
+    assert corpus[0].text(original=True) == ''
+    assert corpus[0].text(original=False) == ''
+    assert corpus[2].text(original=True) == 'I'
+    assert corpus[2].text(original=False) == 'I'
+    assert corpus[4].text(original=True) == '  '
+    assert corpus[4].text(original=False) == ''
+
+    assert corpus[0].num_important_tokens() == 0
+    assert corpus[2].num_important_tokens() == 0
+    assert corpus[4].num_important_tokens() == 0
+
+    assert list(corpus[0].lemmas(important_only=True)) == []
+    assert list(corpus[0].lemmas(important_only=False)) == []
+    assert list(corpus[2].lemmas(important_only=True)) == []
+    assert list(corpus[2].lemmas(important_only=False)) == ['i']
+    assert list(corpus[4].lemmas(important_only=True)) == []
+    assert list(corpus[4].lemmas(important_only=False)) == []
 
     ####
     # Test Document functionality
@@ -192,6 +214,9 @@ def test__DocumentProcessor__simple():
                     assert sim_matrix[i, j].round(5) != 1
                     assert sim_matrix[i, j].round(5) != 0
 
+    ####
+    # Test Similarity Matrix
+    ####
     sim_matrix_emb_average = corpus.similarity_matrix(how='embedding-average')
     assert sim_matrix_emb_average.shape == (len(corpus), len(corpus))
     _check_sim_matrix(sim_matrix_emb_average)
@@ -215,7 +240,7 @@ def test__DocumentProcessor__simple():
     assert (sim_matrix_tf_idf.round(5) != sim_matrix_emb_tf_idf.round(5)).any()
 
 
-
+    corpus.calculate_similarity(text='', how='tf_idf')
 
 
         

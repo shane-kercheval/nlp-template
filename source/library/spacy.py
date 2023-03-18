@@ -92,7 +92,9 @@ class Document:
     def num_important_tokens(self) -> int:
         return sum(t.is_important for t in self._tokens)
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
+        if len(self) == 0:
+            return {}
         token_keys = self._tokens[0].to_dict().keys()
         _dict = {x: [None] * len(self) for x in token_keys}
         for i, token in enumerate(self):
@@ -330,9 +332,10 @@ class Corpus:
 
     def _text_to_doc(self, text: str) -> Document:
         text_original = text
-        text_clean = text
         if self.pre_process:
-            text_clean = self.pre_process(text_clean)
+            text_clean = self.pre_process(text)
+        else:
+            text_clean = text.strip()
         doc = self._nlp(text_clean)
         tokens = [None] * len(doc)
         for j, token in enumerate(doc):
@@ -544,35 +547,29 @@ class Corpus:
         """
         if how == 'embedding-average':
             return cosine_similarity(X=self.embeddings_matrix(aggregation='average'))
-        elif how == 'embedding-tf-idf':
+        elif how == 'embedding-tf_idf':
             return cosine_similarity(X=self.embeddings_matrix(aggregation='tf_idf'))
-        elif how == 'tf_idf':
-            return cosine_similarity(X=self.tf_idf_matrix())
         elif how == 'count':
             return cosine_similarity(X=self.count_matrix())
+        elif how == 'tf_idf':
+            return cosine_similarity(X=self.tf_idf_matrix())
         else:
             raise ValueError("Invalid value passed to `how`")
 
-
     @lru_cache()
     def calculate_similarity(self, text: str, how: str) -> np.array:
-        """based on what? should i pass in enum?
-            Count Matrix?
-            TF-IDF matrix?
-            Document embedding matrix? (average)
-            Document embedding matrix? (TF-IDF weighted)
-        """
-        doc = self._text_to_doc(text=text)
         if how == 'embedding-average':
-            doc.embeddings
-            self.embeddings_matrix
+            return cosine_similarity(X=self.embeddings_matrix(aggregation='average'))
         elif how == 'embedding-tf_idf':
-            doc.token_embeddings
-        elif how == 'tf_idf':
-            pass
+            return cosine_similarity(X=self.embeddings_matrix(aggregation='tf_idf'))
         elif how == 'count':
-            pass
+            count_vector = self.text_to_count_vector(text=text)
+            return cosine_similarity(X=self.count_matrix(), Y=count_vector)
+        elif how == 'tf_idf':
+            tf_idf_vector = self.text_to_tf_idf_vector(text=text)
+            return cosine_similarity(X=self.tf_idf_matrix(), Y=tf_idf_vector)
         else:
+            raise ValueError("Invalid value passed to `how`")
             raise ValueError("Invalid value passed to `how`")
 
     @singledispatchmethod
