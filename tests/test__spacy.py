@@ -156,26 +156,38 @@ def test__DocumentProcessor__simple():
     ####
     # Test Embeddings
     ####
-        embedding_shape = corpus[0][0].embeddings.shape
-    assert corpus[0].embeddings().shape == embedding_shape
-    assert all([d.token_embeddings().shape  == (d.num_important_tokens(), embedding_shape[0]) for d in corpus])  # noqa
-    assert all((d.embeddings() > 0).any() for d in corpus)
+    assert len(corpus[0].embeddings()) == 0
+    assert len(corpus[0].token_embeddings()) == 0
 
+    embedding_shape = corpus[1][0].embeddings.shape
+    assert embedding_shape[0] > 0
+    assert corpus[1].embeddings().shape == embedding_shape
+    assert all([d.token_embeddings().shape  == (d.num_important_tokens(), embedding_shape[0]) for d in non_empty_corpi])  # noqa
+    assert all((d.embeddings() > 0).any() for d in non_empty_corpi)
 
-
-
-    expected_embeddings_length = corpus[0][0].embeddings.shape[0]
+    expected_embeddings_length = corpus[1][0].embeddings.shape[0]
     embeddings_average = corpus.embeddings_matrix(aggregation='average')
     assert embeddings_average.shape == (len(corpus), expected_embeddings_length)
     # same test to maek sure lru_cache plays nice with generators
     assert (corpus.embeddings_matrix(aggregation='average') == embeddings_average).all()
-    assert (embeddings_average != 0).any()
+    assert (embeddings_average[0] == 0).all()
+    assert (embeddings_average[2] == 0).all()
+    assert (embeddings_average[4] == 0).all()
+    assert (embeddings_average[1] != 0).any()
+    assert (embeddings_average[3] != 0).any()
+    assert (embeddings_average[5] != 0).any()
+
     # tf-idf embeddings
     embeddings_tf_idf = corpus.embeddings_matrix(aggregation='tf_idf')
     assert embeddings_tf_idf.shape == embeddings_average.shape
     # same test to maek sure lru_cache plays nice with generators
     assert (corpus.embeddings_matrix(aggregation='tf_idf') == embeddings_tf_idf).all()
-    assert (embeddings_tf_idf != 0).any()
+    assert (embeddings_tf_idf[0] == 0).all()
+    assert (embeddings_tf_idf[2] == 0).all()
+    assert (embeddings_tf_idf[4] == 0).all()
+    assert (embeddings_tf_idf[1] != 0).any()
+    assert (embeddings_tf_idf[3] != 0).any()
+    assert (embeddings_tf_idf[5] != 0).any()
 
     ####
     # Test Count/Vectors

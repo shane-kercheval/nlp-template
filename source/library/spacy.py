@@ -155,6 +155,9 @@ class Document:
 
     def embeddings(self, aggregation: str = 'average') -> np.array:
         """This function aggregates the individual token vectors into one document vector."""
+        if len(self.token_embeddings()) == 0:
+            return self.token_embeddings()
+
         if aggregation == 'average':
             return self.token_embeddings().mean(axis=0)
         else:
@@ -427,8 +430,24 @@ class Corpus:
         Args:
             aggregation: values can be `average` or `tf_idf`, as described above.
         """
+        def _pad_vectors(_vectors):
+            """
+            Ensure vectors/embeddings are all the same size (empty documents will have empty
+            embeddings).
+            """
+            # Find the length of the longest array in _vectors
+            _max_len = max([x.size for x in _vectors])
+            # Pad the shorter arrays with zeros to match the length of the longest array
+            _vectors = [
+                np.pad(x, (0, _max_len - x.size), mode='constant') if x.size > 0 else np.zeros(_max_len)  # noqa
+                for x in _vectors
+            ]
+            return _vectors
+
         if aggregation == 'average':
-            return np.array([d.embeddings(aggregation=aggregation) for d in self.documents])
+            embeddings_vectors = [d.embeddings(aggregation=aggregation) for d in self.documents]
+            return np.array(_pad_vectors(embeddings_vectors))
+
         elif aggregation == 'tf_idf':
             # we'll use idf as the weight, which has greater values for words that are less
             # frequent across all documents
@@ -440,28 +459,32 @@ class Corpus:
                 self.tf_idf_vocabulary(),
                 self._tf_idf_vectorizer().idf_
             ))
-            embeddings_matrix = [None] * len(self)
+            embeddings_vectors = [None] * len(self)
             for i, document in enumerate(self):
                 # each row in `token_embeddings` matrix corresponds to a lemma in
                 # `lemmas(important_only=True)` and the lemma's embedding
                 token_embeddings = document.token_embeddings()
-                assert token_embeddings.shape[0] == document.num_important_tokens()
-                lemmas = list(document.lemmas(important_only=True))
-                assert len(lemmas) == token_embeddings.shape[0]
-                # for each lemma (which corresponds to a row in the token_embeddings matrix) let's
-                # get the **IDF** weight
-                # some lemmas (e.g. _number_ or lemmas that didn't make the minimum document
-                # frequency) will not have IDF values and so we'll assign them a value/weight of 0
-                weights = np.array([idf_lookup.get(x, 0) for x in lemmas])
-                # Normalize the weights to sum to 1; when used with the dot product will get a
-                # weighted average
-                weights = weights / np.sum(weights)
-                assert len(weights) == token_embeddings.shape[0]
-                doc_weighted_embedding = weights.dot(token_embeddings)
-                assert doc_weighted_embedding.shape == (token_embeddings.shape[1],)
-                embeddings_matrix[i] = doc_weighted_embedding
+                if len(token_embeddings) == 0:
+                    embeddings_vectors[i] = np.array([])
+                else:
+                    assert token_embeddings.shape[0] == document.num_important_tokens()
+                    lemmas = list(document.lemmas(important_only=True))
+                    assert len(lemmas) == token_embeddings.shape[0]
+                    # for each lemma (which corresponds to a row in the token_embeddings matrix) let's
+                    # get the **IDF** weight
+                    # some lemmas (e.g. _number_ or lemmas that didn't make the minimum document
+                    # frequency) will not have IDF values and so we'll assign them a value/weight of 0
+                    weights = np.array([idf_lookup.get(x, 0) for x in lemmas])
+                    # Normalize the weights to sum to 1; when used with the dot product will get a
+                    # weighted average
+                    weights = weights / np.sum(weights)
+                    assert len(weights) == token_embeddings.shape[0]
+                    doc_weighted_embedding = weights.dot(token_embeddings)
+                    assert doc_weighted_embedding.shape == (token_embeddings.shape[1],)
+                    embeddings_vectors[i] = doc_weighted_embedding
 
-            return np.array(embeddings_matrix)
+            return np.array(_pad_vectors(embeddings_vectors))
+
         else:
             raise ValueError(f"Invalid value of `aggregation`: '{aggregation}'")
 
