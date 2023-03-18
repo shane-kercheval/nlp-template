@@ -17,7 +17,8 @@ def test__DocumentProcessor__simple():
         stop_words_to_add=stop_words_to_add,
         stop_words_to_remove=stop_words_to_remove,
         pre_process=clean,
-        spacy_model='en_core_web_md'
+        spacy_model='en_core_web_md',
+        sklearn_tokenenizer_min_df=1,
     )
     assert all(x in corpus.stop_words for x in stop_words_to_add)
     assert all(x not in corpus.stop_words for x in stop_words_to_remove)
@@ -103,7 +104,7 @@ def test__DocumentProcessor__simple():
 
     with open(get_test_file_path('spacy/corpus__entities__sample.txt'), 'w') as handle:
         handle.writelines('|'.join(f"{e[0]} ({e[1]})" for e in x) + "\n" for x in corpus.entities())  # noqa
-        
+
     with open(get_test_file_path('spacy/document_diff__sample_1.html'), 'w') as file:
         file.write(corpus[0].diff())
 
@@ -119,15 +120,16 @@ def test__DocumentProcessor__simple():
     with open(get_test_file_path('spacy/corpus_diff__sample__use_lemmas.html'), 'w') as file:
         file.write(corpus.diff(use_lemmas=True))
 
-
-    _temp = pd.DataFrame(corpus[1].to_dict())
-    corpus[1][13].text
-    corpus[1][13].is_important
-    corpus[1][13].part_of_speech
-
-    'another' in corpus.stop_words
-
     assert corpus.count_matrix().shape[0] == len(corpus)
+    _count_matrx = pd.DataFrame(corpus.count_matrix().toarray())
+    _count_matrx.columns = corpus.count_token_names()
+    dataframe_to_text_file(
+        _count_matrx.transpose(),
+        get_test_file_path('spacy/corpus__count_matrix__sample.txt')
+    )
+    
+
+
     assert corpus.tf_idf_matrix().shape[0] == len(corpus)
     assert corpus.count_matrix().shape == corpus.tf_idf_matrix().shape
     corpus.count_matrix().toarray()

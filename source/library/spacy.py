@@ -238,6 +238,7 @@ class Corpus:
             tokenizer: Optional[stz.Tokenizer] = None,
             pre_process: Optional[Callable] = None,
             spacy_model: str = 'en_core_web_sm',
+            sklearn_tokenenizer_min_df: int = 5,
             sklearn_tokenenizer_include_bi_grams: bool = True,
             sklearn_tokenenizer_max_tokens: Optional[int] = None,
             sklearn_tokenenizer_max_bi_grams: Optional[int] = None):
@@ -267,6 +268,7 @@ class Corpus:
         self._include_bi_grams = sklearn_tokenenizer_include_bi_grams
         self._max_tokens = sklearn_tokenenizer_max_tokens
         self._max_bi_grams = sklearn_tokenenizer_max_bi_grams
+        self._min_df = sklearn_tokenenizer_min_df
 
         # https://machinelearningknowledge.ai/tutorial-for-stopwords-in-spacy/#i_Stopwords_List_in_Spacy
         if stop_words_to_add is not None:
@@ -372,7 +374,7 @@ class Corpus:
         return (d.nouns() for d in self.documents)
 
     def noun_phrases(self, separator: str = '-') -> Iterable[str]:
-        return (d.noun_phrases(separator=separator) for d in self.document)
+        return (d.noun_phrases(separator=separator) for d in self.documents)
 
     def adjectives_verbs(self) -> Iterable[str]:
         return (d.adjectives_verbs() for d in self.documents)
@@ -430,9 +432,9 @@ class Corpus:
             self.__count_vectorizer = CountVectorizer(
                 stop_words=None,  # already removed via _prepare_doc_for_vectorizer via
                 token_pattern="(?u)\\b[\\w-]+\\b",
-                min_df=5,
+                min_df=self._min_df,
             )
-            self.__count_vectorizer.fit(vectorizer_text)
+            self._count_matrix = self.__count_vectorizer.fit_transform(vectorizer_text)
 
         return self.__count_vectorizer
 
@@ -456,9 +458,9 @@ class Corpus:
             self.__tf_idf_vectorizer = TfidfVectorizer(
                 stop_words=None,  # already removed via _prepare_doc_for_vectorizer
                 token_pattern="(?u)\\b[\\w-]+\\b",
-                min_df=5,
+                min_df=self._min_df,
             )
-            self._count_matrix = self.__tf_idf_vectorizer.fit(vectorizer_text)
+            self._tf_idf_matrix = self.__tf_idf_vectorizer.fit_transform(vectorizer_text)
 
         return self.__tf_idf_vectorizer
 
