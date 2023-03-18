@@ -1,3 +1,6 @@
+
 This is _NUMBER_ document that has very important information and some $ # characters.
+I
 This is another (the 2nd i.e. _NUMBER_ ) unimportant document with almost no _TAG_ awesome information!!
+
 However, this is 'another' document with hyphen-word. It has two sentences and is dumb.

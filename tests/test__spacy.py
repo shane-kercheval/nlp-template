@@ -70,29 +70,34 @@ def test__DocumentProcessor__simple():
             get_test_file_path(f'spacy/document_to_dict__sample_{index}.txt')
         )
 
-    embedding_shape = corpus[0][0].embeddings.shape
-    assert corpus[0].embeddings().shape == embedding_shape
-    assert all([d.token_embeddings().shape  == (d.num_important_tokens(), embedding_shape[0]) for d in corpus])  # noqa
-    assert all((d.embeddings() > 0).any() for d in corpus)
-    assert all(len(list(d.lemmas())) > 0 for d in corpus)
-    assert all(len(list(d.n_grams())) > 0 for d in corpus)
-    assert all(len(list(d.nouns())) > 0 for d in corpus)
-    assert all(len(list(d.noun_phrases())) > 0 for d in corpus)
-    assert all(len(list(d.adjectives_verbs())) > 0 for d in corpus)
-    assert all(len(list(d.entities())) > 0 for d in corpus)
-    assert corpus[0].sentiment() == 0  # not working yet
+    non_empty_corpi = [corpus[1], corpus[3], corpus[5]]
+    assert all(len(list(d.lemmas(important_only=True))) > 0 for d in non_empty_corpi)
+    assert all(len(list(d.lemmas(important_only=False))) > 0 for d in non_empty_corpi)
+    assert all(len(list(d.n_grams())) > 0 for d in non_empty_corpi)
+    assert all(len(list(d.nouns())) > 0 for d in non_empty_corpi)
+    assert all(len(list(d.noun_phrases())) > 0 for d in non_empty_corpi)
+    assert all(len(list(d.adjectives_verbs())) > 0 for d in non_empty_corpi)
+    assert all(len(list(d.entities())) > 0 for d in non_empty_corpi)
+    assert [x.impurity() for x in corpus]  # assert it works and doesn't fail with empty docs
+    assert all([x.sentiment() == 0 for x in corpus])  # not working yet
 
     # sanity check cache (e.g. which could fail with generators)
-    assert corpus[0].impurity(original=False) == corpus[0].impurity(original=False)
-    assert corpus[0].impurity(original=True) == corpus[0].impurity(original=True)
-    assert all(d.impurity(original=True) > 0 for d in corpus)
-    assert all(d.impurity(original=True) > d.impurity(original=False) for d in corpus)
+    assert corpus[1].impurity(original=False) == corpus[1].impurity(original=False)
+    assert corpus[1].impurity(original=True) == corpus[1].impurity(original=True)
+    assert all(d.impurity(original=True) > 0 for d in non_empty_corpi)
+    assert all(d.impurity(original=True) > d.impurity(original=False) for d in non_empty_corpi)
 
+    assert corpus[0].diff(use_lemmas=False)
+    assert corpus[0].diff(use_lemmas=True)
+    assert corpus[2].diff(use_lemmas=False)
+    assert corpus[2].diff(use_lemmas=True)
+    assert corpus[4].diff(use_lemmas=False)
+    assert corpus[4].diff(use_lemmas=True)
     # sanity check cache (e.g. which could fail with generators)
-    assert corpus[0].diff(use_lemmas=False) == corpus[0].diff(use_lemmas=False)
-    assert corpus[0].diff(use_lemmas=True) == corpus[0].diff(use_lemmas=True)
-    assert len(corpus[0].diff(use_lemmas=False)) > 0
-    assert len(corpus[0].diff(use_lemmas=True)) > 0
+    assert corpus[1].diff(use_lemmas=False) == corpus[1].diff(use_lemmas=False)
+    assert corpus[1].diff(use_lemmas=True) == corpus[1].diff(use_lemmas=True)
+    assert len(corpus[1].diff(use_lemmas=False)) > 0
+    assert len(corpus[1].diff(use_lemmas=True)) > 0
 
     ####
     # Test Corpus functionality
@@ -145,6 +150,14 @@ def test__DocumentProcessor__simple():
     ####
     # Test Embeddings
     ####
+        embedding_shape = corpus[0][0].embeddings.shape
+    assert corpus[0].embeddings().shape == embedding_shape
+    assert all([d.token_embeddings().shape  == (d.num_important_tokens(), embedding_shape[0]) for d in corpus])  # noqa
+    assert all((d.embeddings() > 0).any() for d in corpus)
+
+
+
+
     expected_embeddings_length = corpus[0][0].embeddings.shape[0]
     embeddings_average = corpus.embeddings_matrix(aggregation='average')
     assert embeddings_average.shape == (len(corpus), expected_embeddings_length)

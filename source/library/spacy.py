@@ -181,6 +181,8 @@ class Document:
     @lru_cache()
     def sentiment(self) -> float:
         _sentiment = [t.sentiment for t in self._tokens if t.is_important]
+        if len(_sentiment) == 0:
+            return 0
         return sum(_sentiment) / len(_sentiment)
 
     @lru_cache()
