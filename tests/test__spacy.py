@@ -132,11 +132,17 @@ def test__DocumentProcessor__simple():
     with open(get_test_file_path('spacy/corpus__entities__sample.txt'), 'w') as handle:
         handle.writelines('|'.join(f"{e[0]} ({e[1]})" for e in x) + "\n" for x in corpus.entities())  # noqa
 
-    with open(get_test_file_path('spacy/document_diff__sample_1.html'), 'w') as file:
+    with open(get_test_file_path('spacy/document_diff__empty.html'), 'w') as file:
         file.write(corpus[0].diff())
 
-    with open(get_test_file_path('spacy/document_diff__sample_1__use_lemmas.html'), 'w') as file:
+    with open(get_test_file_path('spacy/document_diff__empty__use_lemmas.html'), 'w') as file:
         file.write(corpus[0].diff(use_lemmas=True))
+
+    with open(get_test_file_path('spacy/document_diff__sample_1.html'), 'w') as file:
+        file.write(corpus[1].diff())
+
+    with open(get_test_file_path('spacy/document_diff__sample_1__use_lemmas.html'), 'w') as file:
+        file.write(corpus[1].diff(use_lemmas=True))
 
     with open(get_test_file_path('spacy/corpus_diff__sample.html'), 'w') as file:
         file.write(corpus.diff())
