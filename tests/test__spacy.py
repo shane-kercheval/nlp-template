@@ -202,6 +202,9 @@ def test__DocumentProcessor__simple():
         _count_df.transpose(),
         get_test_file_path('spacy/corpus__count_matrix__sample.txt')
     )
+    empty_text_vector = corpus.text_to_count_vector(text='').toarray()[0]
+    assert empty_text_vector.shape == (len(corpus.count_vocabulary()), )
+    assert (empty_text_vector == 0).all()
     # text text_to_count_vector by confirming if we pass in the same text we originally passed in
     # then it will get processed and vectorized in the same way and therefore have the same vector
     # values
@@ -227,6 +230,10 @@ def test__DocumentProcessor__simple():
         _tf_idf_df.transpose(),
         get_test_file_path('spacy/corpus__tf_idf_matrix__sample.txt')
     )
+    empty_text_vector = corpus.text_to_tf_idf_vector(text='').toarray()[0]
+    assert empty_text_vector.shape == (len(corpus.tf_idf_vocabulary()), )
+    assert (empty_text_vector == 0).all()
+
     # text text_to_tf_idf_vector by confirming if we pass in the same text we originally passed in
     # then it will get processed and vectorized in the same way and therefore have the same vector
     # values
