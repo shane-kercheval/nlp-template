@@ -419,8 +419,11 @@ class Corpus:
             text_b=text_b
         )
 
+    def _doc_to_tf_idf_embeddings(self, document: Document) -> np.array:
+
+
     @lru_cache()
-    def embeddings_matrix(self, aggregation='average'):
+    def embeddings_matrix(self, aggregation='average') -> np.array:
         """
         Returns the embeddings_matrix for the corpus, where each row of the matrix is the
         corresponding document's aggregated embeddings (from the individual Token's embeddings).
@@ -588,8 +591,11 @@ class Corpus:
         As a default, doesn't seem like a bad thing.
         """
         if how == 'embedding-average':
-            
-            return cosine_similarity(X=self.embeddings_matrix(aggregation='average')).flatten()
+            document = self._text_to_doc(text=text)
+            return cosine_similarity(
+                X=self.embeddings_matrix(aggregation='average'),
+                Y=document.embeddings(aggregation='average')
+            ).flatten()
         elif how == 'embedding-tf_idf':
             return cosine_similarity(X=self.embeddings_matrix(aggregation='tf_idf')).flatten()
         elif how == 'count':
@@ -599,7 +605,6 @@ class Corpus:
             tf_idf_vector = self.text_to_tf_idf_vector(text=text)
             return cosine_similarity(X=self.tf_idf_matrix(), Y=tf_idf_vector).flatten()
         else:
-            raise ValueError("Invalid value passed to `how`")
             raise ValueError("Invalid value passed to `how`")
 
     @singledispatchmethod

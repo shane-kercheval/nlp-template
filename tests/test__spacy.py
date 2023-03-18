@@ -176,6 +176,11 @@ def test__DocumentProcessor__simple():
     assert (embeddings_average[1] != 0).any()
     assert (embeddings_average[3] != 0).any()
     assert (embeddings_average[5] != 0).any()
+    with open(get_test_file_path('spacy/corpus__embeddings_matrix__average.txt'), 'w') as file:
+        _T = embeddings_average.T
+        for index in range(len(_T)):
+            file.write(str(_T[index]) + "\n")
+
 
     # tf-idf embeddings
     embeddings_tf_idf = corpus.embeddings_matrix(aggregation='tf_idf')
@@ -188,6 +193,11 @@ def test__DocumentProcessor__simple():
     assert (embeddings_tf_idf[1] != 0).any()
     assert (embeddings_tf_idf[3] != 0).any()
     assert (embeddings_tf_idf[5] != 0).any()
+    with open(get_test_file_path('spacy/corpus__embeddings_matrix__tf_idf.txt'), 'w') as file:
+        _T = embeddings_tf_idf.T
+        for index in range(len(_T)):
+            file.write(str(_T[index]) + "\n")
+
 
     ####
     # Test Count/Vectors
