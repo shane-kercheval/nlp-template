@@ -86,11 +86,38 @@ def test__DocumentProcessor__simple():
     with open(get_test_file_path('spacy/corpus__lemmas__important_only__false__sample.txt'), 'w') as handle:  # noqa
         handle.writelines('|'.join(x) + "\n" for x in corpus.lemmas(important_only=False))
 
-    with open(get_test_file_path('spacy/corpus__n_grams__2__sample.txt'), 'w') as handle:  # noqa
+    with open(get_test_file_path('spacy/corpus__n_grams__2__sample.txt'), 'w') as handle:
         handle.writelines('|'.join(x) + "\n" for x in corpus.n_grams(2))
 
-    with open(get_test_file_path('spacy/corpus__n_grams__3__sample.txt'), 'w') as handle:  # noqa
+    with open(get_test_file_path('spacy/corpus__n_grams__3__sample.txt'), 'w') as handle:
         handle.writelines('|'.join(x) + "\n" for x in corpus.n_grams(3, separator='--'))
+
+    with open(get_test_file_path('spacy/corpus__nouns__sample.txt'), 'w') as handle:
+        handle.writelines('|'.join(x) + "\n" for x in corpus.nouns())
+
+    with open(get_test_file_path('spacy/corpus__noun_phrases__sample.txt'), 'w') as handle:
+        handle.writelines('|'.join(x) + "\n" for x in corpus.noun_phrases())
+
+    with open(get_test_file_path('spacy/corpus__adjectives_verbs__sample.txt'), 'w') as handle:
+        handle.writelines('|'.join(x) + "\n" for x in corpus.adjectives_verbs())
+
+    with open(get_test_file_path('spacy/corpus__entities__sample.txt'), 'w') as handle:
+        handle.writelines('|'.join(f"{e[0]} ({e[1]})" for e in x) + "\n" for x in corpus.entities())  # noqa
+        
+    with open(get_test_file_path('spacy/document_diff__sample_1.html'), 'w') as file:
+        file.write(corpus[0].diff())
+
+    with open(get_test_file_path('spacy/document_diff__sample_1__use_lemmas.html'), 'w') as file:
+        file.write(corpus[0].diff(use_lemmas=True))
+
+    with open(get_test_file_path('spacy/corpus_diff__sample.html'), 'w') as file:
+        file.write(corpus.diff())
+
+    with open(get_test_file_path('spacy/corpus_diff__sample__first_2.html'), 'w') as file:
+        file.write(corpus.diff(first_n=2))
+
+    with open(get_test_file_path('spacy/corpus_diff__sample__use_lemmas.html'), 'w') as file:
+        file.write(corpus.diff(use_lemmas=True))
 
 
     _temp = pd.DataFrame(corpus[1].to_dict())

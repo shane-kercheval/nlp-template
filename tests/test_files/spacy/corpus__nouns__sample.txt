@@ -1,0 +1,3 @@
+_number_|document|information|#|character
+document|information
+document|hyphen|word|sentence

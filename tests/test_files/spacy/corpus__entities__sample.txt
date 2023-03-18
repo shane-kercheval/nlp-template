@@ -1,0 +1,3 @@
+some (MONEY)|$ (MONEY)|# (MONEY)
+2nd (ORDINAL)
+two (CARDINAL)
