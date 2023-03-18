@@ -582,16 +582,22 @@ class Corpus:
 
     @lru_cache()
     def calculate_similarity(self, text: str, how: str) -> np.array:
+        """
+        Similarity is calculated based on cosine_similarity from scikit-learn, and because of the
+        way it is calculated, two empty documents (i.e. empty vectors) will have a similarity of 0.
+        As a default, doesn't seem like a bad thing.
+        """
         if how == 'embedding-average':
-            return cosine_similarity(X=self.embeddings_matrix(aggregation='average'))
+            
+            return cosine_similarity(X=self.embeddings_matrix(aggregation='average')).flatten()
         elif how == 'embedding-tf_idf':
-            return cosine_similarity(X=self.embeddings_matrix(aggregation='tf_idf'))
+            return cosine_similarity(X=self.embeddings_matrix(aggregation='tf_idf')).flatten()
         elif how == 'count':
             count_vector = self.text_to_count_vector(text=text)
-            return cosine_similarity(X=self.count_matrix(), Y=count_vector)
+            return cosine_similarity(X=self.count_matrix(), Y=count_vector).flatten()
         elif how == 'tf_idf':
             tf_idf_vector = self.text_to_tf_idf_vector(text=text)
-            return cosine_similarity(X=self.tf_idf_matrix(), Y=tf_idf_vector)
+            return cosine_similarity(X=self.tf_idf_matrix(), Y=tf_idf_vector).flatten()
         else:
             raise ValueError("Invalid value passed to `how`")
             raise ValueError("Invalid value passed to `how`")

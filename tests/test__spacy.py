@@ -285,11 +285,45 @@ def test__DocumentProcessor__simple():
     with open(get_test_file_path('spacy/corpus__similarity_matrix__tf_idf.html'), 'w') as file:  # noqa
         file.write(str(sim_matrix_tf_idf))
 
+    ####
+    # calculate_similarity
+    ####
+    def _test_calculate_similarity(how: str):
+        results = corpus.calculate_similarity(text='', how=how)
+        assert results.shape == (len(corpus), )
+        assert (results == 0).all()
 
-    corpus.calculate_similarity(text='', how='tf_idf')
+        results = corpus.calculate_similarity(text=docs_str[1], how=how)
+        assert results.shape == (len(corpus), )
+        assert results[1].round(5) == 1
+        assert 0 < results[3] < 1
+        assert 0 < results[5] < 1
+        assert results[0] == 0
+        assert results[2] == 0
+        assert results[4] == 0
 
+        results = corpus.calculate_similarity(text=docs_str[3], how=how)
+        assert results.shape == (len(corpus), )
+        assert results[3].round(5) == 1
+        assert 0 < results[1] < 1
+        assert 0 < results[5] < 1
+        assert results[0] == 0
+        assert results[2] == 0
+        assert results[4] == 0
 
-        
+        results = corpus.calculate_similarity(text=docs_str[5], how=how)
+        assert results.shape == (len(corpus), )
+        assert results[5].round(5) == 1
+        assert 0 < results[3] < 1
+        assert 0 < results[1] < 1
+        assert results[0] == 0
+        assert results[2] == 0
+        assert results[4] == 0
+
+    _test_calculate_similarity(how='count')
+    _test_calculate_similarity(how='tf_idf')
+    _test_calculate_similarity(how='embedding-average')
+    _test_calculate_similarity(how='embedding-tf_idf')
 
     # Test Corpus functionality
 
