@@ -70,7 +70,7 @@ def test__DocumentProcessor__document(corpus_simple_example, documents_fake):
     assert len(corpus[1].diff(use_lemmas=True)) > 0
 
 
-def test__DocumentProcessor__corpus_tokens(corpus_simple_example):
+def test__DocumentProcessor__corpus__tokens(corpus_simple_example):
     corpus = corpus_simple_example
     with open(get_test_file_path('spacy/corpus__text__original__sample.txt'), 'w') as handle:
         handle.writelines(t + "\n" for t in corpus.text())
@@ -109,7 +109,7 @@ def test__DocumentProcessor__corpus_tokens(corpus_simple_example):
         file.write(corpus[0].diff(use_lemmas=True))
 
 
-def test__DocumentProcessor__corpus_diff(corpus_simple_example):
+def test__DocumentProcessor__corpus__diff(corpus_simple_example):
     corpus = corpus_simple_example
 
     with open(get_test_file_path('spacy/document_diff__sample_1.html'), 'w') as file:
@@ -128,7 +128,7 @@ def test__DocumentProcessor__corpus_diff(corpus_simple_example):
         file.write(corpus.diff(use_lemmas=True))
 
 
-def test__DocumentProcessor__corpus_embeddings(corpus_simple_example, documents_fake):
+def test__DocumentProcessor__corpus__embeddings(corpus_simple_example, documents_fake):
     corpus = corpus_simple_example
     non_empty_corpi = [corpus[1], corpus[3], corpus[5]]
 
@@ -174,7 +174,7 @@ def test__DocumentProcessor__corpus_embeddings(corpus_simple_example, documents_
             file.write(str(_T[index]) + "\n")
 
 
-def test__DocumentProcessor__corpus_vectorizers(corpus_simple_example, documents_fake):
+def test__DocumentProcessor__corpus__vectorizers(corpus_simple_example, documents_fake):
     corpus = corpus_simple_example
     ####
     # Test Count/Vectors
@@ -230,7 +230,7 @@ def test__DocumentProcessor__corpus_vectorizers(corpus_simple_example, documents
         assert (vector.round(5) == tf_idf_matrix[i].round(5)).all()
 
 
-def test__DocumentProcessor__corpus_similarity_matrix(corpus_simple_example, documents_fake):
+def test__DocumentProcessor__corpus__similarity_matrix(corpus_simple_example, documents_fake):
     corpus = corpus_simple_example
 
     ####
@@ -277,7 +277,7 @@ def test__DocumentProcessor__corpus_similarity_matrix(corpus_simple_example, doc
         file.write(str(sim_matrix_tf_idf))
 
 
-def test__DocumentProcessor__corpus_calculate_similarities(corpus_simple_example, documents_fake):
+def test__DocumentProcessor__corpus__calculate_similarities(corpus_simple_example, documents_fake):
     corpus = corpus_simple_example
 
     ####
@@ -321,7 +321,7 @@ def test__DocumentProcessor__corpus_calculate_similarities(corpus_simple_example
     _test_calculate_similarity(how='embeddings-tf_idf')
 
 
-def test__DocumentProcessor__corpus_get_similar_doc_indexes(corpus_simple_example, documents_fake):
+def test__DocumentProcessor__corpus__get_similar_doc_indexes(corpus_simple_example, documents_fake):
     corpus = corpus_simple_example
 
     def _test_get_similar_doc_indexes(how: str):
