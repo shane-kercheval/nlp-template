@@ -46,6 +46,10 @@ class DataPersistence(ABC):
         self.description = description
         self.dependencies = dependencies
         self.name = None  # this is set dynamically
+        self._data = None
+
+    def clear_cache(self):
+        self._data = None
 
     @abstractmethod
     def _load(self):
@@ -57,10 +61,13 @@ class DataPersistence(ABC):
 
     def load(self):
         assert self.name
-        return self._load()
+        if self._data is None:
+            self._data = self._load()
+        return self._data
 
     def save(self, data):
         assert self.name
+        self._data = data
         self._save(data)
 
 
@@ -104,7 +111,7 @@ class FileDataPersistence(DataPersistence):
     def load(self):
         assert self.name
         logging.info(f"Loading data `{self.name}` from `{self.path}`")
-        return self._load()
+        return super().load()
 
     def save(self, data):
         assert self.name
@@ -115,7 +122,7 @@ class FileDataPersistence(DataPersistence):
             new_name = self.path + '.' + timestamp
             logging.info(f"Backing up current data `{self.name}` to `{new_name}`")
             os.rename(self.path, new_name)
-        self._save(data)
+        super().save(data)
 
 
 class PickledDataLoader(FileDataPersistence):
@@ -225,20 +232,30 @@ class DatasetsBase(ABC):
 class Datasets(DatasetsBase):
     def __init__(self) -> None:
         # define the datasets before calling __init__()
-        self.dataset_1 = PickledDataLoader(
-            description="Dataset description",
-            dependencies=['SNOWFLAKE.SCHEMA.TABLE'],
+        self.reddit = PickledDataLoader(
+            description="This dataset was copied from https://github.com/blueprints-for-text-analytics-python/blueprints-text/tree/master/data/reddit-selfposts",  # noqa
+            dependencies=[],
             directory='/code/artifacts/data/raw',
         )
-        self.other_dataset_2 = PickledDataLoader(
-            description="Other dataset description",
-            dependencies=['dataset_1'],
+        self.reddit_corpus = PickledDataLoader(
+            description="reddit dataset transformed to a corpus dataset",
+            dependencies=['reddit'],
+            directory='/code/artifacts/data/processed',
+        )
+        self.un_debates = PickledDataLoader(
+            description="This dataset was copied from https://github.com/blueprints-for-text-analytics-python/blueprints-text/tree/master/data/un-general-debates",  # noqa
+            dependencies=[],
             directory='/code/artifacts/data/raw',
         )
-        self.dataset_3_csv = CsvDataLoader(
-            description="Other dataset description",
-            dependencies=['dataset_1'],
-            directory='/code/artifacts/data/raw',
+        self.un_debate_paragraphs = PickledDataLoader(
+            description="un_debates dataset transformed to paragraphs.",
+            dependencies=['un_debates'],
+            directory='/code/artifacts/data/processed',
+        )
+        self.un_debate_corpus = PickledDataLoader(
+            description="un_debates_paragraphs transformed to a corpus dataset",
+            dependencies=['un_debate_paragraphs'],
+            directory='/code/artifacts/data/processed',
         )
         # call __init__() after defining properties
         super().__init__()
