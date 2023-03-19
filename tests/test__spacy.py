@@ -1,42 +1,11 @@
 import pandas as pd
 
-from source.library.text_preparation import clean, predict_language
-from source.library.spacy import Corpus
 from tests.helpers import dataframe_to_text_file, get_test_file_path
 
 
-def test__DocumentProcessor__simple():
-    stop_words_to_add = {'dear', 'regard'}
-    stop_words_to_remove = {'down', 'no', 'none', 'nothing', 'keep'}
-
-    corpus = Corpus()
-    assert all(x not in corpus.stop_words for x in stop_words_to_add)
-    assert all(x in corpus.stop_words for x in stop_words_to_remove)
-
-    corpus = Corpus(
-        stop_words_to_add=stop_words_to_add,
-        stop_words_to_remove=stop_words_to_remove,
-        pre_process=clean,
-        spacy_model='en_core_web_md',
-        sklearn_tokenenizer_min_df=1,
-    )
-    assert all(x in corpus.stop_words for x in stop_words_to_add)
-    assert all(x not in corpus.stop_words for x in stop_words_to_remove)
-
-    docs_str = [
-        '',
-        '<b>This is 1 document that has very important information</b> and some $ & # characters.',
-        'I',
-        'This is another (the 2nd i.e. 2) unimportant document with almost no #awesome information!!',  # noqa
-        '  ',
-        "However, this is 'another' document with hyphen-word. & It has two sentences and is dumb."
-    ]
-    corpus.fit(documents=docs_str)
-    assert len(corpus) == len(docs_str)
-    # make sure these didn't reset during fitting
-    assert all(x in corpus.stop_words for x in stop_words_to_add)
-    assert all(x not in corpus.stop_words for x in stop_words_to_remove)
-
+def test__DocumentProcessor__empty_string(corpus_simple_example, documents_fake):
+    corpus = corpus_simple_example
+    assert len(corpus) == len(documents_fake)
     # first let's check the documents with edge cases
     assert corpus[0].text(original=True) == ''
     assert corpus[0].text(original=False) == ''
@@ -56,13 +25,15 @@ def test__DocumentProcessor__simple():
     assert list(corpus[4].lemmas(important_only=True)) == []
     assert list(corpus[4].lemmas(important_only=False)) == []
 
-    ####
-    # Test Document functionality
-    ####
+
+def test__DocumentProcessor__document(corpus_simple_example, documents_fake):
+    corpus = corpus_simple_example
+    non_empty_corpi = [corpus[1], corpus[3], corpus[5]]
+
     with open(get_test_file_path(f'spacy/document_processor__text.txt'), 'w') as handle:  # noqa
         handle.writelines([d.text(original=False) + "\n" for d in corpus])
 
-    for index in range(len(docs_str)):
+    for index in range(len(documents_fake)):
         assert [t.text for t in corpus[index]] == [t.text for t in corpus[index]._tokens]
         assert len(corpus[index]) == len(corpus[index]._tokens)
         dataframe_to_text_file(
@@ -70,7 +41,6 @@ def test__DocumentProcessor__simple():
             get_test_file_path(f'spacy/document_to_dict__sample_{index}.txt')
         )
 
-    non_empty_corpi = [corpus[1], corpus[3], corpus[5]]
     assert all(len(list(d.lemmas(important_only=True))) > 0 for d in non_empty_corpi)
     assert all(len(list(d.lemmas(important_only=False))) > 0 for d in non_empty_corpi)
     assert all(len(list(d.n_grams())) > 0 for d in non_empty_corpi)
@@ -99,9 +69,9 @@ def test__DocumentProcessor__simple():
     assert len(corpus[1].diff(use_lemmas=False)) > 0
     assert len(corpus[1].diff(use_lemmas=True)) > 0
 
-    ####
-    # Test Corpus functionality
-    ####
+
+def test__DocumentProcessor__corpus_tokens(corpus_simple_example):
+    corpus = corpus_simple_example
     with open(get_test_file_path('spacy/corpus__text__original__sample.txt'), 'w') as handle:
         handle.writelines(t + "\n" for t in corpus.text())
 
@@ -138,6 +108,10 @@ def test__DocumentProcessor__simple():
     with open(get_test_file_path('spacy/document_diff__empty__use_lemmas.html'), 'w') as file:
         file.write(corpus[0].diff(use_lemmas=True))
 
+
+def test__DocumentProcessor__corpus_diff(corpus_simple_example):
+    corpus = corpus_simple_example
+
     with open(get_test_file_path('spacy/document_diff__sample_1.html'), 'w') as file:
         file.write(corpus[1].diff())
 
@@ -153,9 +127,11 @@ def test__DocumentProcessor__simple():
     with open(get_test_file_path('spacy/corpus_diff__sample__use_lemmas.html'), 'w') as file:
         file.write(corpus.diff(use_lemmas=True))
 
-    ####
-    # Test Embeddings
-    ####
+
+def test__DocumentProcessor__corpus_embeddings(corpus_simple_example, documents_fake):
+    corpus = corpus_simple_example
+    non_empty_corpi = [corpus[1], corpus[3], corpus[5]]
+
     assert len(corpus[0].embeddings()) == 0
     assert len(corpus[0].token_embeddings()) == 0
 
@@ -197,6 +173,9 @@ def test__DocumentProcessor__simple():
         for index in range(len(_T)):
             file.write(str(_T[index]) + "\n")
 
+
+def test__DocumentProcessor__corpus_vectorizers(corpus_simple_example, documents_fake):
+    corpus = corpus_simple_example
     ####
     # Test Count/Vectors
     ####
@@ -217,7 +196,7 @@ def test__DocumentProcessor__simple():
     # then it will get processed and vectorized in the same way and therefore have the same vector
     # values
     for i in range(len(corpus)):
-        vector = corpus.text_to_count_vector(text=docs_str[i])
+        vector = corpus.text_to_count_vector(text=documents_fake[i])
         vector = vector.toarray()[0]
         assert vector.shape == count_matrix[i].shape
         assert all(vector == count_matrix[i])
@@ -245,10 +224,14 @@ def test__DocumentProcessor__simple():
     # then it will get processed and vectorized in the same way and therefore have the same vector
     # values
     for i in range(len(corpus)):
-        vector = corpus.text_to_tf_idf_vector(text=docs_str[i])
+        vector = corpus.text_to_tf_idf_vector(text=documents_fake[i])
         vector = vector.toarray()[0]
         assert vector.shape == tf_idf_matrix[i].shape
         assert (vector.round(5) == tf_idf_matrix[i].round(5)).all()
+
+
+def test__DocumentProcessor__corpus_similarity_matrix(corpus_simple_example, documents_fake):
+    corpus = corpus_simple_example
 
     ####
     # Test Similarity Matrix
@@ -293,6 +276,10 @@ def test__DocumentProcessor__simple():
     with open(get_test_file_path('spacy/corpus__similarity_matrix__tf_idf.html'), 'w') as file:  # noqa
         file.write(str(sim_matrix_tf_idf))
 
+
+def test__DocumentProcessor__corpus_calculate_similarities(corpus_simple_example, documents_fake):
+    corpus = corpus_simple_example
+
     ####
     # calculate_similarity
     ####
@@ -301,7 +288,7 @@ def test__DocumentProcessor__simple():
         assert results.shape == (len(corpus), )
         assert (results == 0).all()
 
-        results = corpus.calculate_similarities(text=docs_str[1], how=how)
+        results = corpus.calculate_similarities(text=documents_fake[1], how=how)
         assert results.shape == (len(corpus), )
         assert results[1].round(5) == 1
         assert 0 < results[3] < 1
@@ -310,7 +297,7 @@ def test__DocumentProcessor__simple():
         assert results[2] == 0
         assert results[4] == 0
 
-        results = corpus.calculate_similarities(text=docs_str[3], how=how)
+        results = corpus.calculate_similarities(text=documents_fake[3], how=how)
         assert results.shape == (len(corpus), )
         assert results[3].round(5) == 1
         assert 0 < results[1] < 1
@@ -319,7 +306,7 @@ def test__DocumentProcessor__simple():
         assert results[2] == 0
         assert results[4] == 0
 
-        results = corpus.calculate_similarities(text=docs_str[5], how=how)
+        results = corpus.calculate_similarities(text=documents_fake[5], how=how)
         assert results.shape == (len(corpus), )
         assert results[5].round(5) == 1
         assert 0 < results[3] < 1
@@ -332,6 +319,10 @@ def test__DocumentProcessor__simple():
     _test_calculate_similarity(how='tf_idf')
     _test_calculate_similarity(how='embeddings-average')
     _test_calculate_similarity(how='embeddings-tf_idf')
+
+
+def test__DocumentProcessor__corpus_get_similar_doc_indexes(corpus_simple_example, documents_fake):
+    corpus = corpus_simple_example
 
     def _test_get_similar_doc_indexes(how: str):
         indexes, similarities = corpus.get_similar_doc_indexes(0, how=how)
@@ -375,21 +366,21 @@ def test__DocumentProcessor__simple():
     _test_get_similar_doc_indexes(how='embeddings-tf_idf')
 
     def _test_get_similar_doc_indexes(how: str):
-        indexes, similarities = corpus.get_similar_doc_indexes(docs_str[0], how=how)
+        indexes, similarities = corpus.get_similar_doc_indexes(documents_fake[0], how=how)
         assert len(indexes) == 0
         assert len(similarities) == 0
-        indexes, similarities = corpus.get_similar_doc_indexes(docs_str[2], how=how)
+        indexes, similarities = corpus.get_similar_doc_indexes(documents_fake[2], how=how)
         assert len(indexes) == 0
         assert len(similarities) == 0
-        indexes, similarities = corpus.get_similar_doc_indexes(docs_str[4], how=how)
+        indexes, similarities = corpus.get_similar_doc_indexes(documents_fake[4], how=how)
         assert len(indexes) == 0
         assert len(similarities) == 0
 
         # now the index should contain the doc with the equivalent index because it is the same
         # doc, but we passed it in as text so the class doesn't know it is the same doc;
         # it should have a similarity of 1
-        indexes, similarities = corpus.get_similar_doc_indexes(docs_str[1], how=how)
-        # same text was used so the best index should be the same as in docs_str
+        indexes, similarities = corpus.get_similar_doc_indexes(documents_fake[1], how=how)
+        # same text was used so the best index should be the same as in documents_fake
         assert indexes[0] == 1
         assert len(indexes) == 3
         assert len(similarities) == 3
@@ -399,8 +390,8 @@ def test__DocumentProcessor__simple():
         # same text was used so the highest similarity should be 1 i.e. same text
         assert similarities[0].round(5) == 1
 
-        indexes, similarities = corpus.get_similar_doc_indexes(docs_str[3], how=how)
-        # same text was used so the best index should be the same as in docs_str
+        indexes, similarities = corpus.get_similar_doc_indexes(documents_fake[3], how=how)
+        # same text was used so the best index should be the same as in documents_fake
         assert indexes[0] == 3
         assert len(indexes) == 3
         assert len(similarities) == 3
@@ -410,8 +401,8 @@ def test__DocumentProcessor__simple():
         # same text was used so the highest similarity should be 1 i.e. same text
         assert similarities[0].round(5) == 1
 
-        indexes, similarities = corpus.get_similar_doc_indexes(docs_str[5], how=how)
-        # same text was used so the best index should be the same as in docs_str
+        indexes, similarities = corpus.get_similar_doc_indexes(documents_fake[5], how=how)
+        # same text was used so the best index should be the same as in documents_fake
         assert indexes[0] == 5
         assert len(indexes) == 3
         assert len(similarities) == 3
@@ -429,41 +420,8 @@ def test__DocumentProcessor__simple():
     _test_get_similar_doc_indexes(how='embeddings-average')
     _test_get_similar_doc_indexes(how='embeddings-tf_idf')
 
-    # Test Corpus functionality
-
-# def test__DocumentProcessor__reddit(reddit):
-
-#     # Test Token specific characteristics
-    
-#     docs_str = reddit.apply(lambda x: x['title'] + ' ... ' + x['post'], axis=1)
-#     documents = processor.process(documents=docs_str)
-#     assert len(documents) == len(reddit)
-
-
-#     # Test Document specific characteristics
-#     assert str(documents[0]) == documents[0].text
-
-
-#     documents[0][0].__dict__.keys()
-
-
-    # # Test Token specific characteristics
-
-
-    # str(documents[0])
-    # documents[0][0].text
-    # reddit['title']
-
-
-    # documents.term_freq_inverse_doc_freq()
     # documents.term_freq()
     # documents.plot_wordcloud()
     # documents.search()
     # documents.similarity_matrix()
     # documents.find_similar()
-
-
-    # post_a = documents[0]
-    # post_a.sentiment
-
-
