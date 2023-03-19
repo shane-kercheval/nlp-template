@@ -1,24 +1,21 @@
 from concurrent.futures import ProcessPoolExecutor
 from functools import lru_cache, singledispatchmethod
 import itertools
-from typing import Callable, Iterable, Optional, Union, List
+from typing import Callable, Iterable, Optional, Union
 
 import pandas as pd
 import numpy as np
 import regex
-import textacy
 import spacy
 from spacy.language import Language
 import spacy.lang.en.stop_words as sw
 import spacy.tokenizer as stz
 import spacy.tokens as st
+from spacy.util import compile_prefix_regex, compile_infix_regex, compile_suffix_regex
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 from helpsk.diff import diff_text
-
-from spacy.util import compile_prefix_regex, compile_infix_regex, compile_suffix_regex
-
 import source.library.regex_patterns as rp
 
 
@@ -724,3 +721,35 @@ class Corpus:
             return self.documents[index.start:index.stop:index.step]
         else:
             raise TypeError("Invalid index type")
+
+
+def custom_tokenizer(nlp: Language) -> stz.Tokenizer:
+    """
+    This code creates a custom tokenizer, as described on pg. 108 of
+
+        Blueprints for Text Analytics Using Python
+        by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
+        (O'Reilly, 2021), 978-1-492-07408-3.
+        https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch04/Data_Preparation.ipynb
+
+    Args:
+        nlp: the Language
+    """
+    prefixes = [
+        pattern for pattern in nlp.Defaults.prefixes if pattern not in ['-', '_', '#']
+    ]
+    suffixes = [
+        pattern for pattern in nlp.Defaults.suffixes if pattern not in ['_']
+    ]
+    infixes = nlp.Defaults.infixes
+    #     [
+    #     pattern for pattern in nlp.Defaults.infixes if not re.search(pattern, 'xx-xx')
+    # ]
+    return stz.Tokenizer(
+        vocab=nlp.vocab,
+        rules=nlp.Defaults.tokenizer_exceptions,
+        prefix_search=compile_prefix_regex(prefixes).search,
+        suffix_search=compile_suffix_regex(suffixes).search,
+        infix_finditer=compile_infix_regex(infixes).finditer,
+        token_match=nlp.Defaults.token_match
+    )
