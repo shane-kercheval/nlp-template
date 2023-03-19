@@ -27,7 +27,7 @@ import os
 import datetime
 import logging
 import pickle
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 
 import pandas as pd
 
@@ -90,10 +90,16 @@ class FileDataPersistence(DataPersistence):
         """Logic to save the `data`"""
         pass
 
-    @abstractproperty
-    def path(self):
-        """Full path (directory and file name) to load/save."""
+    @property
+    @abstractmethod
+    def file_extension(self) -> str:
+        """File extension to use for the path (e.g. '.csv' or '.pkl')"""
         pass
+
+    @property
+    def path(self) -> str:
+        """Full path (directory and file name) to load/save."""
+        return os.path.join(self.directory, self.name + self.file_extension)
 
     def load(self):
         assert self.name
@@ -129,8 +135,8 @@ class PickledDataLoader(FileDataPersistence):
         super().__init__(description, dependencies, directory)
 
     @property
-    def path(self):
-        return os.path.join(self.directory, self.name + '.pkl')
+    def file_extension(self):
+        return '.pkl'
 
     def _load(self):
         with open(self.path, 'rb') as handle:
@@ -159,8 +165,8 @@ class CsvDataLoader(FileDataPersistence):
         super().__init__(description, dependencies, directory)
 
     @property
-    def path(self):
-        return os.path.join(self.directory, self.name + '.csv')
+    def file_extension(self):
+        return '.csv'
 
     def _load(self):
         return pd.read_csv(self.path)
