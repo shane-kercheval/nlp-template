@@ -128,7 +128,7 @@ def test__DocumentProcessor__corpus__diff(corpus_simple_example):
         file.write(corpus.diff(use_lemmas=True))
 
 
-def test__DocumentProcessor__corpus__embeddings(corpus_simple_example, documents_fake):
+def test__DocumentProcessor__corpus__embeddings(corpus_simple_example):
     corpus = corpus_simple_example
     non_empty_corpi = [corpus[1], corpus[3], corpus[5]]
 
@@ -230,7 +230,7 @@ def test__DocumentProcessor__corpus__vectorizers(corpus_simple_example, document
         assert (vector.round(5) == tf_idf_matrix[i].round(5)).all()
 
 
-def test__DocumentProcessor__corpus__similarity_matrix(corpus_simple_example, documents_fake):
+def test__DocumentProcessor__corpus__similarity_matrix(corpus_simple_example):
     corpus = corpus_simple_example
 
     ####
@@ -321,7 +321,7 @@ def test__DocumentProcessor__corpus__calculate_similarities(corpus_simple_exampl
     _test_calculate_similarity(how='embeddings-tf_idf')
 
 
-def test__DocumentProcessor__corpus__get_similar_doc_indexes(corpus_simple_example, documents_fake):
+def test__DocumentProcessor__corpus__get_similar_doc_indexes(corpus_simple_example, documents_fake):  # noqa
     corpus = corpus_simple_example
 
     def _test_get_similar_doc_indexes(how: str):

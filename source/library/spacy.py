@@ -1,10 +1,9 @@
-from functools import cached_property, lru_cache, singledispatchmethod
+from functools import lru_cache, singledispatchmethod
 import itertools
-from typing import Callable, Collection, Iterable, Optional, Union, List
+from typing import Callable, Iterable, Optional, Union, List
 
 import pandas as pd
 import numpy as np
-import re
 import regex
 import textacy
 import spacy
@@ -12,7 +11,6 @@ from spacy.language import Language
 import spacy.lang.en.stop_words as sw
 import spacy.tokenizer as stz
 import spacy.tokens as st
-import spacy.tokens.doc as sd
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
