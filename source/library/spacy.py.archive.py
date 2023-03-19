@@ -725,7 +725,6 @@ class Corpus:
         else:
             raise TypeError("Invalid index type")
 
-
 # class DocumentProcessor:
     # def extract(
     #         self,
@@ -756,82 +755,6 @@ class Corpus:
     #         )
 
     #     return _list_dicts_to_dict_lists(list_of_dicts=extracted_values)
-
-    def text_to_dict(self, text: str) -> dict[list[str]]:
-        """
-        This code takes text and returns a dictionary of various attributes extracted from spaCy.
-        Args:
-            text: the text to process
-            stop_words: stop-words
-        """
-        doc = self._nlp(text)
-        tokens = dict(
-            text=[None] * len(doc),
-            lemma=[None] * len(doc),
-            is_stop=[None] * len(doc),
-            is_punct=[None] * len(doc),
-            vector=[None] * len(doc),
-            is_punctuation=[None] * len(doc),
-            is_special=[None] * len(doc),
-            is_alpha=[None] * len(doc),
-            is_numeric=[None] * len(doc),
-            is_ascii=[None] * len(doc),
-            dep=[None] * len(doc),
-            part_of_speech=[None] * len(doc),
-            entity_type=[None] * len(doc),
-            sentiment=[None] * len(doc),
-        )
-        for i, token in enumerate(doc):
-            _lemma = token.lemma_.lower()
-            tokens['text'][i] = token.text
-            tokens['lemma'][i] = _lemma
-            tokens['is_stop'][i] = token.is_stop or \
-                _lemma in self.stop_words or \
-                text.lower() in self.stop_words
-            tokens['is_punct'][i] = token.pos_ == 'X' and not token.is_alpha
-            tokens['vector'][i] = token.vector
-            tokens['is_punctuation'][i] = token.is_punct or \
-                token.dep_ == 'punct' or \
-                token.pos_ == 'PUNCT'
-            tokens['is_special'][i] = token.pos_ == 'SYM' or (token.pos_ == 'X' and not token.is_alpha)
-            tokens['is_alpha'][i] = token.is_alpha
-            tokens['is_numeric'][i] = token.is_numeric
-            tokens['is_ascii'][i] = token.is_ascii
-            tokens['dep'][i] = token.dep_
-            tokens['part_of_speech'][i] = token.pos_
-            tokens['entity_type'][i] = token.ent_type_
-            tokens['sentiment'][i] = token.sentiment
-        return tokens
-
-    # def text_to_dataframe(self, text: str, include_punctuation: bool = False) -> pd.DataFrame:
-    #     """
-    #     This code takes a spaCy Doc and converts the doc into a pd.DataFrame
-
-    #     This code is modified from:
-    #         Blueprints for Text Analytics Using Python
-    #         by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler
-    #         (O'Reilly, 2021), 978-1-492-07408-3.
-    #         https://github.com/blueprints-for-text-analytics-python/blueprints-text/blob/master/ch04/Data_Preparation.ipynb
-
-    #     Args:
-    #         doc: the doc to convert
-    #         include_punctuation: whether or not to return the punctuation in the DataFrame.
-    #     """
-    #     doc = self._nlp(text)
-    #     rows = []
-    #     for i, t in enumerate(doc):
-    #         if (not t.is_punct and t.pos_ != 'PUNCT') or include_punctuation:
-    #             row = {
-    #                 'token': i, 'text': t.text, 'lemma_': t.lemma_,
-    #                 'is_stop': t.is_stop, 'is_alpha': t.is_alpha,
-    #                 'pos_': t.pos_, 'dep_': t.dep_,
-    #                 'ent_type_': t.ent_type_, 'ent_iob_': t.ent_iob_
-    #             }
-    #             rows.append(row)
-
-    #     df = pd.DataFrame(rows).set_index('token')
-    #     df.index.name = None
-    #     return df
 
 
 def _list_dicts_to_dict_lists(list_of_dicts: list[dict]):
