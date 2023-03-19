@@ -1,3 +1,4 @@
+from concurrent.futures import ProcessPoolExecutor
 from functools import lru_cache, singledispatchmethod
 import itertools
 from typing import Callable, Iterable, Optional, Union, List
@@ -315,23 +316,40 @@ class Corpus:
         else:
             self._nlp.tokenizer = custom_tokenizer(self._nlp)
 
-    def fit(self, documents: list[str]):
-        # TODO: implement parallel processing logic
-        _original = documents.copy()
-        if self.pre_process:
-            documents = [self.pre_process(x) for x in documents]
-        docs = self._nlp.pipe(documents)
-        documents = [None] * len(documents)
-        for i, doc in enumerate(docs):
-            tokens = [None] * len(doc)
-            for j, token in enumerate(doc):
-                tokens[j] = Token(token=token, stop_words=self.stop_words)
-            documents[i] = Document(
-                tokens=tokens,
-                text_original=_original[i],
-                text_cleaned=str(doc),
-            )
-        self.documents = documents
+    def fit(self, documents: list[str], num_batches: int = 10):
+        def _process_batch(documents: list[str]) -> list[Document]:
+            """
+            Takes a set of "documents" (a list of strings) and returns a list of document objects.
+            """
+            _originals = documents.copy()
+            if self.pre_process:
+                documents = [self.pre_process(x) for x in documents]
+            docs = self._nlp.pipe(documents)
+            documents = [None] * len(documents)
+            for i, doc in enumerate(docs):
+                tokens = [None] * len(doc)
+                for j, token in enumerate(doc):
+                    tokens[j] = Token(token=token, stop_words=self.stop_words)
+                documents[i] = Document(
+                    tokens=tokens,
+                    text_original=_originals[i],
+                    text_cleaned=str(doc),
+                )
+            return documents
+        if len(documents) < num_batches * 2:
+            self.documents = _process_batch(documents=documents)
+        else:
+            def split_list(items, n):
+                """Split a list into n sublists of equal size."""
+                k, m = divmod(len(items), n)
+                return list(items[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n))
+
+            batches = split_list(items=documents, n=num_batches)
+            with ProcessPoolExecutor() as pool:
+                results = list(pool.map(_process_batch, batches))
+
+            # results will be a list of list of Documents; we want to flatten the list
+            self.documents = [item for sublist in results for item in sublist]
 
     def _text_to_doc(self, text: str) -> Document:
         text_original = text
@@ -679,8 +697,6 @@ class Corpus:
 
 
 # class DocumentProcessor:
-    
-
     # def extract(
     #         self,
     #         documents: Collection[str],
