@@ -442,8 +442,12 @@ def test__corpus__get_similar_doc_indexes(corpus_simple_example, documents_fake)
     _test_get_similar_doc_indexes(how='embeddings-tf_idf')
 
 
-def test__corpus__tokens__reddit(corpus_reddit):
+def test__corpus__tokens__reddit(corpus_reddit, reddit):
     corpus = corpus_reddit
+    # check that the original text in each document in the corpus matches the original post (i.e.
+    # in the same order)
+    assert all(d.text(original=True) == r for d, r in zip(corpus, reddit['post']))
+
     with open(get_test_file_path('spacy/corpus__text__original__reddit.txt'), 'w') as handle:
         handle.writelines(t + "\n" for t in corpus.text())
 
@@ -569,21 +573,23 @@ def test__corpus__vectorizers__reddit(corpus_reddit, reddit):
         assert (vector.round(5) == tf_idf_matrix[i].round(5)).all()
 
 
-def test__Corpus_num_batches():
-    def split_list(items, n):
-        return [items[i:i+n] for i in range(0, len(items), n)]
-
-    split_list(list(range(110)), 20)[-1]
-
-
-    def split_list(items, n):
-        """Split a list into n sublists of equal size."""
-        k, m = divmod(len(items), n)
-        return list(items[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n))
-
-    batches = split_list(list(range(1116)), 10)
-    len(batches)
-    len(batches[0])
-    len(batches[1])
-    #len(batches[])
-    len(batches[-1])
+def test__Corpus_num_batches(corpus_reddit, corpus_reddit_parallel):
+    assert len(corpus_reddit) == len(corpus_reddit_parallel)
+    # check that the original/clean text in each document for both corpuses matches the original
+    # post (i.e ensure the same order and same cleaning)
+    assert all(
+        np.text(original=True) == p.text(original=True)
+        for np, p in zip(corpus_reddit, corpus_reddit_parallel)
+    )
+    assert all(
+        np.text(original=False) == p.text(original=False)
+        for np, p in zip(corpus_reddit, corpus_reddit_parallel)
+    )
+    assert all(
+        list(np.lemmas(important_only=False)) == list(p.lemmas(important_only=False))
+        for np, p in zip(corpus_reddit, corpus_reddit_parallel)
+    )
+    assert all(
+        (np.embeddings() == p.embeddings()).all()
+        for np, p in zip(corpus_reddit, corpus_reddit_parallel)
+    )

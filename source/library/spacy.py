@@ -238,6 +238,31 @@ class Document:
             raise TypeError("Invalid index type")
 
 
+def _process_document_batch(
+        documents: list[str],
+        nlp_pipe: Callable,
+        stop_words: set,
+        pre_process: Callable) -> list[Document]:
+    """
+    Takes a set of "documents" (a list of strings) and returns a list of document objects.
+    """
+    _originals = documents.copy()
+    if pre_process:
+        documents = [pre_process(x) for x in documents]
+    docs = nlp_pipe(documents)
+    documents = [None] * len(documents)
+    for i, doc in enumerate(docs):
+        tokens = [None] * len(doc)
+        for j, token in enumerate(doc):
+            tokens[j] = Token(token=token, stop_words=stop_words)
+        documents[i] = Document(
+            tokens=tokens,
+            text_original=_originals[i],
+            text_cleaned=str(doc),
+        )
+    return documents
+
+
 class Corpus:
     def __init__(
             self,
@@ -317,27 +342,22 @@ class Corpus:
             self._nlp.tokenizer = custom_tokenizer(self._nlp)
 
     def fit(self, documents: list[str], num_batches: int = 10):
-        def _process_batch(documents: list[str]) -> list[Document]:
-            """
-            Takes a set of "documents" (a list of strings) and returns a list of document objects.
-            """
-            _originals = documents.copy()
-            if self.pre_process:
-                documents = [self.pre_process(x) for x in documents]
-            docs = self._nlp.pipe(documents)
-            documents = [None] * len(documents)
-            for i, doc in enumerate(docs):
-                tokens = [None] * len(doc)
-                for j, token in enumerate(doc):
-                    tokens[j] = Token(token=token, stop_words=self.stop_words)
-                documents[i] = Document(
-                    tokens=tokens,
-                    text_original=_originals[i],
-                    text_cleaned=str(doc),
-                )
-            return documents
-        if len(documents) < num_batches * 2:
-            self.documents = _process_batch(documents=documents)
+        """
+        Takes a list of strings and coverts that list into a list of Document objects.
+
+        Args:
+            documents: list of strings/text
+            num_batches:
+                The number of batches for parallel processing. Turn off parallel processing by
+                passing 0 or None.
+        """
+        if not num_batches or len(documents) < num_batches * 2:
+            self.documents = _process_document_batch(
+                documents=documents,
+                nlp_pipe=self._nlp.pipe,
+                stop_words=self.stop_words,
+                pre_process=self.pre_process
+            )
         else:
             def split_list(items, n):
                 """Split a list into n sublists of equal size."""
@@ -345,11 +365,21 @@ class Corpus:
                 return list(items[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n))
 
             batches = split_list(items=documents, n=num_batches)
+            assert len(batches) == num_batches
             with ProcessPoolExecutor() as pool:
-                results = list(pool.map(_process_batch, batches))
-
+                pipes = [self._nlp.pipe] * num_batches
+                stop_words = [self.stop_words] * num_batches
+                pre_processes = [self.pre_process] * num_batches
+                results = list(pool.map(
+                    _process_document_batch,
+                    batches,
+                    pipes,
+                    stop_words,
+                    pre_processes
+                ))
             # results will be a list of list of Documents; we want to flatten the list
             self.documents = [item for sublist in results for item in sublist]
+            assert len(self.documents) == len(documents)
 
     def _text_to_doc(self, text: str) -> Document:
         text_original = text

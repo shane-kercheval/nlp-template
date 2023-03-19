@@ -50,6 +50,34 @@ def corpus_simple_example(documents_fake):
 
 @pytest.fixture
 def corpus_reddit(reddit):
+    # this Corpus is fit() without parallelization
+    # it is used for base tests and to compare against Corpus fit() with parallelization
+    stop_words_to_add = {'dear', 'regard', '_number_', '_tag_'}
+    stop_words_to_remove = {'down', 'no', 'none', 'nothing', 'keep'}
+
+    corpus = Corpus()
+    assert all(x not in corpus.stop_words for x in stop_words_to_add)
+    assert all(x in corpus.stop_words for x in stop_words_to_remove)
+
+    corpus = Corpus(
+        stop_words_to_add=stop_words_to_add,
+        stop_words_to_remove=stop_words_to_remove,
+        pre_process=clean,
+        spacy_model='en_core_web_sm',
+        sklearn_tokenenizer_min_df=1,
+    )
+    assert all(x in corpus.stop_words for x in stop_words_to_add)
+    assert all(x not in corpus.stop_words for x in stop_words_to_remove)
+    # NOTE: specify
+    corpus.fit(documents=reddit['post'].tolist(), num_batches=None)
+    # make sure these didn't reset during fitting
+    assert all(x in corpus.stop_words for x in stop_words_to_add)
+    assert all(x not in corpus.stop_words for x in stop_words_to_remove)
+    return corpus
+
+
+@pytest.fixture
+def corpus_reddit_parallel(reddit):
     stop_words_to_add = {'dear', 'regard', '_number_', '_tag_'}
     stop_words_to_remove = {'down', 'no', 'none', 'nothing', 'keep'}
 
