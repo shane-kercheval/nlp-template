@@ -128,8 +128,8 @@ class PickledDataLoader(FileDataPersistence):
             description: description of the dataset
             dependencies: dependencies of the dataset
             directory:
-                the directory to save to and load from. NOTE: this should **not** contain the file name
-                which is assigned at a later point in time based on the property name in the
+                the directory to save to and load from. NOTE: this should **not** contain the file
+                name which is assigned at a later point in time based on the property name in the
                 `Datasets` class.
         """
         super().__init__(description, dependencies, directory)
