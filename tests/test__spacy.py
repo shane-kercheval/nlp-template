@@ -472,8 +472,27 @@ def test__DocumentProcessor__corpus__diff__reddit(corpus_reddit):
     with open(get_test_file_path('spacy/corpus_diff__reddit__use_lemmas.html'), 'w') as file:
         file.write(corpus.diff(use_lemmas=True))
 
-    
 
+def test__DocumentProcessor__corpus__embeddings__reddit(corpus_reddit):
+    corpus = corpus_reddit
+
+    embedding_shape = corpus[0][0].embeddings.shape
+    assert embedding_shape[0] > 0
+    assert corpus[1].embeddings().shape == embedding_shape
+    assert all([d.token_embeddings().shape  == (d.num_important_tokens(), embedding_shape[0]) for d in corpus])  # noqa
+    assert all((d.embeddings() > 0).any() for d in corpus)
+
+    expected_embeddings_length = corpus[1][0].embeddings.shape[0]
+    embeddings_average = corpus.embeddings_matrix(aggregation='average')
+    assert embeddings_average.shape == (len(corpus), expected_embeddings_length)
+    # same test to maek sure lru_cache plays nice with generators
+    assert (corpus.embeddings_matrix(aggregation='average') == embeddings_average).all()
+
+    # tf-idf embeddings
+    embeddings_tf_idf = corpus.embeddings_matrix(aggregation='tf_idf')
+    assert embeddings_tf_idf.shape == embeddings_average.shape
+    # same test to maek sure lru_cache plays nice with generators
+    assert (corpus.embeddings_matrix(aggregation='tf_idf') == embeddings_tf_idf).all()
 
     # documents.term_freq()
     # documents.plot_wordcloud()
