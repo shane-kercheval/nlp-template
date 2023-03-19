@@ -420,8 +420,65 @@ def test__DocumentProcessor__corpus__get_similar_doc_indexes(corpus_simple_examp
     _test_get_similar_doc_indexes(how='embeddings-average')
     _test_get_similar_doc_indexes(how='embeddings-tf_idf')
 
+
+def test__DocumentProcessor__corpus__tokens__reddit(corpus_reddit):
+    corpus = corpus_reddit
+    with open(get_test_file_path('spacy/corpus__text__original__reddit.txt'), 'w') as handle:
+        handle.writelines(t + "\n" for t in corpus.text())
+
+    with open(get_test_file_path('spacy/corpus__text__clean__reddit.txt'), 'w') as handle:
+        handle.writelines(t + "\n" for t in corpus.text(original=False))
+
+    with open(get_test_file_path('spacy/corpus__lemmas__important_only__reddit.txt'), 'w') as handle:  # noqa
+        handle.writelines('|'.join(x) + "\n" for x in corpus.lemmas())
+
+    with open(get_test_file_path('spacy/corpus__lemmas__important_only__false__reddit.txt'), 'w') as handle:  # noqa
+        handle.writelines('|'.join(x) + "\n" for x in corpus.lemmas(important_only=False))
+
+    with open(get_test_file_path('spacy/corpus__n_grams__2__reddit.txt'), 'w') as handle:
+        handle.writelines('|'.join(x) + "\n" for x in corpus.n_grams(2))
+
+    with open(get_test_file_path('spacy/corpus__n_grams__3__reddit.txt'), 'w') as handle:
+        handle.writelines('|'.join(x) + "\n" for x in corpus.n_grams(3, separator='--'))
+
+    with open(get_test_file_path('spacy/corpus__nouns__reddit.txt'), 'w') as handle:
+        handle.writelines('|'.join(x) + "\n" for x in corpus.nouns())
+
+    with open(get_test_file_path('spacy/corpus__noun_phrases__reddit.txt'), 'w') as handle:
+        handle.writelines('|'.join(x) + "\n" for x in corpus.noun_phrases())
+
+    with open(get_test_file_path('spacy/corpus__adjectives_verbs__reddit.txt'), 'w') as handle:
+        handle.writelines('|'.join(x) + "\n" for x in corpus.adjectives_verbs())
+
+    with open(get_test_file_path('spacy/corpus__entities__reddit.txt'), 'w') as handle:
+        handle.writelines('|'.join(f"{e[0]} ({e[1]})" for e in x) + "\n" for x in corpus.entities())  # noqa
+
+
+def test__DocumentProcessor__corpus__diff__reddit(corpus_reddit):
+    corpus = corpus_reddit
+
+    with open(get_test_file_path('spacy/document_diff__reddit_1.html'), 'w') as file:
+        file.write(corpus[1].diff())
+
+    with open(get_test_file_path('spacy/document_diff__reddit_1__use_lemmas.html'), 'w') as file:
+        file.write(corpus[1].diff(use_lemmas=True))
+
+    with open(get_test_file_path('spacy/corpus_diff__reddit.html'), 'w') as file:
+        file.write(corpus.diff())
+
+    with open(get_test_file_path('spacy/corpus_diff__reddit__first_2.html'), 'w') as file:
+        file.write(corpus.diff(first_n=2))
+
+    with open(get_test_file_path('spacy/corpus_diff__reddit__use_lemmas.html'), 'w') as file:
+        file.write(corpus.diff(use_lemmas=True))
+
+    
+
+
     # documents.term_freq()
     # documents.plot_wordcloud()
     # documents.search()
     # documents.similarity_matrix()
     # documents.find_similar()
+
+
