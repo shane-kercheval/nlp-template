@@ -389,24 +389,29 @@ def test__DocumentProcessor__simple():
         # doc, but we passed it in as text so the class doesn't know it is the same doc;
         # it should have a similarity of 1
         indexes, similarities = corpus.get_similar_doc_indexes(docs_str[1], how=how)
+        # same text was used so the best index should be the same as in docs_str
         assert indexes[0] == 1
         assert len(indexes) == 3
         assert len(similarities) == 3
         assert list(indexes) == [1, 3, 5]
         assert (similarities > 0).all()
         assert (similarities.round(5) <= 1).all()
+        # same text was used so the highest similarity should be 1 i.e. same text
         assert similarities[0].round(5) == 1
 
         indexes, similarities = corpus.get_similar_doc_indexes(docs_str[3], how=how)
+        # same text was used so the best index should be the same as in docs_str
         assert indexes[0] == 3
         assert len(indexes) == 3
         assert len(similarities) == 3
         assert list(indexes) == [3, 1, 5]
         assert (similarities > 0).all()
         assert (similarities.round(5) <= 1).all()
+        # same text was used so the highest similarity should be 1 i.e. same text
         assert similarities[0].round(5) == 1
 
         indexes, similarities = corpus.get_similar_doc_indexes(docs_str[5], how=how)
+        # same text was used so the best index should be the same as in docs_str
         assert indexes[0] == 5
         assert len(indexes) == 3
         assert len(similarities) == 3
@@ -416,6 +421,7 @@ def test__DocumentProcessor__simple():
             assert list(indexes) == [5, 1, 3]
         assert (similarities > 0).all()
         assert (similarities.round(5) <= 1).all()
+        # same text was used so the highest similarity should be 1 i.e. same text
         assert similarities[0].round(5) == 1
 
     _test_get_similar_doc_indexes(how='count')
