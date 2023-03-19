@@ -588,8 +588,10 @@ class Corpus:
             raise ValueError("Invalid value passed to `how`")
 
     @lru_cache()
-    def calculate_similarity(self, text: str, how: str) -> np.array:
+    def calculate_similarities(self, text: str, how: str) -> np.array:
         """
+        Return similarities for documents in corpus against `text`.
+
         Similarity is calculated based on cosine_similarity from scikit-learn, and because of the
         way it is calculated, two empty documents (i.e. empty vectors) will have a similarity of 0.
         As a default, doesn't seem like a bad thing.
@@ -622,7 +624,7 @@ class Corpus:
             raise ValueError("Invalid value passed to `how`")
 
     @singledispatchmethod
-    def get_similar_doc_indexes(self, obj: object, top_n: int):
+    def get_similar_doc_indexes(self, arg: object, how: str, top_n: int = 10) -> tuple:
         """
         Returns a tuple of two np.arrays.
         The first array is the index of documents in order of most similar to least similar.
@@ -631,20 +633,34 @@ class Corpus:
         raise NotImplementedError("Invalid Type")
 
     @get_similar_doc_indexes.register
-    def _(self, index: int, top_n: int = 10):
-        # based on document at `index`, what are the `top_n` most similar docs
-        return "pass integer"
+    def _(self, index: int, how: str, top_n: int = 10) -> tuple:
+        """based on document at `index`, what are the `top_n` most similar docs"""
+        # get similarities from document at `index`
+        similarities = self.similarity_matrix(how=how)[index]
+        index_ranks = np.argsort(-similarities)
+        # filter out current index
+        index_ranks = index_ranks[(index_ranks != index)]
+        # only index_ranks associated with similarities above 0
+        index_ranks = index_ranks[similarities[index_ranks].round(5) > 0]
+        assert len(index_ranks) == len(similarities[index_ranks])
+        return index_ranks[0:top_n], similarities[index_ranks][0:top_n]
 
     @get_similar_doc_indexes.register
-    def _(self, text: str, top_n: int = 10):
+    def _(self, text: str, how: str, top_n: int = 10) -> tuple:
         # based on document `doc`, what are the `top_n` most similar docs
-        return "pass string"
+        similarities = self.calculate_similarities(text=text, how=how)
+        index_ranks = np.argsort(-similarities)
+        # only index_ranks associated with similarities above 0
+        index_ranks = index_ranks[similarities[index_ranks].round(5) > 0]
+        assert len(index_ranks) == len(similarities[index_ranks])
+        return index_ranks[0:top_n], similarities[index_ranks][0:top_n]
 
     def plot_word_cloud():
         pass
 
-    def get_context():
+    def find_context():
         pass
+
     # def __str__(self) -> str:
     #     return [t.text for t in self.tokens]
 
