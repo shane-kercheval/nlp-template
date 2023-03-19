@@ -297,11 +297,11 @@ def test__DocumentProcessor__simple():
     # calculate_similarity
     ####
     def _test_calculate_similarity(how: str):
-        results = corpus.calculate_similarity(text='', how=how)
+        results = corpus.calculate_similarities(text='', how=how)
         assert results.shape == (len(corpus), )
         assert (results == 0).all()
 
-        results = corpus.calculate_similarity(text=docs_str[1], how=how)
+        results = corpus.calculate_similarities(text=docs_str[1], how=how)
         assert results.shape == (len(corpus), )
         assert results[1].round(5) == 1
         assert 0 < results[3] < 1
@@ -310,7 +310,7 @@ def test__DocumentProcessor__simple():
         assert results[2] == 0
         assert results[4] == 0
 
-        results = corpus.calculate_similarity(text=docs_str[3], how=how)
+        results = corpus.calculate_similarities(text=docs_str[3], how=how)
         assert results.shape == (len(corpus), )
         assert results[3].round(5) == 1
         assert 0 < results[1] < 1
@@ -319,7 +319,7 @@ def test__DocumentProcessor__simple():
         assert results[2] == 0
         assert results[4] == 0
 
-        results = corpus.calculate_similarity(text=docs_str[5], how=how)
+        results = corpus.calculate_similarities(text=docs_str[5], how=how)
         assert results.shape == (len(corpus), )
         assert results[5].round(5) == 1
         assert 0 < results[3] < 1
@@ -332,6 +332,96 @@ def test__DocumentProcessor__simple():
     _test_calculate_similarity(how='tf_idf')
     _test_calculate_similarity(how='embedding-average')
     _test_calculate_similarity(how='embedding-tf_idf')
+
+    def _test_get_similar_doc_indexes(how: str):
+        indexes, similarities = corpus.get_similar_doc_indexes(0, how=how)
+        assert len(indexes) == 0
+        assert len(similarities) == 0
+        indexes, similarities = corpus.get_similar_doc_indexes(2, how=how)
+        assert len(indexes) == 0
+        assert len(similarities) == 0
+        indexes, similarities = corpus.get_similar_doc_indexes(4, how=how)
+        assert len(indexes) == 0
+        assert len(similarities) == 0
+
+        indexes, similarities = corpus.get_similar_doc_indexes(1, how=how)
+        assert (indexes != 1).all()
+        assert len(indexes) == 2
+        assert len(similarities) == 2
+        assert list(indexes) == [3, 5]
+        (similarities > 0).all()
+        (similarities < 1).all()
+        indexes, similarities = corpus.get_similar_doc_indexes(3, how=how)
+        assert (indexes != 3).all()
+        assert len(indexes) == 2
+        assert len(similarities) == 2
+        assert list(indexes) == [1, 5]
+        (similarities > 0).all()
+        (similarities < 1).all()
+        indexes, similarities = corpus.get_similar_doc_indexes(5, how=how)
+        assert (indexes != 5).all()
+        assert len(indexes) == 2
+        assert len(similarities) == 2
+        if how == 'embedding-average':
+            assert list(indexes) == [3, 1]
+        else:
+            assert list(indexes) == [1, 3]
+        (similarities > 0).all()
+        (similarities < 1).all()
+
+    _test_get_similar_doc_indexes(how='count')
+    _test_get_similar_doc_indexes(how='tf_idf')
+    _test_get_similar_doc_indexes(how='embedding-average')
+    _test_get_similar_doc_indexes(how='embedding-tf_idf')
+
+    def _test_get_similar_doc_indexes(how: str):
+        indexes, similarities = corpus.get_similar_doc_indexes(docs_str[0], how=how)
+        assert len(indexes) == 0
+        assert len(similarities) == 0
+        indexes, similarities = corpus.get_similar_doc_indexes(docs_str[2], how=how)
+        assert len(indexes) == 0
+        assert len(similarities) == 0
+        indexes, similarities = corpus.get_similar_doc_indexes(docs_str[4], how=how)
+        assert len(indexes) == 0
+        assert len(similarities) == 0
+
+        # now the index should contain the doc with the equivalent index because it is the same
+        # doc, but we passed it in as text so the class doesn't know it is the same doc;
+        # it should have a similarity of 1
+        indexes, similarities = corpus.get_similar_doc_indexes(docs_str[1], how=how)
+        assert indexes[0] == 1
+        assert len(indexes) == 3
+        assert len(similarities) == 3
+        assert list(indexes) == [1, 3, 5]
+        assert (similarities > 0).all()
+        assert (similarities.round(5) <= 1).all()
+        assert similarities[0].round(5) == 1
+
+        indexes, similarities = corpus.get_similar_doc_indexes(docs_str[3], how=how)
+        assert indexes[0] == 3
+        assert len(indexes) == 3
+        assert len(similarities) == 3
+        assert list(indexes) == [3, 1, 5]
+        assert (similarities > 0).all()
+        assert (similarities.round(5) <= 1).all()
+        assert similarities[0].round(5) == 1
+
+        indexes, similarities = corpus.get_similar_doc_indexes(docs_str[5], how=how)
+        assert indexes[0] == 5
+        assert len(indexes) == 3
+        assert len(similarities) == 3
+        if how == 'embedding-average':
+            assert list(indexes) == [5, 3, 1]
+        else:
+            assert list(indexes) == [5, 1, 3]
+        assert (similarities > 0).all()
+        assert (similarities.round(5) <= 1).all()
+        assert similarities[0].round(5) == 1
+
+    _test_get_similar_doc_indexes(how='count')
+    _test_get_similar_doc_indexes(how='tf_idf')
+    _test_get_similar_doc_indexes(how='embedding-average')
+    _test_get_similar_doc_indexes(how='embedding-tf_idf')
 
     # Test Corpus functionality
 
