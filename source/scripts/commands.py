@@ -63,28 +63,6 @@ def extract():
         DATA.reddit.save(reddit)
 
 
-# def processing_text_data(df: pd.DataFrame):
-#     df['speaker'].fillna('<unknown>', inplace=True)
-#     df['position'].fillna('<unknown>', inplace=True)
-#     assert not df.isna().any().any()
-#     df['text_length'] = df['text'].str.len()
-#     df['tokens'] = df['text'].apply(prepare)
-#     df['num_tokens'] = df['tokens'].map(len)
-#     df['bi_grams'] = df['text'].\
-#         apply(prepare, pipeline=[str.lower, tokenize]).\
-#         apply(get_n_grams, n=2, stop_words=get_stop_words())
-#     df['num_bi_grams'] = df['bi_grams'].map(len)
-#     return (df)
-
-
-# def _extract_from_doc(df: pd.DataFrame, text_column: str) -> dict[list]:
-#     sp = SpacyWrapper(
-#         stopwords_to_add={'dear', 'regards'},
-#         stopwords_to_remove={'down'},
-#     )
-#     return sp.extract(df[text_column])
-
-
 @main.command()
 @log_function_call
 @log_timer
@@ -92,6 +70,28 @@ def transform():
     """
     Transforms the data.
     """
+    ####
+    # Reddit
+    ####
+    with Timer("Loading Reddit Dataset"):
+        reddit = DATA.reddit.load()
+
+    with Timer(f"Creating Reddit Corpus ({len(reddit):,} documents)"):
+        stop_words_to_add = {'dear', 'regard', '_number_', '_tag_'}
+        stop_words_to_remove = {'down', 'no', 'none', 'nothing', 'keep'}
+        corpus = Corpus(
+            stop_words_to_add=stop_words_to_add,
+            stop_words_to_remove=stop_words_to_remove,
+            pre_process=clean,
+            spacy_model='en_core_web_sm',
+            sklearn_tokenenizer_min_df=1,
+        )
+        reddit = reddit.sample(100)
+        assert all(x in corpus.stop_words for x in stop_words_to_add)
+        assert all(x not in corpus.stop_words for x in stop_words_to_remove)
+        corpus.fit(documents=reddit['post'].tolist())
+        DATA.reddit_corpus.save(corpus)
+
     ####
     # UN Debate Data
     ####
@@ -129,25 +129,6 @@ def transform():
         assert all(x not in corpus.stop_words for x in stop_words_to_remove)
         corpus.fit(documents=un_debate_paragraphs['text'].tolist())
         DATA.un_debate_corpus.save(corpus)
-
-    with Timer("Loading Reddit Dataset"):
-        reddit = DATA.reddit.load()
-
-    with Timer(f"Creating Reddit Corpus ({len(reddit):,} documents)"):
-        stop_words_to_add = {'dear', 'regard', '_number_', '_tag_'}
-        stop_words_to_remove = {'down', 'no', 'none', 'nothing', 'keep'}
-        corpus = Corpus(
-            stop_words_to_add=stop_words_to_add,
-            stop_words_to_remove=stop_words_to_remove,
-            pre_process=clean,
-            spacy_model='en_core_web_sm',
-            sklearn_tokenenizer_min_df=1,
-        )
-        reddit = reddit.sample(100)
-        assert all(x in corpus.stop_words for x in stop_words_to_add)
-        assert all(x not in corpus.stop_words for x in stop_words_to_remove)
-        corpus.fit(documents=reddit['post'].tolist())
-        DATA.reddit_corpus.save(corpus)
 
     # message = "Saving UN Paragraphs dataset to " \
     #     "/artifacts/data/processed/un-general-debates-paragraphs.pkl"
