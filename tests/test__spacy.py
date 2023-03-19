@@ -263,13 +263,13 @@ def test__DocumentProcessor__simple():
         # diagnals of non-empty docs
         assert (sim_matrix[[1, 3, 5], [1, 3, 5]].round(5) == 1).all()
 
-    sim_matrix_emb_average = corpus.similarity_matrix(how='embedding-average')
+    sim_matrix_emb_average = corpus.similarity_matrix(how='embeddings-average')
     assert sim_matrix_emb_average.shape == (len(corpus), len(corpus))
     _check_sim_matrix(sim_matrix_emb_average)
     with open(get_test_file_path('spacy/corpus__similarity_matrix__embeddings_average.html'), 'w') as file:  # noqa
         file.write(str(sim_matrix_emb_average))
 
-    sim_matrix_emb_tf_idf = corpus.similarity_matrix(how='embedding-tf_idf')
+    sim_matrix_emb_tf_idf = corpus.similarity_matrix(how='embeddings-tf_idf')
     assert sim_matrix_emb_tf_idf.shape == (len(corpus), len(corpus))
     _check_sim_matrix(sim_matrix_emb_tf_idf)
     assert (sim_matrix_emb_average.round(5) != sim_matrix_emb_tf_idf.round(5)).any()
@@ -330,8 +330,8 @@ def test__DocumentProcessor__simple():
 
     _test_calculate_similarity(how='count')
     _test_calculate_similarity(how='tf_idf')
-    _test_calculate_similarity(how='embedding-average')
-    _test_calculate_similarity(how='embedding-tf_idf')
+    _test_calculate_similarity(how='embeddings-average')
+    _test_calculate_similarity(how='embeddings-tf_idf')
 
     def _test_get_similar_doc_indexes(how: str):
         indexes, similarities = corpus.get_similar_doc_indexes(0, how=how)
@@ -362,7 +362,7 @@ def test__DocumentProcessor__simple():
         assert (indexes != 5).all()
         assert len(indexes) == 2
         assert len(similarities) == 2
-        if how == 'embedding-average':
+        if how == 'embeddings-average':
             assert list(indexes) == [3, 1]
         else:
             assert list(indexes) == [1, 3]
@@ -371,8 +371,8 @@ def test__DocumentProcessor__simple():
 
     _test_get_similar_doc_indexes(how='count')
     _test_get_similar_doc_indexes(how='tf_idf')
-    _test_get_similar_doc_indexes(how='embedding-average')
-    _test_get_similar_doc_indexes(how='embedding-tf_idf')
+    _test_get_similar_doc_indexes(how='embeddings-average')
+    _test_get_similar_doc_indexes(how='embeddings-tf_idf')
 
     def _test_get_similar_doc_indexes(how: str):
         indexes, similarities = corpus.get_similar_doc_indexes(docs_str[0], how=how)
@@ -410,7 +410,7 @@ def test__DocumentProcessor__simple():
         assert indexes[0] == 5
         assert len(indexes) == 3
         assert len(similarities) == 3
-        if how == 'embedding-average':
+        if how == 'embeddings-average':
             assert list(indexes) == [5, 3, 1]
         else:
             assert list(indexes) == [5, 1, 3]
@@ -420,8 +420,8 @@ def test__DocumentProcessor__simple():
 
     _test_get_similar_doc_indexes(how='count')
     _test_get_similar_doc_indexes(how='tf_idf')
-    _test_get_similar_doc_indexes(how='embedding-average')
-    _test_get_similar_doc_indexes(how='embedding-tf_idf')
+    _test_get_similar_doc_indexes(how='embeddings-average')
+    _test_get_similar_doc_indexes(how='embeddings-tf_idf')
 
     # Test Corpus functionality
 

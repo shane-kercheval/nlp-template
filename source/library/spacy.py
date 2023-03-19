@@ -576,9 +576,9 @@ class Corpus:
         NOTE: the similarity matrix for a given document/row will have all values of 0 if the
         document is empty. In scikit-learn, the cosine_similarity of two vectors of all 0's is 0.
         """
-        if how == 'embedding-average':
+        if how == 'embeddings-average':
             return cosine_similarity(X=self.embeddings_matrix(aggregation='average'))
-        elif how == 'embedding-tf_idf':
+        elif how == 'embeddings-tf_idf':
             return cosine_similarity(X=self.embeddings_matrix(aggregation='tf_idf'))
         elif how == 'count':
             return cosine_similarity(X=self.count_matrix())
@@ -596,7 +596,7 @@ class Corpus:
         way it is calculated, two empty documents (i.e. empty vectors) will have a similarity of 0.
         As a default, doesn't seem like a bad thing.
         """
-        if how == 'embedding-average':
+        if how == 'embeddings-average':
             document = self._text_to_doc(text=text)
             document_embeddings = document.embeddings(aggregation='average')
             if len(document_embeddings) == 0:
@@ -605,7 +605,7 @@ class Corpus:
                 X=self.embeddings_matrix(aggregation='average'),
                 Y=document.embeddings(aggregation='average').reshape(1, -1)
             ).flatten()
-        elif how == 'embedding-tf_idf':
+        elif how == 'embeddings-tf_idf':
             document = self._text_to_doc(text=text)
             document_embeddings = self._doc_to_tf_idf_embeddings(document=document)
             if len(document_embeddings) == 0:
