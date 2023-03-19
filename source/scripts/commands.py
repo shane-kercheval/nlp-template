@@ -84,9 +84,11 @@ def transform():
             stop_words_to_remove=stop_words_to_remove,
             pre_process=clean,
             spacy_model='en_core_web_sm',
-            sklearn_tokenenizer_min_df=1,
+            sklearn_tokenenizer_min_df=20,
+            sklearn_tokenenizer_max_tokens=200,
+            sklearn_tokenenizer_max_bi_grams=30,
         )
-        reddit = reddit.sample(100)
+        # reddit = reddit.sample(100)
         assert all(x in corpus.stop_words for x in stop_words_to_add)
         assert all(x not in corpus.stop_words for x in stop_words_to_remove)
         corpus.fit(documents=reddit['post'].tolist())
@@ -122,9 +124,11 @@ def transform():
             stop_words_to_remove=stop_words_to_remove,
             pre_process=clean,
             spacy_model='en_core_web_sm',
-            sklearn_tokenenizer_min_df=1,
+            sklearn_tokenenizer_min_df=20,
+            sklearn_tokenenizer_max_tokens=200,
+            sklearn_tokenenizer_max_bi_grams=30,
         )
-        un_debate_paragraphs = un_debate_paragraphs.sample(100)
+        un_debate_paragraphs = un_debate_paragraphs.sample(50000)
         assert all(x in corpus.stop_words for x in stop_words_to_add)
         assert all(x not in corpus.stop_words for x in stop_words_to_remove)
         corpus.fit(documents=un_debate_paragraphs['text'].tolist())
