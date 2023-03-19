@@ -3,7 +3,7 @@ import pandas as pd
 from tests.helpers import dataframe_to_text_file, get_test_file_path
 
 
-def test__DocumentProcessor__empty_string(corpus_simple_example, documents_fake):
+def test__corpus__empty_string(corpus_simple_example, documents_fake):
     corpus = corpus_simple_example
     assert len(corpus) == len(documents_fake)
     # first let's check the documents with edge cases
@@ -26,7 +26,7 @@ def test__DocumentProcessor__empty_string(corpus_simple_example, documents_fake)
     assert list(corpus[4].lemmas(important_only=False)) == []
 
 
-def test__DocumentProcessor__document(corpus_simple_example, documents_fake):
+def test__corpus__document(corpus_simple_example, documents_fake):
     corpus = corpus_simple_example
     non_empty_corpi = [corpus[1], corpus[3], corpus[5]]
 
@@ -70,7 +70,7 @@ def test__DocumentProcessor__document(corpus_simple_example, documents_fake):
     assert len(corpus[1].diff(use_lemmas=True)) > 0
 
 
-def test__DocumentProcessor__corpus__tokens(corpus_simple_example):
+def test__corpus__tokens(corpus_simple_example):
     corpus = corpus_simple_example
     with open(get_test_file_path('spacy/corpus__text__original__sample.txt'), 'w') as handle:
         handle.writelines(t + "\n" for t in corpus.text())
@@ -109,7 +109,7 @@ def test__DocumentProcessor__corpus__tokens(corpus_simple_example):
         file.write(corpus[0].diff(use_lemmas=True))
 
 
-def test__DocumentProcessor__corpus__diff(corpus_simple_example):
+def test__corpus__diff(corpus_simple_example):
     corpus = corpus_simple_example
 
     with open(get_test_file_path('spacy/document_diff__sample_1.html'), 'w') as file:
@@ -128,7 +128,7 @@ def test__DocumentProcessor__corpus__diff(corpus_simple_example):
         file.write(corpus.diff(use_lemmas=True))
 
 
-def test__DocumentProcessor__corpus__embeddings(corpus_simple_example):
+def test__corpus__embeddings(corpus_simple_example):
     corpus = corpus_simple_example
     non_empty_corpi = [corpus[1], corpus[3], corpus[5]]
 
@@ -174,7 +174,28 @@ def test__DocumentProcessor__corpus__embeddings(corpus_simple_example):
             file.write(str(_T[index]) + "\n")
 
 
-def test__DocumentProcessor__corpus__vectorizers(corpus_simple_example, documents_fake):
+def test__corpus__prepare_doc_for_vectorizer(corpus_simple_example, documents_fake):
+    corpus = corpus_simple_example
+    assert corpus._max_tokens is None
+    assert corpus._max_bi_grams is None
+
+    doc = corpus._text_to_doc(text=documents_fake[1])
+    # `_text_to_doc` should produce the same document (which implies the same embeddings)
+    # as the original
+    assert (doc.embeddings() == corpus[1].embeddings()).all()
+    assert list(doc.lemmas(important_only=False)) == list(corpus[1].lemmas(important_only=False))
+    assert corpus._prepare_doc_for_vectorizer(doc) == corpus._prepare_doc_for_vectorizer(corpus[1])
+    assert corpus._prepare_doc_for_vectorizer(doc) == '_number_ document important information # character _number_-document important-information'  # noqa
+
+    # now change the max-tokens and max-bigrams and make sure we get the expected result from
+    # both our custom doc and the original in the corpus
+    corpus._max_tokens = 2
+    corpus._max_bi_grams = 1
+    assert corpus._prepare_doc_for_vectorizer(doc) == '_number_ document _number_-document'
+    assert corpus._prepare_doc_for_vectorizer(doc) == corpus._prepare_doc_for_vectorizer(corpus[1])
+
+
+def test__corpus__vectorizers(corpus_simple_example, documents_fake):
     corpus = corpus_simple_example
     ####
     # Test Count/Vectors
@@ -230,7 +251,7 @@ def test__DocumentProcessor__corpus__vectorizers(corpus_simple_example, document
         assert (vector.round(5) == tf_idf_matrix[i].round(5)).all()
 
 
-def test__DocumentProcessor__corpus__similarity_matrix(corpus_simple_example):
+def test__corpus__similarity_matrix(corpus_simple_example):
     corpus = corpus_simple_example
 
     ####
@@ -277,7 +298,7 @@ def test__DocumentProcessor__corpus__similarity_matrix(corpus_simple_example):
         file.write(str(sim_matrix_tf_idf))
 
 
-def test__DocumentProcessor__corpus__calculate_similarities(corpus_simple_example, documents_fake):
+def test__corpus__calculate_similarities(corpus_simple_example, documents_fake):
     corpus = corpus_simple_example
 
     ####
@@ -321,7 +342,7 @@ def test__DocumentProcessor__corpus__calculate_similarities(corpus_simple_exampl
     _test_calculate_similarity(how='embeddings-tf_idf')
 
 
-def test__DocumentProcessor__corpus__get_similar_doc_indexes(corpus_simple_example, documents_fake):  # noqa
+def test__corpus__get_similar_doc_indexes(corpus_simple_example, documents_fake):  # noqa
     corpus = corpus_simple_example
 
     def _test_get_similar_doc_indexes(how: str):
@@ -421,7 +442,7 @@ def test__DocumentProcessor__corpus__get_similar_doc_indexes(corpus_simple_examp
     _test_get_similar_doc_indexes(how='embeddings-tf_idf')
 
 
-def test__DocumentProcessor__corpus__tokens__reddit(corpus_reddit):
+def test__corpus__tokens__reddit(corpus_reddit):
     corpus = corpus_reddit
     with open(get_test_file_path('spacy/corpus__text__original__reddit.txt'), 'w') as handle:
         handle.writelines(t + "\n" for t in corpus.text())
@@ -454,7 +475,7 @@ def test__DocumentProcessor__corpus__tokens__reddit(corpus_reddit):
         handle.writelines('|'.join(f"{e[0]} ({e[1]})" for e in x) + "\n" for x in corpus.entities())  # noqa
 
 
-def test__DocumentProcessor__corpus__diff__reddit(corpus_reddit):
+def test__corpus__diff__reddit(corpus_reddit):
     corpus = corpus_reddit
 
     with open(get_test_file_path('spacy/document_diff__reddit_1.html'), 'w') as file:
@@ -473,7 +494,7 @@ def test__DocumentProcessor__corpus__diff__reddit(corpus_reddit):
         file.write(corpus.diff(use_lemmas=True))
 
 
-def test__DocumentProcessor__corpus__embeddings__reddit(corpus_reddit):
+def test__corpus__embeddings__reddit(corpus_reddit):
     corpus = corpus_reddit
 
     embedding_shape = corpus[0][0].embeddings.shape
@@ -501,3 +522,68 @@ def test__DocumentProcessor__corpus__embeddings__reddit(corpus_reddit):
     # documents.find_similar()
 
 
+def test__corpus__vectorizers__reddit(corpus_reddit, reddit):
+    corpus = corpus_reddit
+    ####
+    # Test Count/Vectors
+    ####
+    assert corpus.count_matrix().shape[0] == len(corpus)
+    count_matrix = corpus.count_matrix().toarray()
+    assert (count_matrix > 0).any()
+    assert len(corpus.count_vocabulary()) == corpus.count_matrix().shape[1]
+    empty_text_vector = corpus.text_to_count_vector(text='').toarray()[0]
+    assert empty_text_vector.shape == (len(corpus.count_vocabulary()), )
+    assert (empty_text_vector == 0).all()
+    # text text_to_count_vector by confirming if we pass in the same text we originally passed in
+    # then it will get processed and vectorized in the same way and therefore have the same vector
+    # values
+    reddit_post_list = reddit['post'].tolist()
+    for i in range(len(corpus)):
+        vector = corpus.text_to_count_vector(text=reddit_post_list[i])
+        vector = vector.toarray()[0]
+        assert vector.shape == count_matrix[i].shape
+        assert all(vector == count_matrix[i])
+
+    ####
+    # Test TF-IDF/Vectors
+    ####
+    assert corpus.tf_idf_matrix().shape[0] == len(corpus)
+    assert corpus.count_matrix().shape == corpus.tf_idf_matrix().shape
+    assert len(corpus.tf_idf_vocabulary()) == corpus.tf_idf_matrix().shape[1]
+    assert (corpus.count_vocabulary() == corpus.tf_idf_vocabulary()).all()
+
+    tf_idf_matrix = corpus.tf_idf_matrix().toarray()
+    assert (tf_idf_matrix > 0).any()
+    _tf_idf_df = pd.DataFrame(tf_idf_matrix)
+    _tf_idf_df.columns = corpus.tf_idf_vocabulary()
+    empty_text_vector = corpus.text_to_tf_idf_vector(text='').toarray()[0]
+    assert empty_text_vector.shape == (len(corpus.tf_idf_vocabulary()), )
+    assert (empty_text_vector == 0).all()
+    # text text_to_tf_idf_vector by confirming if we pass in the same text we originally passed in
+    # then it will get processed and vectorized in the same way and therefore have the same vector
+    # values
+    for i in range(len(corpus)):
+        vector = corpus.text_to_tf_idf_vector(text=reddit_post_list[i])
+        vector = vector.toarray()[0]
+        assert vector.shape == tf_idf_matrix[i].shape
+        assert (vector.round(5) == tf_idf_matrix[i].round(5)).all()
+
+
+def test__Corpus_num_batches():
+    def split_list(items, n):
+        return [items[i:i+n] for i in range(0, len(items), n)]
+
+    split_list(list(range(110)), 20)[-1]
+
+
+    def split_list(items, n):
+        """Split a list into n sublists of equal size."""
+        k, m = divmod(len(items), n)
+        return list(items[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n))
+
+    batches = split_list(list(range(1116)), 10)
+    len(batches)
+    len(batches[0])
+    len(batches[1])
+    #len(batches[])
+    len(batches[-1])
