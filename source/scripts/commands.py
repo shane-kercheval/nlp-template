@@ -1,27 +1,19 @@
-from math import ceil
 import logging
 import logging.config
 import click
 import pandas as pd
-from concurrent.futures import ProcessPoolExecutor
+import regex
 
 from sklearn.cluster import KMeans
 from sklearn.decomposition import NMF, LatentDirichletAllocation
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from spacy.lang.en.stop_words import STOP_WORDS
-import fasttext
 
 from helpsk.utility import to_pickle
 from helpsk.logging import log_function_call, log_timer, Timer
 
-import regex
-
 from source.library.spacy import Corpus
-
-from source.library.text_analysis import impurity
-from source.library.text_cleaning_simple import prepare, get_n_grams, get_stop_words, tokenize
-from source.library.text_preparation import clean, predict_language
-from source.library.utilities import create_batch_start_stop_indexes
+from source.library.text_preparation import clean
 from source.library.datasets import DATA
 
 stop_words = STOP_WORDS.copy()
