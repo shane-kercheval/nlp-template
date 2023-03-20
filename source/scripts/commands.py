@@ -91,7 +91,7 @@ def transform():
         assert all(x in corpus.stop_words for x in stop_words_to_add)
         assert all(x not in corpus.stop_words for x in stop_words_to_remove)
         corpus.fit(documents=reddit['post'].tolist())
-        DATA.reddit_corpus.save(corpus)
+    DATA.reddit_corpus.save(corpus)
 
     ####
     # UN Debate Data
@@ -115,7 +115,7 @@ def transform():
         un_debate_paragraphs = un_debate_paragraphs[un_debate_paragraphs['text'] != '']
     DATA.un_debate_paragraphs.save(un_debate_paragraphs)
 
-    un_debate_paragraphs = un_debate_paragraphs.sample(50000)
+    # un_debate_paragraphs = un_debate_paragraphs.sample(50000)
     with Timer(f"Creating UN dataset Corpus ({len(un_debate_paragraphs):,} documents)"):
         stop_words_to_add = {'dear', 'regard', '_number_', '_tag_'}
         stop_words_to_remove = {'down', 'no', 'none', 'nothing', 'keep'}
