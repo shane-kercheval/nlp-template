@@ -88,7 +88,6 @@ def transform():
             sklearn_tokenenizer_max_tokens=200,
             sklearn_tokenenizer_max_bi_grams=30,
         )
-        # reddit = reddit.sample(100)
         assert all(x in corpus.stop_words for x in stop_words_to_add)
         assert all(x not in corpus.stop_words for x in stop_words_to_remove)
         corpus.fit(documents=reddit['post'].tolist())
@@ -114,8 +113,9 @@ def transform():
         )
         un_debate_paragraphs['text'] = un_debate_paragraphs['text'].str.strip()
         un_debate_paragraphs = un_debate_paragraphs[un_debate_paragraphs['text'] != '']
-        DATA.un_debate_paragraphs.save(un_debate_paragraphs)
+    DATA.un_debate_paragraphs.save(un_debate_paragraphs)
 
+    un_debate_paragraphs = un_debate_paragraphs.sample(50000)
     with Timer(f"Creating UN dataset Corpus ({len(un_debate_paragraphs):,} documents)"):
         stop_words_to_add = {'dear', 'regard', '_number_', '_tag_'}
         stop_words_to_remove = {'down', 'no', 'none', 'nothing', 'keep'}
@@ -128,77 +128,10 @@ def transform():
             sklearn_tokenenizer_max_tokens=200,
             sklearn_tokenenizer_max_bi_grams=30,
         )
-        un_debate_paragraphs = un_debate_paragraphs.sample(50000)
         assert all(x in corpus.stop_words for x in stop_words_to_add)
         assert all(x not in corpus.stop_words for x in stop_words_to_remove)
         corpus.fit(documents=un_debate_paragraphs['text'].tolist())
-        DATA.un_debate_corpus.save(corpus)
-
-    # message = "Saving UN Paragraphs dataset to " \
-    #     "/artifacts/data/processed/un-general-debates-paragraphs.pkl"
-    # with Timer(message=message):
-    #     un_debates_paragraphs.to_pickle(
-    #         'artifacts/data/processed/un-general-debates-paragraphs.pkl'
-    #     )
-
-    # ####
-    # # Processing Reddit Data
-    # ####
-    # with Timer("Loading Reddit Dataset - Sampling 5K rows."):
-    #     reddit = pd.read_pickle('artifacts/data/raw/reddit.pkl')
-    #     reddit = reddit.\
-    #         sample(5000, random_state=42).\
-    #         reset_index(drop=True)
-
-    # with Timer("Loading Reddit Dataset - Calculating Impurity"):
-    #     reddit['impurity'] = reddit['post'].apply(impurity)
-
-    # with Timer("Cleaning Data"):
-    #     reddit['post_clean'] = reddit['post'].apply(clean, remove_bracket_content=False)
-    # assert not reddit.isna().any().any()
-    # with Timer("Tokenizing & Extracting"):
-    #     batch_size = 500
-    #     num_batches = ceil(len(reddit) / batch_size)
-    #     batch_indexes = create_batch_start_stop_indexes(
-    #         length=len(reddit),
-    #         num_batches=num_batches
-    #     )
-    #     datasets = [reddit.iloc[x[0]:x[1]].copy() for x in batch_indexes]
-    #     assert sum([len(x) for x in datasets]) == len(reddit)
-
-    #     with ProcessPoolExecutor() as pool:
-    #         # results = [
-    #         #     _extract_from_doc(df=datasets[0], text_column='post_clean'),
-    #         #     _extract_from_doc(df=datasets[1], text_column='post_clean'),
-    #         # ]
-    #         text_column = ['post_clean'] * len(datasets)
-    #         results = list(pool.map(_extract_from_doc, datasets, text_column))
-
-    #     reddit_transformed = pd.concat([pd.DataFrame(x) for x in results]).reset_index(drop=True)
-    #     assert len(reddit_transformed) == len(reddit)
-    #     expected_columns = {
-    #         'all_lemmas', 'partial_lemmas', 'bi_grams', 'adjs_verbs', 'nouns', 'noun_phrases',
-    #         'entities'
-    #     }
-    #     assert expected_columns == set(reddit_transformed.columns)
-    #     reddit = pd.concat([reddit, reddit_transformed], axis=1)
-    #     del datasets, batch_size, num_batches, batch_indexes
-    #     assert not reddit.isna().any().any()
-
-    #     reddit['post_length'] = reddit['post'].str.len()
-    #     reddit['num_tokens'] = reddit['partial_lemmas'].map(len)
-
-    # assert not reddit.isna().any().any()
-
-    # language_model = fasttext.load_model("/fasttext/lid.176.ftz")
-    # with Timer("Reddit - Predicting Language"):
-    #     reddit['language'] = reddit['post'].apply(predict_language, model=language_model)
-    #     logging.info(
-    #         f"Language was not able to be determined on {reddit['language'].isna().sum()} records."
-    #     )
-
-    # with Timer("Saving processed Reddit dataset to /artifacts/data/processed/reddit.pkl"):
-    #     reddit.to_pickle('artifacts/data/processed/reddit.pkl')
+    DATA.un_debate_corpus.save(corpus)
 
 
 @main.command()
