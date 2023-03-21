@@ -1,3 +1,4 @@
+arviz
 click
 flake8
 helpsk
