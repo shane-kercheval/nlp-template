@@ -461,8 +461,14 @@ class Corpus:
     def sentiments(self) -> Iterable[float]:
         return (x.sentiment() for x in self)
 
-    def impurities(self) -> Iterable[float]:
-        return (x.impurity() for x in self)
+    def impurities(
+            self,
+            pattern: str = rp.SUSPICIOUS,
+            min_length: int = 10,
+            original=False) -> Iterable[float]:
+        return (
+            x.impurity(pattern=pattern, min_length=min_length, original=original) for x in self
+        )
 
     def text_lengths(self, original=True) -> Iterable[int]:
         return (len(x.text(original=original)) for x in self)
@@ -495,7 +501,8 @@ class Corpus:
             'noun_phrases',
             'adjective_verbs',
             'sentiment',
-            'impurity',
+            'impurity_original',
+            'impurity_clean',
             'text_clean_length',
             'text_original_length',
             'num_tokens_all',
@@ -521,12 +528,14 @@ class Corpus:
             df['adjective_verbs'] = list(self.adjectives_verbs())
         if 'sentiment' in columns:
             df['sentiment'] = list(self.sentiments())
-        if 'impurity' in columns:
-            df['impurity'] = list(self.impurities())
-        if 'text_clean_length' in columns:
-            df['text_clean_length'] = list(self.text_lengths(original=False))
+        if 'impurity_original' in columns:
+            df['impurity_original'] = list(self.impurities(original=True))
+        if 'impurity_clean' in columns:
+            df['impurity_clean'] = list(self.impurities(original=False))
         if 'text_original_length' in columns:
             df['text_original_length'] = list(self.text_lengths(original=True))
+        if 'text_clean_length' in columns:
+            df['text_clean_length'] = list(self.text_lengths(original=False))
         if 'num_tokens_all' in columns:
             df['num_tokens_all'] = list(self.num_tokens(important_only=False))
         if 'num_tokens_important_only' in columns:

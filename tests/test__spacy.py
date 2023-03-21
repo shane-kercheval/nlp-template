@@ -112,7 +112,8 @@ def test__corpus__tokens(corpus_simple_example):
 def test__corpus__attributes(corpus_simple_example):
     # these are stupid tests but I just want to verify they run
     assert [x.sentiment() for x in corpus_simple_example] == list(corpus_simple_example.sentiments())  # noqa
-    assert [x.impurity() for x in corpus_simple_example] == list(corpus_simple_example.impurities())  # noqa
+    assert [x.impurity(original=True) for x in corpus_simple_example] == list(corpus_simple_example.impurities(original=True))  # noqa
+    assert [x.impurity(original=False) for x in corpus_simple_example] == list(corpus_simple_example.impurities(original=False))  # noqa
     assert [len(x.text(original=True)) for x in corpus_simple_example] == list(corpus_simple_example.text_lengths(original=True))  # noqa
     assert [len(x.text(original=False)) for x in corpus_simple_example] == list(corpus_simple_example.text_lengths(original=False))  # noqa
     assert [x.num_tokens(important_only=True) for x in corpus_simple_example] == list(corpus_simple_example.num_tokens(important_only=True))  # noqa
@@ -144,7 +145,8 @@ def test__corpus__to_dataframe(corpus_simple_example, documents_fake):
         'bi_grams',
         'adjective_verbs',
         'noun_phrases',
-        'impurity',
+        'impurity_original',
+        'impurity_clean',
         'sentiment',
         'text_original_length',
         'text_clean_length',
@@ -167,8 +169,10 @@ def test__corpus__to_dataframe(corpus_simple_example, documents_fake):
     assert all(isinstance(x, list) for x in df['adjective_verbs'])
     assert df['noun_phrases'].notna().any()
     assert all(isinstance(x, list) for x in df['noun_phrases'])
-    assert df['impurity'].notna().any()
-    assert all(isinstance(x, float) for x in df['impurity'].fillna(0))
+    assert df['impurity_original'].notna().any()
+    assert all(isinstance(x, float) for x in df['impurity_original'].fillna(0))
+    assert df['impurity_clean'].notna().any()
+    assert all(isinstance(x, float) for x in df['impurity_clean'].fillna(0))
     assert df['sentiment'].notna().any()
     assert all(isinstance(x, float) for x in df['sentiment'].fillna(0))
     assert df['text_original_length'].notna().any()
