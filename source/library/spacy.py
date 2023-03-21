@@ -85,8 +85,29 @@ class Document:
         else:
             return self._text_cleaned
 
-    def num_important_tokens(self) -> int:
-        return sum(t.is_important for t in self._tokens)
+    def num_tokens(self, important_only=True) -> int:
+        """
+        This number correpsonds to the number of tokens.
+
+        Args:
+            important_only:
+                if `True`: returns the number of Tokens with `is_important` being `True`.
+                Note: this will correspond to the number of items returned by
+                `lemmas(important_only=True)`.
+                
+                if `False`: returns the number of Tokens that are not punctuation and are not 
+                special characters.
+                Note: this will **not** correspond to the number of items returned by
+                `lemmas(important_only=False)` because those items will also include punctuation
+                corresponding to the end of a sentence.
+        """
+        if important_only:
+            return sum(t.is_important for t in self._tokens)
+        else:
+            return sum(
+                1 for t in self._tokens
+                if not t.is_punctuation and not t.is_special
+            )
 
     def to_dict(self) -> dict:
         if len(self) == 0:
@@ -105,7 +126,9 @@ class Document:
         Args:
             important_only:
                 if True, return the lemma if the Token's `is_important` property is True.
-                if False, return the lemma if the Token's `is_important` property is True.
+                if False, return the lemma if the token is not punctuation or a special character
+                (except if the token punctuation marking the end of a sentence). The reason behind
+                this is to make it easier to separate sentences via `' '.join(...)` or similar.
         """
         if important_only:
             return (t.lemma for t in self._tokens if t.is_important)
@@ -409,7 +432,7 @@ class Corpus:
     def text(self, original=True) -> Iterable[str]:
         return (d.text(original=original) for d in self.documents)
 
-    def lemmas(self, important_only: bool = True) -> Iterable[str]:
+    def lemmas(self, important_only: bool = True) -> Iterable[list]:
         """
         This function returns the lemmas of the important tokens (i.e. not a stop word and not
         punctuation).
@@ -418,22 +441,97 @@ class Corpus:
             important_only: if True, for each documment return the lemmas if the Token's
             `important` property is True.
         """
-        return (d.lemmas(important_only=important_only) for d in self.documents)
+        return (list(d.lemmas(important_only=important_only)) for d in self.documents)
 
-    def n_grams(self, n: int = 2, separator: str = '-') -> Iterable[str]:
-        return (d.n_grams(n=n, separator=separator) for d in self.documents)
+    def n_grams(self, n: int = 2, separator: str = '-') -> Iterable[list]:
+        return (list(d.n_grams(n=n, separator=separator)) for d in self.documents)
 
-    def nouns(self) -> Iterable[str]:
-        return (d.nouns() for d in self.documents)
+    def nouns(self) -> Iterable[list]:
+        return (list(d.nouns()) for d in self.documents)
 
-    def noun_phrases(self, separator: str = '-') -> Iterable[str]:
-        return (d.noun_phrases(separator=separator) for d in self.documents)
+    def noun_phrases(self, separator: str = '-') -> Iterable[list]:
+        return (list(d.noun_phrases(separator=separator)) for d in self.documents)
 
-    def adjectives_verbs(self) -> Iterable[str]:
-        return (d.adjectives_verbs() for d in self.documents)
+    def adjectives_verbs(self) -> Iterable[list]:
+        return (list(d.adjectives_verbs()) for d in self.documents)
 
-    def entities(self) -> Iterable[str]:
-        return (d.entities() for d in self.documents)
+    def entities(self) -> Iterable[list]:
+        return (list(d.entities()) for d in self.documents)
+
+    def sentiments(self) -> Iterable[float]:
+        return (x.sentiment() for x in self)
+
+    def impurities(self) -> Iterable[float]:
+        return (x.impurity() for x in self)
+
+    def text_lengths(self, original=True) -> Iterable[int]:
+        return (len(x.text(original=original)) for x in self)
+
+    def num_tokens(self, important_only=True) -> Iterable[float]:
+        return (x.num_tokens(important_only=important_only) for x in self)
+
+    def to_dataframe(self, columns: Optional[str] = None) -> pd.DataFrame:
+        """
+        Returns a DataFrame representation of the Corpus.
+
+        Args:
+            columns:
+                See code for valid column names.
+        """
+        if not columns:
+            columns = [
+                'text_original',
+                'text_clean',
+                'lemmas_important',
+                'bi_grams',
+            ]
+        valid_columns = [
+            'text_original',
+            'text_clean',
+            'lemmas_all',
+            'lemmas_important',
+            'bi_grams',
+            'nouns',
+            'noun_phrases',
+            'adjective_verbs',
+            'sentiment',
+            'impurity',
+            'text_clean_length',
+            'text_original_length',
+            'num_tokens_all',
+            'num_tokens_important_only',
+        ]
+        assert set(columns) <= set(valid_columns)
+        df = pd.DataFrame()
+        if 'text_original' in columns:
+            df['text_original'] = list(self.text(original=True))
+        if 'text_clean' in columns:
+            df['text_clean'] = list(self.text(original=False))
+        if 'lemmas_all' in columns:
+            df['lemmas_all'] = list(self.lemmas(important_only=False))
+        if 'lemmas_important' in columns:
+            df['lemmas_important'] = list(self.lemmas(important_only=True))
+        if 'bi_grams' in columns:
+            df['bi_grams'] = list(self.n_grams(n=2))
+        if 'nouns' in columns:
+            df['nouns'] = list(self.nouns())
+        if 'noun_phrases' in columns:
+            df['noun_phrases'] = list(self.noun_phrases())
+        if 'adjective_verbs' in columns:
+            df['adjective_verbs'] = list(self.adjectives_verbs())
+        if 'sentiment' in columns:
+            df['sentiment'] = list(self.sentiments())
+        if 'impurity' in columns:
+            df['impurity'] = list(self.impurities())
+        if 'text_clean_length' in columns:
+            df['text_clean_length'] = list(self.text_lengths(original=False))
+        if 'text_original_length' in columns:
+            df['text_original_length'] = list(self.text_lengths(original=True))
+        if 'num_tokens_all' in columns:
+            df['num_tokens_all'] = list(self.num_tokens(important_only=False))
+        if 'num_tokens_important_only' in columns:
+            df['num_tokens_important_only'] = list(self.num_tokens(important_only=True))
+        return df[columns]
 
     def diff(self, first_n: Optional[int] = None, use_lemmas: bool = False) -> str:
         """
@@ -483,7 +581,7 @@ class Corpus:
         if len(token_embeddings) == 0:
             return np.array([])
 
-        assert token_embeddings.shape[0] == document.num_important_tokens()
+        assert token_embeddings.shape[0] == document.num_tokens()
         lemmas = list(document.lemmas(important_only=True))
         assert len(lemmas) == token_embeddings.shape[0]
         # for each lemma (which corresponds to a row in the token_embeddings matrix) let's

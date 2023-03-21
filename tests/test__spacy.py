@@ -109,6 +109,78 @@ def test__corpus__tokens(corpus_simple_example):
         file.write(corpus[0].diff(use_lemmas=True))
 
 
+def test__corpus__attributes(corpus_simple_example):
+    # these are stupid tests but I just want to verify they run
+    assert [x.sentiment() for x in corpus_simple_example] == list(corpus_simple_example.sentiments())  # noqa
+    assert [x.impurity() for x in corpus_simple_example] == list(corpus_simple_example.impurities())  # noqa
+    assert [len(x.text(original=True)) for x in corpus_simple_example] == list(corpus_simple_example.text_lengths(original=True))  # noqa
+    assert [len(x.text(original=False)) for x in corpus_simple_example] == list(corpus_simple_example.text_lengths(original=False))  # noqa
+    assert [x.num_tokens(important_only=True) for x in corpus_simple_example] == list(corpus_simple_example.num_tokens(important_only=True))  # noqa
+    assert [x.num_tokens(important_only=False) for x in corpus_simple_example] == list(corpus_simple_example.num_tokens(important_only=False))  # noqa
+
+
+def test__corpus__to_dataframe(corpus_simple_example, documents_fake):
+    expected_columns = [
+        'text_original',
+        'text_clean',
+        'lemmas_important',
+        'bi_grams',
+    ]
+    df = corpus_simple_example.to_dataframe()
+    assert df.columns.tolist() == expected_columns
+    assert df['text_original'].tolist() == documents_fake
+    assert df['text_clean'].notna().any()
+    assert df['lemmas_important'].notna().any()
+    assert all(isinstance(x, list) for x in df['lemmas_important'])
+    assert df['bi_grams'].notna().any()
+    assert all(isinstance(x, list) for x in df['bi_grams'])
+
+    expected_columns = [
+        'text_clean',
+        'text_original',
+        'lemmas_important',
+        'lemmas_all',
+        'nouns',
+        'bi_grams',
+        'adjective_verbs',
+        'noun_phrases',
+        'impurity',
+        'sentiment',
+        'text_original_length',
+        'text_clean_length',
+        'num_tokens_important_only',
+        'num_tokens_all',
+    ]
+    df = corpus_simple_example.to_dataframe(columns=expected_columns)
+    assert df.columns.tolist() == expected_columns
+    assert df['text_original'].tolist() == documents_fake
+    assert df['text_clean'].notna().any()
+    assert df['lemmas_important'].notna().any()
+    assert all(isinstance(x, list) for x in df['lemmas_important'])
+    assert df['lemmas_all'].notna().any()
+    assert all(isinstance(x, list) for x in df['lemmas_all'])
+    assert df['nouns'].notna().any()
+    assert all(isinstance(x, list) for x in df['nouns'])
+    assert df['bi_grams'].notna().any()
+    assert all(isinstance(x, list) for x in df['bi_grams'])
+    assert df['adjective_verbs'].notna().any()
+    assert all(isinstance(x, list) for x in df['adjective_verbs'])
+    assert df['noun_phrases'].notna().any()
+    assert all(isinstance(x, list) for x in df['noun_phrases'])
+    assert df['impurity'].notna().any()
+    assert all(isinstance(x, float) for x in df['impurity'].fillna(0))
+    assert df['sentiment'].notna().any()
+    assert all(isinstance(x, float) for x in df['sentiment'].fillna(0))
+    assert df['text_original_length'].notna().any()
+    assert all(isinstance(x, int) for x in df['text_original_length'].fillna(0))
+    assert df['text_clean_length'].notna().any()
+    assert all(isinstance(x, int) for x in df['text_clean_length'].fillna(0))
+    assert df['num_tokens_important_only'].notna().any()
+    assert all(isinstance(x, int) for x in df['num_tokens_important_only'].fillna(0))
+    assert df['num_tokens_all'].notna().any()
+    assert all(isinstance(x, int) for x in df['num_tokens_all'].fillna(0))
+
+
 def test__corpus__diff(corpus_simple_example):
     corpus = corpus_simple_example
 
