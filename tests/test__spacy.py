@@ -1,5 +1,8 @@
 import pandas as pd
 
+from source.library.spacy import Corpus
+from source.library.text_preparation import clean
+
 from tests.helpers import dataframe_to_text_file, get_test_file_path
 
 
@@ -107,6 +110,56 @@ def test__corpus__tokens(corpus_simple_example):
 
     with open(get_test_file_path('spacy/document_diff__empty__use_lemmas.html'), 'w') as file:
         file.write(corpus[0].diff(use_lemmas=True))
+
+
+def test__corpus__count_lemmas():
+    documents = [
+        "This is a document it really is a document; this is sort of important",
+        "This is the #2 document.",
+        "This is the # 3 doc."
+    ]
+    corpus = Corpus(
+        pre_process=clean,
+        spacy_model='en_core_web_sm',
+    )
+    corpus.fit(documents=documents)
+    lemma_count = corpus.count_lemmas(important_only=True, min_count=2, count_once_per_doc=False)
+    assert lemma_count.to_dict()['count'] == {'document': 3, '_number_': 2}
+
+    lemma_count = corpus.count_lemmas(important_only=True, min_count=2, count_once_per_doc=True)
+    assert lemma_count.to_dict()['count'] == {'document': 2, '_number_': 2}
+
+    lemma_count = corpus.count_lemmas(important_only=True, min_count=1, count_once_per_doc=False)
+    assert lemma_count.to_dict()['count'] == {
+        'document': 3,
+        '_number_': 2,
+        'sort': 1,
+        'important': 1,
+        '#': 1,
+        'doc': 1,
+    }
+
+    lemma_count = corpus.count_lemmas(important_only=True, min_count=1, count_once_per_doc=True)
+    assert lemma_count.to_dict()['count'] == {
+        'document': 2,
+        '_number_': 2,
+        'sort': 1,
+        'important': 1,
+        '#': 1,
+        'doc': 1,
+    }
+
+    lemma_count = corpus.count_lemmas(important_only=False, min_count=1, count_once_per_doc=False)
+    assert lemma_count.to_dict()['count'] == {
+        'be': 5, 'this': 4, 'document': 3, 'a': 2, 'the': 2, '_number_': 2, '.': 2, 'it': 1,
+        'really': 1, 'sort': 1, 'of': 1, 'important': 1, 'doc': 1
+    }
+
+    lemma_count = corpus.count_lemmas(important_only=False, min_count=1, count_once_per_doc=True)
+    assert lemma_count.to_dict()['count'] == {
+        'this': 3, 'be': 3, 'document': 2, '_number_': 2, '.': 2, 'the': 2, 'it': 1, 'a': 1,
+        'sort': 1, 'important': 1, 'of': 1, 'really': 1, 'doc': 1
+    }
 
 
 def test__corpus__attributes(corpus_simple_example):
@@ -286,6 +339,7 @@ def test__corpus__to_dataframe__first_n(corpus_simple_example, documents_fake):
     assert all(isinstance(x, int) for x in df['num_tokens_important_only'].fillna(0))
     assert df['num_tokens_all'].notna().any()
     assert all(isinstance(x, int) for x in df['num_tokens_all'].fillna(0))
+
 
 def test__corpus__diff(corpus_simple_example):
     corpus = corpus_simple_example

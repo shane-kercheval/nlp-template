@@ -1,3 +1,4 @@
+from collections import Counter
 from concurrent.futures import ProcessPoolExecutor
 from functools import lru_cache, singledispatchmethod
 from itertools import islice
@@ -438,10 +439,45 @@ class Corpus:
         punctuation).
 
         Args:
-            important_only: if True, for each documment return the lemmas if the Token's
-            `important` property is True.
+            important_only:
+                if True, for each documment return the lemmas if the Token's `important` property
+                is True.
         """
         return (list(d.lemmas(important_only=important_only)) for d in self.documents)
+
+    def count_lemmas(
+            self,
+            important_only: bool = True,
+            min_count: int = 2,  # noqa
+            count_once_per_doc: bool = False) -> pd.DataFrame:
+        """
+        Returns the counts of individual lemmas in a pd.DataFrame with the lemmas as indexes and
+        the counts in a column.
+
+        Args:
+            important_only:
+                if True, for each documment return the lemmas if the Token's `important` property
+                is True.
+            min_count:
+                The number of times the lemma must appear in order to be included.
+                If `count_once_per_doc` is `True`, then this is equivalent to the number of
+                documents the lemma must appear in order to be included.
+            count_once_per_doc:
+                If `False` (default) then count every occurance of the lemma.
+                If `True`, then only count the lemma once per document. This is equivalent to the
+                number of documents the lemma appears in.
+        """
+        counter = Counter()
+        # Iterate over the lists returned by the generator and update the Counter object
+        for doc_lemmas in self.lemmas(important_only=important_only):
+            if count_once_per_doc:
+                doc_lemmas = set(doc_lemmas)
+            counter.update(doc_lemmas)
+
+        freq_df = pd.DataFrame.from_dict(counter, orient='index', columns=['count'])
+        freq_df = freq_df.query('count >= @min_count')
+        freq_df.index.name = 'token'
+        return freq_df.sort_values('count', ascending=False)
 
     def n_grams(self, n: int = 2, separator: str = '-') -> Iterable[list]:
         return (list(d.n_grams(n=n, separator=separator)) for d in self.documents)
