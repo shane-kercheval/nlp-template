@@ -454,39 +454,91 @@ class Corpus:
 
     def _count_tokens(
             self,
-            tokens,
+            tokens: list[list],
+            group_by: list,
             min_count: int,  # noqa
             count_once_per_doc: bool):
         """
         Helper function that counts various types of tokens e.g. lemmas, n_grams, etc.
 
+        Returns a dataframe of token counts.
+        Returns a column for the `token` and a column for the `count`.
+        When the `group_by` parameter is used, three additional columns will be added:
+            - `group` representing each group
+            - `token_count` representing the total token count across all groups
+            - `group_count` representing the total group count across all tokens (added before the
+                min_count is applied)
+
         Args:
-            tokens: e.g. self.lemmas(), self.n_grams(), etc.
+            tokens:
+                e.g. self.lemmas(), self.n_grams(), or other methods that return a list of values
+                for each document.
+            group_by:
+                list of values that represent categories that we want to group counts by. Must be
+                the same length as `tokens` i.e. the number of total documents.
             min_count:
                 The number of times the lemma must appear in order to be included.
                 If `count_once_per_doc` is `True`, then this is equivalent to the number of
-                documents the lemma must appear in order to be included.
+                documents the lemma must appear in order to be included. If `group_by` is also
+                true, then `min_count` still corresponds to the overall token counts (not the
+                counts within groups)
             count_once_per_doc:
                 If `False` (default) then count every occurance of the lemma.
                 If `True`, then only count the lemma once per document. This is equivalent to the
                 number of documents the lemma appears in.
         """
-        counter = Counter()
-        # Iterate over the lists returned by the generator and update the Counter object
-        for doc_tokens in tokens:
-            if count_once_per_doc:
-                doc_tokens = set(doc_tokens)
-            counter.update(doc_tokens)
+        if group_by:
+            # Create an empty dictionary to hold the counters for each group
+            group_counters = {}
 
-        freq_df = pd.DataFrame.from_dict(counter, orient='index', columns=['count'])
-        freq_df = freq_df.query('count >= @min_count')
-        freq_df.index.name = 'token'
-        return freq_df.sort_values('count', ascending=False)
+            # Iterate over both tokens/categores simultaneously and group the counts by the values
+            # produced by the second generator
+            for doc_tokens, group in zip(tokens, group_by):
+                if group not in group_counters:
+                    group_counters[group] = Counter()
+                if count_once_per_doc:
+                    doc_tokens = set(doc_tokens)
+                group_counters[group].update(doc_tokens)
+
+            # Transform the dictionary of Counters into a list of dictionaries for each row in the
+            # dataframe
+            data = []
+            for group, counter in group_counters.items():
+                for token, count in counter.items():
+                    data.append({"group": group, "token": token, "count": count})
+            df = pd.DataFrame(data)
+            # Compute the total count for each token and add as a new column to the dataframe
+            token_counts = df.groupby("token")["count"].sum()
+            df["token_count"] = df["token"].map(token_counts)
+            # Compute the total count for each group and add as a new column to the dataframe
+            group_counts = df.groupby("group")["count"].sum()
+            df["group_count"] = df["group"].map(group_counts)
+            # Filter the dataframe to include only tokens with a total count across all groups that
+            df = df.query("token_count >= @min_count")
+            return df.\
+                sort_values(['group', 'count', 'token'], ascending=[True, False, True]).\
+                reset_index(drop=True)
+        else:
+            counter = Counter()
+            # Iterate over the lists returned by the generator and update the Counter object
+            for doc_tokens in tokens:
+                if count_once_per_doc:
+                    doc_tokens = set(doc_tokens)
+                counter.update(doc_tokens)
+
+            df = pd.DataFrame.from_dict(counter, orient='index', columns=['count'])
+            df = df.query('count >= @min_count')
+            df.index.name = 'token'
+            return df.\
+                reset_index().\
+                sort_values(['count', 'token'], ascending=[False, True]).\
+                reset_index(drop=True)
 
     def count_lemmas(
             self,
             important_only: bool = True,
             min_count: int = 2,
+            group_by: Optional[list] = None,
             count_once_per_doc: bool = False) -> pd.DataFrame:
         """
         Returns the counts of individual lemmas in a pd.DataFrame with the lemmas as indexes and
@@ -500,6 +552,9 @@ class Corpus:
                 The number of times the lemma must appear in order to be included.
                 If `count_once_per_doc` is `True`, then this is equivalent to the number of
                 documents the lemma must appear in order to be included.
+            group_by:
+                list of values that represent categories that we want to group counts by. Must be
+                the same length as `tokens` i.e. the number of total documents.
             count_once_per_doc:
                 If `False` (default) then count every occurance of the lemma.
                 If `True`, then only count the lemma once per document. This is equivalent to the
@@ -508,6 +563,7 @@ class Corpus:
         return self._count_tokens(
             tokens=self.lemmas(important_only=important_only),
             min_count=min_count,
+            group_by=group_by,
             count_once_per_doc=count_once_per_doc
         )
 

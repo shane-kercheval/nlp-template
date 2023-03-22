@@ -113,6 +113,10 @@ def test__corpus__tokens(corpus_simple_example):
 
 
 def test__corpus__count_lemmas():
+    """
+    This test will also test the `group_by` parameter, but using only one group to ensure that the
+    same counts are returned.
+    """
     documents = [
         "This is a document it really is a document; this is sort of important",
         "This is the #2 document.",
@@ -123,14 +127,39 @@ def test__corpus__count_lemmas():
         spacy_model='en_core_web_sm',
     )
     corpus.fit(documents=documents)
+
     lemma_count = corpus.count_lemmas(important_only=True, min_count=2, count_once_per_doc=False)
-    assert lemma_count.to_dict()['count'] == {'document': 3, '_number_': 2}
+    assert lemma_count.set_index('token').to_dict()['count'] == {'document': 3, '_number_': 2}
+    # this group count should be equivalent to the non-group dataframe since we pass in one group
+    group_count = corpus.count_lemmas(
+        group_by=['a', 'a', 'a'],
+        important_only=True,
+        min_count=2,
+        count_once_per_doc=False
+    )
+    assert (group_count['group'] == 'a').all()
+    assert (group_count['count'] == group_count['token_count']).all()
+    group_count_values = group_count['group_count'].unique()
+    assert len(group_count_values) == 1
+    assert (group_count.drop(columns=['group', 'token_count', 'group_count']) == lemma_count).all().all()  # noqa
 
     lemma_count = corpus.count_lemmas(important_only=True, min_count=2, count_once_per_doc=True)
-    assert lemma_count.to_dict()['count'] == {'document': 2, '_number_': 2}
+    assert lemma_count.set_index('token').to_dict()['count'] == {'document': 2, '_number_': 2}
+    # this group count should be equivalent to the non-group dataframe since we pass in one group
+    group_count = corpus.count_lemmas(
+        group_by=['a', 'a', 'a'],
+        important_only=True,
+        min_count=2,
+        count_once_per_doc=True
+    )
+    assert (group_count['group'] == 'a').all()
+    assert (group_count['count'] == group_count['token_count']).all()
+    group_count_values = group_count['group_count'].unique()
+    assert len(group_count_values) == 1
+    assert (group_count.drop(columns=['group', 'token_count', 'group_count']) == lemma_count).all().all()  # noqa
 
     lemma_count = corpus.count_lemmas(important_only=True, min_count=1, count_once_per_doc=False)
-    assert lemma_count.to_dict()['count'] == {
+    assert lemma_count.set_index('token').to_dict()['count'] == {
         'document': 3,
         '_number_': 2,
         'sort': 1,
@@ -138,9 +167,21 @@ def test__corpus__count_lemmas():
         '#': 1,
         'doc': 1,
     }
+    # this group count should be equivalent to the non-group dataframe since we pass in one group
+    group_count = corpus.count_lemmas(
+        group_by=['a', 'a', 'a'],
+        important_only=True,
+        min_count=1,
+        count_once_per_doc=False
+    )
+    assert (group_count['group'] == 'a').all()
+    assert (group_count['count'] == group_count['token_count']).all()
+    group_count_values = group_count['group_count'].unique()
+    assert len(group_count_values) == 1
+    assert (group_count.drop(columns=['group', 'token_count', 'group_count']) == lemma_count).all().all()  # noqa
 
     lemma_count = corpus.count_lemmas(important_only=True, min_count=1, count_once_per_doc=True)
-    assert lemma_count.to_dict()['count'] == {
+    assert lemma_count.set_index('token').to_dict()['count'] == {
         'document': 2,
         '_number_': 2,
         'sort': 1,
@@ -148,18 +189,104 @@ def test__corpus__count_lemmas():
         '#': 1,
         'doc': 1,
     }
+    # this group count should be equivalent to the non-group dataframe since we pass in one group
+    group_count = corpus.count_lemmas(
+        group_by=['a', 'a', 'a'],
+        important_only=True,
+        min_count=1,
+        count_once_per_doc=True
+    )
+    assert (group_count['group'] == 'a').all()
+    assert (group_count['count'] == group_count['token_count']).all()
+    group_count_values = group_count['group_count'].unique()
+    assert len(group_count_values) == 1
+    assert (group_count.drop(columns=['group', 'token_count', 'group_count']) == lemma_count).all().all()  # noqa
 
     lemma_count = corpus.count_lemmas(important_only=False, min_count=1, count_once_per_doc=False)
-    assert lemma_count.to_dict()['count'] == {
+    assert lemma_count.set_index('token').to_dict()['count'] == {
         'be': 5, 'this': 4, 'document': 3, 'a': 2, 'the': 2, '_number_': 2, '.': 2, 'it': 1,
         'really': 1, 'sort': 1, 'of': 1, 'important': 1, 'doc': 1
     }
+    # this group count should be equivalent to the non-group dataframe since we pass in one group
+    group_count = corpus.count_lemmas(
+        group_by=['a', 'a', 'a'],
+        important_only=False,
+        min_count=1,
+        count_once_per_doc=False
+    )
+    assert (group_count['group'] == 'a').all()
+    assert (group_count['count'] == group_count['token_count']).all()
+    group_count_values = group_count['group_count'].unique()
+    assert len(group_count_values) == 1
+    assert (group_count.drop(columns=['group', 'token_count', 'group_count']) == lemma_count).all().all()  # noqa
 
     lemma_count = corpus.count_lemmas(important_only=False, min_count=1, count_once_per_doc=True)
-    assert lemma_count.to_dict()['count'] == {
+    assert lemma_count.set_index('token').to_dict()['count'] == {
         'this': 3, 'be': 3, 'document': 2, '_number_': 2, '.': 2, 'the': 2, 'it': 1, 'a': 1,
         'sort': 1, 'important': 1, 'of': 1, 'really': 1, 'doc': 1
     }
+    # this group count should be equivalent to the non-group dataframe since we pass in one group
+    group_count = corpus.count_lemmas(
+        group_by=['a', 'a', 'a'],
+        important_only=False,
+        min_count=1,
+        count_once_per_doc=True
+    )
+    assert (group_count['group'] == 'a').all()
+    assert (group_count['count'] == group_count['token_count']).all()
+    group_count_values = group_count['group_count'].unique()
+    assert len(group_count_values) == 1
+    assert (group_count.drop(columns=['group', 'token_count', 'group_count']) == lemma_count).all().all()  # noqa
+
+
+def test__corpus__count_lemmas__group_by():
+    documents = [
+        "This is a doc. It's not really important. Shazam."
+        "This is a document it really is a document; this is sort of important",
+        "This is the #2 document.",
+        "This is the # 3 doc."
+    ]
+    corpus = Corpus(
+        pre_process=clean,
+        spacy_model='en_core_web_sm',
+    )
+    corpus.fit(documents=documents)
+    lemma_count = corpus.count_lemmas(
+        important_only=True,
+        min_count=2,
+        group_by=['a', 'b', 'b', 'a'],
+        count_once_per_doc=False
+    )
+    assert (lemma_count['token_count'] >= 2).all()
+    assert lemma_count.groupby('group')['group_count'].unique().apply(lambda x: len(x) == 1).all()
+    expected_dict = {
+        'group': {0: 'a', 1: 'a', 2: 'a', 3: 'b', 4: 'b', 5: 'b'},
+        'token': {0: 'document', 1: 'important', 2: 'doc', 3: '_number_', 4: 'doc', 5: 'document'},
+        'count': {0: 2, 1: 2, 2: 1, 3: 2, 4: 1, 5: 1},
+        'token_count': {0: 3, 1: 2, 2: 2, 3: 2, 4: 2, 5: 3},
+        'group_count': {0: 7, 1: 7, 2: 7, 3: 5, 4: 5, 5: 5}
+    }
+    assert lemma_count.to_dict() == expected_dict
+
+    lemma_count = corpus.count_lemmas(
+        important_only=True,
+        min_count=1,
+        group_by=['a', 'b', 'b', 'a'],
+        count_once_per_doc=False
+    )
+    assert (lemma_count['token_count'] >= 1).all()
+    assert lemma_count.groupby('group')['group_count'].unique().apply(lambda x: len(x) == 1).all()
+    expected_dict = {
+        'group': {0: 'a', 1: 'a', 2: 'a', 3: 'a', 4: 'a', 5: 'b', 6: 'b', 7: 'b', 8: 'b'},
+        'token': {
+            0: 'document', 1: 'important', 2: 'doc', 3: 'shazam', 4: 'sort',
+            5: '_number_', 6: '#', 7: 'doc', 8: 'document'
+        },
+        'count': {0: 2, 1: 2, 2: 1, 3: 1, 4: 1, 5: 2, 6: 1, 7: 1, 8: 1},
+        'token_count': {0: 3, 1: 2, 2: 2, 3: 1, 4: 1, 5: 2, 6: 1, 7: 2, 8: 3},
+        'group_count': {0: 7, 1: 7, 2: 7, 3: 7, 4: 7, 5: 5, 6: 5, 7: 5, 8: 5}
+    }
+    assert lemma_count.to_dict() == expected_dict
 
 
 def test__corpus__count_n_grams():
