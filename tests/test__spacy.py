@@ -184,6 +184,108 @@ def test__corpus__to_dataframe(corpus_simple_example, documents_fake):
     assert df['num_tokens_all'].notna().any()
     assert all(isinstance(x, int) for x in df['num_tokens_all'].fillna(0))
 
+    expected_columns = [
+        'text_original',
+        'text_clean',
+        'lemmas_all',
+        'lemmas_important',
+        'bi_grams',
+        'nouns',
+        'noun_phrases',
+        'adjective_verbs',
+        'sentiment',
+        'impurity_original',
+        'impurity_clean',
+        'text_clean_length',
+        'text_original_length',
+        'num_tokens_all',
+        'num_tokens_important_only',
+    ]
+    df = corpus_simple_example.to_dataframe(columns='all')
+    assert df.columns.tolist() == expected_columns
+    assert df['text_original'].tolist() == documents_fake
+    assert df['text_clean'].notna().any()
+    assert df['lemmas_important'].notna().any()
+    assert all(isinstance(x, list) for x in df['lemmas_important'])
+    assert df['lemmas_all'].notna().any()
+    assert all(isinstance(x, list) for x in df['lemmas_all'])
+    assert df['nouns'].notna().any()
+    assert all(isinstance(x, list) for x in df['nouns'])
+    assert df['bi_grams'].notna().any()
+    assert all(isinstance(x, list) for x in df['bi_grams'])
+    assert df['adjective_verbs'].notna().any()
+    assert all(isinstance(x, list) for x in df['adjective_verbs'])
+    assert df['noun_phrases'].notna().any()
+    assert all(isinstance(x, list) for x in df['noun_phrases'])
+    assert df['impurity_original'].notna().any()
+    assert all(isinstance(x, float) for x in df['impurity_original'].fillna(0))
+    assert df['impurity_clean'].notna().any()
+    assert all(isinstance(x, float) for x in df['impurity_clean'].fillna(0))
+    assert df['sentiment'].notna().any()
+    assert all(isinstance(x, float) for x in df['sentiment'].fillna(0))
+    assert df['text_original_length'].notna().any()
+    assert all(isinstance(x, int) for x in df['text_original_length'].fillna(0))
+    assert df['text_clean_length'].notna().any()
+    assert all(isinstance(x, int) for x in df['text_clean_length'].fillna(0))
+    assert df['num_tokens_important_only'].notna().any()
+    assert all(isinstance(x, int) for x in df['num_tokens_important_only'].fillna(0))
+    assert df['num_tokens_all'].notna().any()
+    assert all(isinstance(x, int) for x in df['num_tokens_all'].fillna(0))
+
+
+def test__corpus__to_dataframe__first_n(corpus_simple_example, documents_fake):
+    df_full = corpus_simple_example.to_dataframe(columns='all')
+    expected_columns = [
+        'text_original',
+        'text_clean',
+        'lemmas_all',
+        'lemmas_important',
+        'bi_grams',
+        'nouns',
+        'noun_phrases',
+        'adjective_verbs',
+        'sentiment',
+        'impurity_original',
+        'impurity_clean',
+        'text_clean_length',
+        'text_original_length',
+        'num_tokens_all',
+        'num_tokens_important_only',
+    ]
+    df = corpus_simple_example.to_dataframe(columns='all', first_n=2)
+    assert len(df) == 2
+    assert (df_full.iloc[0:2].isna() == df.isna()).all().all()
+    assert (df_full.iloc[0:2].notna() == df.notna()).all().all()
+    assert (df_full.iloc[0:2].fillna(-10) == df.fillna(-10)).all().all()
+    assert df.columns.tolist() == expected_columns
+    assert df['text_original'].tolist() == documents_fake[0:2]
+    assert df['text_clean'].notna().any()
+    assert df['lemmas_important'].notna().any()
+    assert all(isinstance(x, list) for x in df['lemmas_important'])
+    assert df['lemmas_all'].notna().any()
+    assert all(isinstance(x, list) for x in df['lemmas_all'])
+    assert df['nouns'].notna().any()
+    assert all(isinstance(x, list) for x in df['nouns'])
+    assert df['bi_grams'].notna().any()
+    assert all(isinstance(x, list) for x in df['bi_grams'])
+    assert df['adjective_verbs'].notna().any()
+    assert all(isinstance(x, list) for x in df['adjective_verbs'])
+    assert df['noun_phrases'].notna().any()
+    assert all(isinstance(x, list) for x in df['noun_phrases'])
+    assert df['impurity_original'].notna().any()
+    assert all(isinstance(x, float) for x in df['impurity_original'].fillna(0))
+    assert df['impurity_clean'].notna().any()
+    assert all(isinstance(x, float) for x in df['impurity_clean'].fillna(0))
+    assert df['sentiment'].notna().any()
+    assert all(isinstance(x, float) for x in df['sentiment'].fillna(0))
+    assert df['text_original_length'].notna().any()
+    assert all(isinstance(x, int) for x in df['text_original_length'].fillna(0))
+    assert df['text_clean_length'].notna().any()
+    assert all(isinstance(x, int) for x in df['text_clean_length'].fillna(0))
+    assert df['num_tokens_important_only'].notna().any()
+    assert all(isinstance(x, int) for x in df['num_tokens_important_only'].fillna(0))
+    assert df['num_tokens_all'].notna().any()
+    assert all(isinstance(x, int) for x in df['num_tokens_all'].fillna(0))
 
 def test__corpus__diff(corpus_simple_example):
     corpus = corpus_simple_example

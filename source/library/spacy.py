@@ -1,6 +1,6 @@
 from concurrent.futures import ProcessPoolExecutor
 from functools import lru_cache, singledispatchmethod
-import itertools
+from itertools import islice
 from typing import Callable, Iterable, Optional, Union
 
 import pandas as pd
@@ -415,11 +415,11 @@ class Corpus:
 
     def _prepare_doc_for_vectorizer(self, document: Document) -> str:
         max_lemmas = self._max_tokens or len(document)
-        lemmas = itertools.islice(document.lemmas(important_only=True), max_lemmas)
+        lemmas = islice(document.lemmas(important_only=True), max_lemmas)
         vectorizer_text = ' '.join(lemmas)
         if self._include_bi_grams:
             max_bi_grams = self._max_bi_grams or len(document)
-            bi_grams = itertools.islice(document.n_grams(n=2), max_bi_grams)
+            bi_grams = islice(document.n_grams(n=2), max_bi_grams)
             bi_grams = ' '.join(bi_grams)
             vectorizer_text += ' ' + bi_grams
 
@@ -476,21 +476,23 @@ class Corpus:
     def num_tokens(self, important_only=True) -> Iterable[float]:
         return (x.num_tokens(important_only=important_only) for x in self)
 
-    def to_dataframe(self, columns: Optional[str] = None) -> pd.DataFrame:
+    def to_dataframe(
+            self,
+            columns: Optional[str] = None,
+            first_n: Optional[int] = None) -> pd.DataFrame:
         """
         Returns a DataFrame representation of the Corpus.
 
         Args:
             columns:
                 See code for valid column names.
+                use the value `all` to return all columns.
+            first_n:
+                only return the `first_n` documents.
         """
-        if not columns:
-            columns = [
-                'text_original',
-                'text_clean',
-                'lemmas_important',
-                'bi_grams',
-            ]
+        if not first_n:
+            first_n = len(self)
+
         valid_columns = [
             'text_original',
             'text_clean',
@@ -508,38 +510,48 @@ class Corpus:
             'num_tokens_all',
             'num_tokens_important_only',
         ]
+        if not columns:
+            columns = [
+                'text_original',
+                'text_clean',
+                'lemmas_important',
+                'bi_grams',
+            ]
+        elif columns == 'all':
+            columns = valid_columns
+
         assert set(columns) <= set(valid_columns)
         df = pd.DataFrame()
         if 'text_original' in columns:
-            df['text_original'] = list(self.text(original=True))
+            df['text_original'] = list(islice(self.text(original=True), first_n))
         if 'text_clean' in columns:
-            df['text_clean'] = list(self.text(original=False))
+            df['text_clean'] = list(islice(self.text(original=False), first_n))
         if 'lemmas_all' in columns:
-            df['lemmas_all'] = list(self.lemmas(important_only=False))
+            df['lemmas_all'] = list(islice(self.lemmas(important_only=False), first_n))
         if 'lemmas_important' in columns:
-            df['lemmas_important'] = list(self.lemmas(important_only=True))
+            df['lemmas_important'] = list(islice(self.lemmas(important_only=True), first_n))
         if 'bi_grams' in columns:
-            df['bi_grams'] = list(self.n_grams(n=2))
+            df['bi_grams'] = list(islice(self.n_grams(n=2), first_n))
         if 'nouns' in columns:
-            df['nouns'] = list(self.nouns())
+            df['nouns'] = list(islice(self.nouns(), first_n))
         if 'noun_phrases' in columns:
-            df['noun_phrases'] = list(self.noun_phrases())
+            df['noun_phrases'] = list(islice(self.noun_phrases(), first_n))
         if 'adjective_verbs' in columns:
-            df['adjective_verbs'] = list(self.adjectives_verbs())
+            df['adjective_verbs'] = list(islice(self.adjectives_verbs(), first_n))
         if 'sentiment' in columns:
-            df['sentiment'] = list(self.sentiments())
+            df['sentiment'] = list(islice(self.sentiments(), first_n))
         if 'impurity_original' in columns:
-            df['impurity_original'] = list(self.impurities(original=True))
+            df['impurity_original'] = list(islice(self.impurities(original=True), first_n))
         if 'impurity_clean' in columns:
-            df['impurity_clean'] = list(self.impurities(original=False))
+            df['impurity_clean'] = list(islice(self.impurities(original=False), first_n))
         if 'text_original_length' in columns:
-            df['text_original_length'] = list(self.text_lengths(original=True))
+            df['text_original_length'] = list(islice(self.text_lengths(original=True), first_n))
         if 'text_clean_length' in columns:
-            df['text_clean_length'] = list(self.text_lengths(original=False))
+            df['text_clean_length'] = list(islice(self.text_lengths(original=False), first_n))
         if 'num_tokens_all' in columns:
-            df['num_tokens_all'] = list(self.num_tokens(important_only=False))
+            df['num_tokens_all'] = list(islice(self.num_tokens(important_only=False), first_n))
         if 'num_tokens_important_only' in columns:
-            df['num_tokens_important_only'] = list(self.num_tokens(important_only=True))
+            df['num_tokens_important_only'] = list(islice(self.num_tokens(important_only=True), first_n))  # noqa
         return df[columns]
 
     def diff(self, first_n: Optional[int] = None, use_lemmas: bool = False) -> str:
@@ -558,10 +570,10 @@ class Corpus:
             first_n = len(self.documents)
 
         if use_lemmas:
-            _lemmas = itertools.islice(self.lemmas(important_only=False), first_n)
+            _lemmas = islice(self.lemmas(important_only=False), first_n)
             text_b = [' '.join(x) for x in _lemmas]
         else:
-            _documents = itertools.islice(self.documents, first_n)
+            _documents = islice(self.documents, first_n)
             text_b = [x.text(original=False) for x in _documents]
 
         return diff_text(
