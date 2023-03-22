@@ -17,9 +17,9 @@ def test__corpus__empty_string(corpus_simple_example, documents_fake):
     assert corpus[4].text(original=True) == '  '
     assert corpus[4].text(original=False) == ''
 
-    assert corpus[0].num_important_tokens() == 0
-    assert corpus[2].num_important_tokens() == 0
-    assert corpus[4].num_important_tokens() == 0
+    assert corpus[0].num_tokens(important_only=True) == 0
+    assert corpus[2].num_tokens(important_only=True) == 0
+    assert corpus[4].num_tokens(important_only=True) == 0
 
     assert list(corpus[0].lemmas(important_only=True)) == []
     assert list(corpus[0].lemmas(important_only=False)) == []
@@ -302,13 +302,13 @@ def test__corpus__count_n_grams():
     )
     corpus.fit(documents=documents)
     bi_gram_count = corpus.count_n_grams(n=2, min_count=2, count_once_per_doc=False)
-    assert bi_gram_count.to_dict()['count'] == {'important-document': 3}
+    assert bi_gram_count.set_index('token').to_dict()['count'] == {'important-document': 3}
 
     bi_gram_count = corpus.count_n_grams(n=2, separator='|', min_count=1, count_once_per_doc=False)
-    assert bi_gram_count.to_dict()['count'] == {'important|document': 3, 'unimportant|document': 1}
+    assert bi_gram_count.set_index('token').to_dict()['count'] == {'important|document': 3, 'unimportant|document': 1}  # noqa
 
     bi_gram_count = corpus.count_n_grams(n=2, separator='|', min_count=1, count_once_per_doc=True)
-    assert bi_gram_count.to_dict()['count'] == {'important|document': 2, 'unimportant|document': 1}
+    assert bi_gram_count.set_index('token').to_dict()['count'] == {'important|document': 2, 'unimportant|document': 1}  # noqa
 
     tri_gram_count = corpus.count_n_grams(n=3, min_count=1, count_once_per_doc=False)
     assert len(tri_gram_count) == 0
@@ -522,7 +522,7 @@ def test__corpus__embeddings(corpus_simple_example):
     embedding_shape = corpus[1][0].embeddings.shape
     assert embedding_shape[0] > 0
     assert corpus[1].embeddings().shape == embedding_shape
-    assert all([d.token_embeddings().shape  == (d.num_important_tokens(), embedding_shape[0]) for d in non_empty_corpi])  # noqa
+    assert all([d.token_embeddings().shape  == (d.num_tokens(important_only=True), embedding_shape[0]) for d in non_empty_corpi])  # noqa
     assert all((d.embeddings() > 0).any() for d in non_empty_corpi)
 
     expected_embeddings_length = corpus[1][0].embeddings.shape[0]
@@ -587,15 +587,15 @@ def test__corpus__vectorizers(corpus_simple_example, documents_fake):
     assert corpus.count_matrix().shape[0] == len(corpus)
     count_matrix = corpus.count_matrix().toarray()
     assert (count_matrix > 0).any()
-    assert len(corpus.count_vocabulary()) == corpus.count_matrix().shape[1]
+    assert len(corpus.count_vectorizer_vocab()) == corpus.count_matrix().shape[1]
     _count_df = pd.DataFrame(count_matrix)
-    _count_df.columns = corpus.count_vocabulary()
+    _count_df.columns = corpus.count_vectorizer_vocab()
     dataframe_to_text_file(
         _count_df.transpose(),
         get_test_file_path('spacy/corpus__count_matrix__sample.txt')
     )
     empty_text_vector = corpus.text_to_count_vector(text='').toarray()[0]
-    assert empty_text_vector.shape == (len(corpus.count_vocabulary()), )
+    assert empty_text_vector.shape == (len(corpus.count_vectorizer_vocab()), )
     assert (empty_text_vector == 0).all()
     # text text_to_count_vector by confirming if we pass in the same text we originally passed in
     # then it will get processed and vectorized in the same way and therefore have the same vector
@@ -611,19 +611,19 @@ def test__corpus__vectorizers(corpus_simple_example, documents_fake):
     ####
     assert corpus.tf_idf_matrix().shape[0] == len(corpus)
     assert corpus.count_matrix().shape == corpus.tf_idf_matrix().shape
-    assert len(corpus.tf_idf_vocabulary()) == corpus.tf_idf_matrix().shape[1]
-    assert (corpus.count_vocabulary() == corpus.tf_idf_vocabulary()).all()
+    assert len(corpus.tf_idf_vectorizer_vocab()) == corpus.tf_idf_matrix().shape[1]
+    assert (corpus.count_vectorizer_vocab() == corpus.tf_idf_vectorizer_vocab()).all()
 
     tf_idf_matrix = corpus.tf_idf_matrix().toarray()
     assert (tf_idf_matrix > 0).any()
     _tf_idf_df = pd.DataFrame(tf_idf_matrix)
-    _tf_idf_df.columns = corpus.tf_idf_vocabulary()
+    _tf_idf_df.columns = corpus.tf_idf_vectorizer_vocab()
     dataframe_to_text_file(
         _tf_idf_df.transpose(),
         get_test_file_path('spacy/corpus__tf_idf_matrix__sample.txt')
     )
     empty_text_vector = corpus.text_to_tf_idf_vector(text='').toarray()[0]
-    assert empty_text_vector.shape == (len(corpus.tf_idf_vocabulary()), )
+    assert empty_text_vector.shape == (len(corpus.tf_idf_vectorizer_vocab()), )
     assert (empty_text_vector == 0).all()
     # text text_to_tf_idf_vector by confirming if we pass in the same text we originally passed in
     # then it will get processed and vectorized in the same way and therefore have the same vector
@@ -888,7 +888,7 @@ def test__corpus__embeddings__reddit(corpus_reddit):
     embedding_shape = corpus[0][0].embeddings.shape
     assert embedding_shape[0] > 0
     assert corpus[1].embeddings().shape == embedding_shape
-    assert all([d.token_embeddings().shape  == (d.num_important_tokens(), embedding_shape[0]) for d in corpus])  # noqa
+    assert all([d.token_embeddings().shape  == (d.num_tokens(important_only=True), embedding_shape[0]) for d in corpus])  # noqa
     assert all((d.embeddings() > 0).any() for d in corpus)
 
     expected_embeddings_length = corpus[1][0].embeddings.shape[0]
@@ -918,9 +918,9 @@ def test__corpus__vectorizers__reddit(corpus_reddit, reddit):
     assert corpus.count_matrix().shape[0] == len(corpus)
     count_matrix = corpus.count_matrix().toarray()
     assert (count_matrix > 0).any()
-    assert len(corpus.count_vocabulary()) == corpus.count_matrix().shape[1]
+    assert len(corpus.count_vectorizer_vocab()) == corpus.count_matrix().shape[1]
     empty_text_vector = corpus.text_to_count_vector(text='').toarray()[0]
-    assert empty_text_vector.shape == (len(corpus.count_vocabulary()), )
+    assert empty_text_vector.shape == (len(corpus.count_vectorizer_vocab()), )
     assert (empty_text_vector == 0).all()
     # text text_to_count_vector by confirming if we pass in the same text we originally passed in
     # then it will get processed and vectorized in the same way and therefore have the same vector
@@ -937,15 +937,15 @@ def test__corpus__vectorizers__reddit(corpus_reddit, reddit):
     ####
     assert corpus.tf_idf_matrix().shape[0] == len(corpus)
     assert corpus.count_matrix().shape == corpus.tf_idf_matrix().shape
-    assert len(corpus.tf_idf_vocabulary()) == corpus.tf_idf_matrix().shape[1]
-    assert (corpus.count_vocabulary() == corpus.tf_idf_vocabulary()).all()
+    assert len(corpus.tf_idf_vectorizer_vocab()) == corpus.tf_idf_matrix().shape[1]
+    assert (corpus.count_vectorizer_vocab() == corpus.tf_idf_vectorizer_vocab()).all()
 
     tf_idf_matrix = corpus.tf_idf_matrix().toarray()
     assert (tf_idf_matrix > 0).any()
     _tf_idf_df = pd.DataFrame(tf_idf_matrix)
-    _tf_idf_df.columns = corpus.tf_idf_vocabulary()
+    _tf_idf_df.columns = corpus.tf_idf_vectorizer_vocab()
     empty_text_vector = corpus.text_to_tf_idf_vector(text='').toarray()[0]
-    assert empty_text_vector.shape == (len(corpus.tf_idf_vocabulary()), )
+    assert empty_text_vector.shape == (len(corpus.tf_idf_vectorizer_vocab()), )
     assert (empty_text_vector == 0).all()
     # text text_to_tf_idf_vector by confirming if we pass in the same text we originally passed in
     # then it will get processed and vectorized in the same way and therefore have the same vector

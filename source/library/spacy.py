@@ -758,7 +758,7 @@ class Corpus:
         # token. So if a particular token appears multiple times in a doc it will get weighted
         # multple times
         idf_lookup = dict(zip(
-            self.tf_idf_vocabulary(),
+            self.tf_idf_vectorizer_vocab(),
             self._tf_idf_vectorizer().idf_
         ))
         # each row in `token_embeddings` matrix corresponds to a lemma in
@@ -839,7 +839,7 @@ class Corpus:
         vectorizer_text = self._prepare_doc_for_vectorizer(document=document)
         return self._count_vectorizer().transform([vectorizer_text])
 
-    def count_vocabulary(self):
+    def count_vectorizer_vocab(self):
         return self._count_vectorizer().get_feature_names_out()
 
     def count_matrix(self):
@@ -864,7 +864,8 @@ class Corpus:
         vectorizer_text = self._prepare_doc_for_vectorizer(document=document)
         return self._tf_idf_vectorizer().transform([vectorizer_text])
 
-    def tf_idf_vocabulary(self):
+    def tf_idf_vectorizer_vocab(self):
+        """"""
         return self._tf_idf_vectorizer().get_feature_names_out()
 
     def tf_idf_matrix(self):
@@ -872,29 +873,29 @@ class Corpus:
             _ = self._tf_idf_vectorizer()  # run vectorizer and initial matrix
         return self._tf_idf_matrix
 
-    def token_count(self, groups: list) -> pd.DataFrame:
-        """
-        The value in index `i` in `groups` corresponds to document `i` in the corpus; groups must
-        pass list of values equal to the amount of documents in teh corpus.
-        """
-        df = pd.DataFrame(dict(
-            tokens=self.count_vocabulary(),
-            count=self.count_matrix().sum(axis=0).A1,
-        ))
-        df.sort_values('count', ascending=False, inplace=True)
-        return df
+    # def token_count(self, groups: list) -> pd.DataFrame:
+    #     """
+    #     The value in index `i` in `groups` corresponds to document `i` in the corpus; groups must
+    #     pass list of values equal to the amount of documents in teh corpus.
+    #     """
+    #     df = pd.DataFrame(dict(
+    #         tokens=self.count_vocabulary(),
+    #         count=self.count_matrix().sum(axis=0).A1,
+    #     ))
+    #     df.sort_values('count', ascending=False, inplace=True)
+    #     return df
 
-    def tf_idf(self, groups: list) -> pd.DataFrame:
-        """
-        The value in index `i` in `groups` corresponds to document `i` in the corpus; groups must
-        pass list of values equal to the amount of documents in teh corpus.
-        """
-        df = pd.DataFrame(dict(
-            tokens=self.tf_idf_vocabulary(),
-            tf_idf=self.tf_idf_matrix().sum(axis=0).A1,
-        ))
-        df.sort_values('tf_idf', ascending=False, inplace=True)
-        return df
+    # def tf_idf(self, groups: list) -> pd.DataFrame:
+    #     """
+    #     The value in index `i` in `groups` corresponds to document `i` in the corpus; groups must
+    #     pass list of values equal to the amount of documents in teh corpus.
+    #     """
+    #     df = pd.DataFrame(dict(
+    #         tokens=self.tf_idf_vocabulary(),
+    #         tf_idf=self.tf_idf_matrix().sum(axis=0).A1,
+    #     ))
+    #     df.sort_values('tf_idf', ascending=False, inplace=True)
+    #     return df
 
     @lru_cache()
     def similarity_matrix(self, how: str):
