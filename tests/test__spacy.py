@@ -162,6 +162,31 @@ def test__corpus__count_lemmas():
     }
 
 
+def test__corpus__count_n_grams():
+    documents = [
+        "This is an important document it really is an important document; it's not an unimportant document.",  # noqa
+        "This is the #2 important document.",
+        "This is the # 3 doc."
+    ]
+    corpus = Corpus(
+        stop_words_to_add={'_number_'},
+        pre_process=clean,
+        spacy_model='en_core_web_sm',
+    )
+    corpus.fit(documents=documents)
+    bi_gram_count = corpus.count_n_grams(n=2, min_count=2, count_once_per_doc=False)
+    assert bi_gram_count.to_dict()['count'] == {'important-document': 3}
+
+    bi_gram_count = corpus.count_n_grams(n=2, separator='|', min_count=1, count_once_per_doc=False)
+    assert bi_gram_count.to_dict()['count'] == {'important|document': 3, 'unimportant|document': 1}
+
+    bi_gram_count = corpus.count_n_grams(n=2, separator='|', min_count=1, count_once_per_doc=True)
+    assert bi_gram_count.to_dict()['count'] == {'important|document': 2, 'unimportant|document': 1}
+
+    tri_gram_count = corpus.count_n_grams(n=3, min_count=1, count_once_per_doc=False)
+    assert len(tri_gram_count) == 0
+
+
 def test__corpus__attributes(corpus_simple_example):
     # these are stupid tests but I just want to verify they run
     assert [x.sentiment() for x in corpus_simple_example] == list(corpus_simple_example.sentiments())  # noqa
