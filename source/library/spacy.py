@@ -582,6 +582,7 @@ class Corpus:
             n: int = 2,
             min_count: int = 2,
             separator: str = '-',
+            group_by: Optional[list] = None,
             count_once_per_doc: bool = False) -> pd.DataFrame:
         """
         Returns the counts of n_grams in a pd.DataFrame with the lemmas as indexes and
@@ -595,6 +596,9 @@ class Corpus:
                 The number of times the lemma must appear in order to be included.
                 If `count_once_per_doc` is `True`, then this is equivalent to the number of
                 documents the lemma must appear in order to be included.
+            group_by:
+                list of values that represent categories that we want to group counts by. Must be
+                the same length as `tokens` i.e. the number of total documents.
             count_once_per_doc:
                 If `False` (default) then count every occurance of the lemma.
                 If `True`, then only count the lemma once per document. This is equivalent to the
@@ -603,6 +607,7 @@ class Corpus:
         return self._count_tokens(
             tokens=self.n_grams(n=n, separator=separator),
             min_count=min_count,
+            group_by=group_by,
             count_once_per_doc=count_once_per_doc
         )
 
