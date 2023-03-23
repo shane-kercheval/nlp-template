@@ -1092,15 +1092,6 @@ class Corpus:
         assert len(index_ranks) == len(similarities[index_ranks])
         return index_ranks[0:top_n], similarities[index_ranks][0:top_n]
 
-    def plot_word_cloud():
-        pass
-
-    def find_context():
-        pass
-
-    # def __str__(self) -> str:
-    #     return [t.text for t in self.tokens]
-
     def __len__(self):
         return len(self.documents)
 
