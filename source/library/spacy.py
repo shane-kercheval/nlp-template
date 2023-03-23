@@ -18,6 +18,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from helpsk.diff import diff_text
 import source.library.regex_patterns as rp
+from source.library.text_analysis import tf_idf
 
 
 STOP_WORDS_DEFAULT = sw.STOP_WORDS.copy()
@@ -567,21 +568,61 @@ class Corpus:
             count_once_per_doc=count_once_per_doc
         )
 
+    def tf_idf_lemmas(
+            self,
+            important_only: bool = True,
+            min_count: int = 2,
+            group_by: Optional[list] = None) -> pd.DataFrame:
+        """
+        Returns the counts of individual lemmas in a pd.DataFrame with the lemmas as indexes and
+        the counts in a column.
+
+        Args:
+            important_only:
+                if True, for each documment return the lemmas if the Token's `important` property
+                is True.
+            min_count:
+                The number of times the lemma must appear in order to be included.
+                If `count_once_per_doc` is `True`, then this is equivalent to the number of
+                documents the lemma must appear in order to be included.
+            group_by:
+                list of values that represent categories that we want to group counts by. Must be
+                the same length as `tokens` i.e. the number of total documents.
+        """
+        df = pd.DataFrame({'token': self.lemmas(important_only=important_only)})
+        if group_by:
+            df['group'] = group_by
+            group_by_column = 'group'
+        else:
+            group_by_column = None
+
+        return tf_idf(
+                df=df,
+                tokens_column='token',
+                segment_columns=group_by_column,
+                min_frequency_document=1,
+                min_frequency_corpus=min_count,
+            ).\
+            reset_index().\
+            rename(columns={'frequency': 'count', 'tf-idf': 'tf_idf'}).\
+            sort_values(['tf_idf', 'count', 'token'], ascending=[False, False, True]).\
+            reset_index(drop=True)
+
     def n_grams(self, n: int = 2, separator: str = '-') -> Iterable[list]:
         """
         Returns n-grams for each document.
 
         Args:
             n: the number of grams e.g. 2 is bi-gram, 3 is tri-gram
-            separator: the string to separate the 
+            separator: the string to separate the tokens
         """
         return (list(d.n_grams(n=n, separator=separator)) for d in self.documents)
 
     def count_n_grams(
             self,
             n: int = 2,
-            min_count: int = 2,
             separator: str = '-',
+            min_count: int = 2,
             group_by: Optional[list] = None,
             count_once_per_doc: bool = False) -> pd.DataFrame:
         """
@@ -589,9 +630,10 @@ class Corpus:
         the counts in a column.
 
         Args:
-            important_only:
-                if True, for each documment return the lemmas if the Token's `important` property
-                is True.
+            n:
+                the number of grams e.g. 2 is bi-gram, 3 is tri-gram
+            separator:
+                the string to separate the tokens
             min_count:
                 The number of times the lemma must appear in order to be included.
                 If `count_once_per_doc` is `True`, then this is equivalent to the number of
@@ -609,6 +651,37 @@ class Corpus:
             min_count=min_count,
             group_by=group_by,
             count_once_per_doc=count_once_per_doc
+        )
+
+    def tf_idf_n_grams(
+            self,
+            n: int = 2,
+            separator: str = '-',
+            min_count: int = 2,
+            group_by: Optional[list] = None) -> pd.DataFrame:
+        """
+        Returns the counts of individual lemmas in a pd.DataFrame with the lemmas as indexes and
+        the counts in a column.
+
+        Args:
+            n:
+                the number of grams e.g. 2 is bi-gram, 3 is tri-gram
+            separator:
+                the string to separate the tokens
+            min_count:
+                The number of times the lemma must appear in order to be included.
+                If `count_once_per_doc` is `True`, then this is equivalent to the number of
+                documents the lemma must appear in order to be included.
+            group_by:
+                list of values that represent categories that we want to group counts by. Must be
+                the same length as `tokens` i.e. the number of total documents.
+        """
+        return tf_idf(
+            df=pd.DataFrame({'token': self.n_grams(n=n, separator=separator)}),
+            tokens_column='token',
+            segment_columns=group_by,
+            min_frequency_document=1,
+            min_frequency_corpus=min_count,
         )
 
     def nouns(self) -> Iterable[list]:
