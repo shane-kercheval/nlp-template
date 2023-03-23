@@ -982,30 +982,6 @@ class Corpus:
             _ = self._tf_idf_vectorizer()  # run vectorizer and initial matrix
         return self._tf_idf_matrix
 
-    # def token_count(self, groups: list) -> pd.DataFrame:
-    #     """
-    #     The value in index `i` in `groups` corresponds to document `i` in the corpus; groups must
-    #     pass list of values equal to the amount of documents in teh corpus.
-    #     """
-    #     df = pd.DataFrame(dict(
-    #         tokens=self.count_vocabulary(),
-    #         count=self.count_matrix().sum(axis=0).A1,
-    #     ))
-    #     df.sort_values('count', ascending=False, inplace=True)
-    #     return df
-
-    # def tf_idf(self, groups: list) -> pd.DataFrame:
-    #     """
-    #     The value in index `i` in `groups` corresponds to document `i` in the corpus; groups must
-    #     pass list of values equal to the amount of documents in teh corpus.
-    #     """
-    #     df = pd.DataFrame(dict(
-    #         tokens=self.tf_idf_vocabulary(),
-    #         tf_idf=self.tf_idf_matrix().sum(axis=0).A1,
-    #     ))
-    #     df.sort_values('tf_idf', ascending=False, inplace=True)
-    #     return df
-
     @lru_cache()
     def similarity_matrix(self, how: str):
         """
