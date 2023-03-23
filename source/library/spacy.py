@@ -96,8 +96,8 @@ class Document:
                 if `True`: returns the number of Tokens with `is_important` being `True`.
                 Note: this will correspond to the number of items returned by
                 `lemmas(important_only=True)`.
-                
-                if `False`: returns the number of Tokens that are not punctuation and are not 
+
+                if `False`: returns the number of Tokens that are not punctuation and are not
                 special characters.
                 Note: this will **not** correspond to the number of items returned by
                 `lemmas(important_only=False)` because those items will also include punctuation
