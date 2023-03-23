@@ -337,7 +337,9 @@ def test__corpurs__tf_idf_lemmas():
         important_only=True,
         min_count=1,
     )
-    assert (group_tf_idf.drop(columns='group') == lemma_tf_idf).all().all()
+    assert (group_tf_idf.drop(columns=['group', 'token_count', 'group_count']) == lemma_tf_idf).all().all()  # noqa
+    assert (group_tf_idf['token_count'] == lemma_tf_idf['count']).all()
+    assert (group_tf_idf['group_count'] == lemma_tf_idf['count'].sum()).all()
 
     group_tf_idf = corpus.tf_idf_lemmas(
         group_by=['a', 'b', 'a'],
@@ -348,14 +350,16 @@ def test__corpurs__tf_idf_lemmas():
         'group': {0: 'b', 1: 'a', 2: 'a', 3: 'a', 4: 'a', 5: 'a', 6: 'b', 7: 'b'},
         'token': {0: '#', 1: 'doc', 2: 'important', 3: 'sort', 4: 'document', 5: '_number_', 6: '_number_', 7: 'document'},  # noqa
         'count': {0: 1, 1: 1, 2: 1, 3: 1, 4: 2, 5: 1, 6: 1, 7: 1},
-        'tf_idf': {0: 1.199, 1: 1.199, 2: 1.199, 3: 1.199, 4: 1.011, 5: 0.505, 6: 0.505, 7: 0.505}
+        'tf_idf': {0: 1.199, 1: 1.199, 2: 1.199, 3: 1.199, 4: 1.011, 5: 0.505, 6: 0.505, 7: 0.505},
+        'token_count': {0: 1, 1: 1, 2: 1, 3: 1, 4: 3, 5: 2, 6: 2, 7: 3},
+        'group_count': {0: 3, 1: 6, 2: 6, 3: 6, 4: 6, 5: 6, 6: 3, 7: 3}
     }
     assert group_tf_idf.round(3).to_dict() == expected_values
 
     lemma_tf_idf = corpus.tf_idf_lemmas(important_only=False, min_count=2)
-    expected_values = {'document': 3, '.': 2, '_number_': 2, 'the': 2, 'be': 5, 'this': 4}
+    expected_values = {'a': 2, 'document': 3, '.': 2, '_number_': 2, 'the': 2, 'be': 5, 'this': 4}
     assert lemma_tf_idf.set_index('token').to_dict()['count'] == expected_values
-    expected_values = {'document': 1.516, '.': 1.011, '_number_': 1.011, 'the': 1.011, 'be': 0.5, 'this': 0.4}  # noqa
+    expected_values = {'a': 2.397, 'document': 1.516, '.': 1.011, '_number_': 1.011, 'the': 1.011, 'be': 0.5, 'this': 0.4}  # noqa
     assert lemma_tf_idf.set_index('token').round(3).to_dict()['tf_idf'] == expected_values
     # this group count should be equivalent to the non-group dataframe since we pass in one group
     group_tf_idf = corpus.tf_idf_lemmas(
@@ -363,7 +367,9 @@ def test__corpurs__tf_idf_lemmas():
         important_only=False,
         min_count=2,
     )
-    assert (group_tf_idf.drop(columns='group') == lemma_tf_idf).all().all()
+    assert (group_tf_idf.drop(columns=['group', 'token_count', 'group_count']) == lemma_tf_idf).all().all()  # noqa
+    assert (group_tf_idf.groupby('token')['token_count'].nunique() == 1).all()
+    assert (group_tf_idf.groupby('group')['group_count'].nunique() == 1).all()
 
     group_tf_idf = corpus.tf_idf_lemmas(
         group_by=['a', 'b', 'a'],
@@ -371,12 +377,16 @@ def test__corpurs__tf_idf_lemmas():
         min_count=2,
     )
     expected_values = {
-        'group': {0: 'a', 1: 'a', 2: 'b', 3: 'a', 4: 'b', 5: 'b', 6: 'a', 7: 'b', 8: 'a', 9: 'a', 10: 'b', 11: 'b'},  # noqa
-        'token': {0: 'document', 1: '.', 2: '.', 3: '_number_', 4: '_number_', 5: 'document', 6: 'the', 7: 'the', 8: 'be', 9: 'this', 10: 'be', 11: 'this'},  # noqa
-        'count': {0: 2, 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 4, 9: 3, 10: 1, 11: 1},
-        'tf_idf': {0: 1.011, 1: 0.505, 2: 0.505, 3: 0.505, 4: 0.505, 5: 0.505, 6: 0.505, 7: 0.505, 8: 0.4, 9: 0.3, 10: 0.1, 11: 0.1}  # noqa
+        'group': {0: 'a', 1: 'a', 2: 'a', 3: 'b', 4: 'a', 5: 'b', 6: 'b', 7: 'a', 8: 'b', 9: 'a', 10: 'a', 11: 'b', 12: 'b'},  # noqa
+        'token': {0: 'a', 1: 'document', 2: '.', 3: '.', 4: '_number_', 5: '_number_', 6: 'document', 7: 'the', 8: 'the', 9: 'be', 10: 'this', 11: 'be', 12: 'this'},  # noqa
+        'count': {0: 2, 1: 2, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1, 9: 4, 10: 3, 11: 1, 12: 1},  # noqa
+        'tf_idf': {0: 2.397, 1: 1.011, 2: 0.505, 3: 0.505, 4: 0.505, 5: 0.505, 6: 0.505, 7: 0.505, 8: 0.505, 9: 0.4, 10: 0.3, 11: 0.1, 12: 0.1},  # noqa
+        'token_count': {0: 2, 1: 3, 2: 2, 3: 2, 4: 2, 5: 2, 6: 3, 7: 2, 8: 2, 9: 5, 10: 4, 11: 5, 12: 4},  # noqa
+        'group_count': {0: 20, 1: 20, 2: 20, 3: 6, 4: 20, 5: 6, 6: 6, 7: 20, 8: 6, 9: 20, 10: 20, 11: 6, 12: 6}  # noqa
     }
     assert group_tf_idf.round(3).to_dict() == expected_values
+    assert (group_tf_idf.groupby('token')['token_count'].nunique() == 1).all()
+    assert (group_tf_idf.groupby('group')['group_count'].nunique() == 1).all()
 
 
 def test__corpurs__tf_idf_n_grams():

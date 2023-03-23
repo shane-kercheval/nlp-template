@@ -568,6 +568,57 @@ class Corpus:
             count_once_per_doc=count_once_per_doc
         )
 
+    def _tf_idf_tokens(
+            self,
+            tokens,
+            min_count: int = 2,  # noqa
+            group_by: Optional[list] = None) -> pd.DataFrame:
+        """
+        Helper function that generates TF-IDF values from tokens e.g. lemmas, n_grams, etc.
+
+        Returns a dataframe of token TF-IDF values.
+        Returns a column for the `token`, a column for the `count` (i.e. count of token across all
+        documents), and a column for `tf_idf` values.
+        When the `group_by` parameter is used, three additional columns will be added:
+            - `group` representing each group
+            - `token_count` representing the total token count across all groups
+            - `group_count` representing the total group count (i.e. number of tokens which are
+                counted multiple times as they appear) across all tokens (added before the
+                min_count is applied)
+        """
+        df = pd.DataFrame({'token': tokens})
+        if group_by:
+            df['group'] = group_by
+            group_by_column = 'group'
+        else:
+            group_by_column = None
+
+        df = tf_idf(
+                df=df,
+                tokens_column='token',
+                segment_columns=group_by_column,
+                min_frequency_document=1,
+                min_frequency_corpus=1,  # min_count is used below, after calculating group counts
+            ).\
+            reset_index().\
+            rename(columns={'frequency': 'count', 'tf-idf': 'tf_idf'})
+
+        if group_by:
+            # Compute the total count for each token and add as a new column to the dataframe
+            token_counts = df.groupby("token")["count"].sum()
+            df["token_count"] = df["token"].map(token_counts)
+            # Compute the total count for each group and add as a new column to the dataframe
+            group_counts = df.groupby("group")["count"].sum()
+            df["group_count"] = df["group"].map(group_counts)
+            # Filter the dataframe to include only tokens with a total count across all groups that
+            df = df.query("token_count >= @min_count")
+        else:
+            df = df.query("count >= @min_count")
+
+        return df.\
+            sort_values(['tf_idf', 'count', 'token'], ascending=[False, False, True]).\
+            reset_index(drop=True)
+
     def tf_idf_lemmas(
             self,
             important_only: bool = True,
@@ -589,24 +640,11 @@ class Corpus:
                 list of values that represent categories that we want to group counts by. Must be
                 the same length as `tokens` i.e. the number of total documents.
         """
-        df = pd.DataFrame({'token': self.lemmas(important_only=important_only)})
-        if group_by:
-            df['group'] = group_by
-            group_by_column = 'group'
-        else:
-            group_by_column = None
-
-        return tf_idf(
-                df=df,
-                tokens_column='token',
-                segment_columns=group_by_column,
-                min_frequency_document=1,
-                min_frequency_corpus=min_count,
-            ).\
-            reset_index().\
-            rename(columns={'frequency': 'count', 'tf-idf': 'tf_idf'}).\
-            sort_values(['tf_idf', 'count', 'token'], ascending=[False, False, True]).\
-            reset_index(drop=True)
+        return self._tf_idf_tokens(
+            tokens=self.lemmas(important_only=important_only),
+            min_count=min_count,
+            group_by=group_by
+        )
 
     def n_grams(self, n: int = 2, separator: str = '-') -> Iterable[list]:
         """
@@ -676,12 +714,10 @@ class Corpus:
                 list of values that represent categories that we want to group counts by. Must be
                 the same length as `tokens` i.e. the number of total documents.
         """
-        return tf_idf(
-            df=pd.DataFrame({'token': self.n_grams(n=n, separator=separator)}),
-            tokens_column='token',
-            segment_columns=group_by,
-            min_frequency_document=1,
-            min_frequency_corpus=min_count,
+        return self._tf_idf_tokens(
+            tokens=self.n_grams(n=n, separator=separator),
+            min_count=min_count,
+            group_by=group_by
         )
 
     def nouns(self) -> Iterable[list]:
