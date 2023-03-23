@@ -355,6 +355,8 @@ def test__corpurs__tf_idf_lemmas():
         'group_count': {0: 3, 1: 6, 2: 6, 3: 6, 4: 6, 5: 6, 6: 3, 7: 3}
     }
     assert group_tf_idf.round(3).to_dict() == expected_values
+    assert (group_tf_idf.groupby('token')['token_count'].nunique() == 1).all()
+    assert (group_tf_idf.groupby('group')['group_count'].nunique() == 1).all()
 
     lemma_tf_idf = corpus.tf_idf_lemmas(important_only=False, min_count=2)
     expected_values = {'a': 2, 'document': 3, '.': 2, '_number_': 2, 'the': 2, 'be': 5, 'this': 4}
@@ -390,7 +392,48 @@ def test__corpurs__tf_idf_lemmas():
 
 
 def test__corpurs__tf_idf_n_grams():
-    pass
+    documents = [
+        "This is a document it really is a document; this is sort of important",
+        "This is the #2 document.",
+        "This is the # 3 doc."
+    ]
+    corpus = Corpus(
+        pre_process=clean,
+        spacy_model='en_core_web_sm',
+    )
+    corpus.fit(documents=documents)
+
+    n_gram_tf_idf = corpus.tf_idf_n_grams(n=2, min_count=1)
+    expected_values = {'_number_-doc': 1, '_number_-document': 1}
+    assert n_gram_tf_idf.set_index('token').to_dict()['count'] == expected_values
+    expected_values = {'_number_-doc': 1.199, '_number_-document': 1.199}
+    assert n_gram_tf_idf.set_index('token').round(3).to_dict()['tf_idf'] == expected_values
+    # this group count should be equivalent to the non-group dataframe since we pass in one group
+    group_tf_idf = corpus.tf_idf_n_grams(
+        group_by=['a', 'a', 'a'],
+        n=2,
+        min_count=1,
+    )
+    assert (group_tf_idf.drop(columns=['group', 'token_count', 'group_count']) == n_gram_tf_idf).all().all()  # noqa
+    assert (group_tf_idf['token_count'] == n_gram_tf_idf['count']).all()
+    assert (group_tf_idf['group_count'] == n_gram_tf_idf['count'].sum()).all()
+
+    group_tf_idf = corpus.tf_idf_n_grams(
+        group_by=['a', 'b', 'a'],
+        n=2,
+        min_count=1,
+    )
+    expected_values = {
+        'group': {0: 'a', 1: 'b'},
+        'token': {0: '_number_-doc', 1: '_number_-document'},
+        'count': {0: 1, 1: 1},
+        'tf_idf': {0: 1.199, 1: 1.199},
+        'token_count': {0: 1, 1: 1},
+        'group_count': {0: 1, 1: 1}
+    }
+    assert group_tf_idf.round(3).to_dict() == expected_values
+    assert (group_tf_idf.groupby('token')['token_count'].nunique() == 1).all()
+    assert (group_tf_idf.groupby('group')['group_count'].nunique() == 1).all()
 
 
 def test__corpus__attributes(corpus_simple_example):
