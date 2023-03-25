@@ -720,6 +720,86 @@ class Corpus:
             group_by=group_by
         )
 
+    def count_tokens(
+            self,
+            token_type: str,
+            min_count: int = 2,
+            group_by: Optional[list] = None,
+            count_once_per_doc: bool = False) -> pd.DataFrame:
+        """
+        Returns the counts of n_grams in a pd.DataFrame with the lemmas as indexes and
+        the counts in a column.
+
+        Args:
+            token_type:
+                valid values are `nouns`, `noun_phrases`, `adjectives_verbs`, `entities`
+            min_count:
+                The number of times the lemma must appear in order to be included.
+                If `count_once_per_doc` is `True`, then this is equivalent to the number of
+                documents the lemma must appear in order to be included.
+            group_by:
+                list of values that represent categories that we want to group counts by. Must be
+                the same length as `tokens` i.e. the number of total documents.
+            count_once_per_doc:
+                If `False` (default) then count every occurance of the lemma.
+                If `True`, then only count the lemma once per document. This is equivalent to the
+                number of documents the lemma appears in.
+        """
+        if token_type == 'nouns':
+            tokens = self.nouns()
+        elif token_type == 'noun_phrases':
+            tokens = self.noun_phrases()
+        elif token_type == 'adjectives_verbs':
+            tokens = self.adjectives_verbs()
+        elif token_type == 'entities':
+            tokens = self.entities()
+        else:
+            raise ValueError(f"Invalid type '{token_type}'")
+
+        return self._count_tokens(
+            tokens=tokens,
+            min_count=min_count,
+            group_by=group_by,
+            count_once_per_doc=count_once_per_doc
+        )
+
+    def tf_idf_tokens(
+            self,
+            token_type: str,
+            min_count: int = 2,
+            group_by: Optional[list] = None) -> pd.DataFrame:
+        """
+        Returns the counts of individual lemmas in a pd.DataFrame with the lemmas as indexes and
+        the counts in a column.
+
+        Args:
+            token_type:
+                valid values are `nouns`, `noun_phrases`, `adjectives_verbs`, `entities`
+            min_count:
+                The number of times the lemma must appear in order to be included.
+                If `count_once_per_doc` is `True`, then this is equivalent to the number of
+                documents the lemma must appear in order to be included.
+            group_by:
+                list of values that represent categories that we want to group counts by. Must be
+                the same length as `tokens` i.e. the number of total documents.
+        """
+        if token_type == 'nouns':
+            tokens = self.nouns()
+        elif token_type == 'noun_phrases':
+            tokens = self.noun_phrases()
+        elif token_type == 'adjectives_verbs':
+            tokens = self.adjectives_verbs()
+        elif token_type == 'entities':
+            tokens = self.entities()
+        else:
+            raise ValueError(f"Invalid type '{token_type}'")
+
+        return self._tf_idf_tokens(
+            tokens=tokens,
+            min_count=min_count,
+            group_by=group_by
+        )
+
     def nouns(self) -> Iterable[list]:
         return (list(d.nouns()) for d in self.documents)
 

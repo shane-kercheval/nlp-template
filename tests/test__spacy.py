@@ -314,7 +314,7 @@ def test__corpus__count_n_grams():
     assert len(tri_gram_count) == 0
 
 
-def test__corpurs__tf_idf_lemmas():
+def test__corpus__tf_idf_lemmas():
     documents = [
         "This is a document it really is a document; this is sort of important",
         "This is the #2 document.",
@@ -391,7 +391,7 @@ def test__corpurs__tf_idf_lemmas():
     assert (group_tf_idf.groupby('group')['group_count'].nunique() == 1).all()
 
 
-def test__corpurs__tf_idf_n_grams():
+def test__corpus__tf_idf_n_grams():
     documents = [
         "This is a document it really is a document; this is sort of important",
         "This is the #2 document.",
@@ -434,6 +434,27 @@ def test__corpurs__tf_idf_n_grams():
     assert group_tf_idf.round(3).to_dict() == expected_values
     assert (group_tf_idf.groupby('token')['token_count'].nunique() == 1).all()
     assert (group_tf_idf.groupby('group')['group_count'].nunique() == 1).all()
+
+
+def test__corpus__count_tokens():
+    documents = [
+        "This is a document it really is a document; this 1 document.",
+        "This is a funny document.",
+        "This is the # 3 doc."
+    ]
+    corpus = Corpus(
+        pre_process=clean,
+        spacy_model='en_core_web_sm',
+    )
+    corpus.fit(documents=documents)
+    assert len(corpus.count_tokens(token_type='nouns', min_count=1)) > 0
+    assert len(corpus.count_tokens(token_type='noun_phrases', min_count=1)) > 0
+    assert len(corpus.count_tokens(token_type='adjectives_verbs', min_count=1)) > 0
+    assert len(corpus.count_tokens(token_type='entities', min_count=1)) > 0
+    assert len(corpus.tf_idf_tokens(token_type='nouns', min_count=1)) > 0
+    assert len(corpus.tf_idf_tokens(token_type='noun_phrases', min_count=1)) > 0
+    assert len(corpus.tf_idf_tokens(token_type='adjectives_verbs', min_count=1)) > 0
+    assert len(corpus.tf_idf_tokens(token_type='entities', min_count=1)) > 0
 
 
 def test__corpus__attributes(corpus_simple_example):
