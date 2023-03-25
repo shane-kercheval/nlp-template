@@ -1,5 +1,3 @@
-import os
-import os.path
 import json
 import pandas as pd
 import numpy as np
