@@ -115,39 +115,42 @@ def test__corpus__tokens(corpus_simple_example):
         file.write(corpus[0].diff(use_lemmas=True))
 
 
+def _assert_tokens_equal(loaded_t: Token, original_t: Token):
+    """Tests that a token that was loaded from json/dict matches the original."""
+    assert loaded_t.text is not None
+    assert loaded_t.text == original_t.text
+    assert loaded_t.lemma is not None
+    assert loaded_t.lemma == original_t.lemma
+    assert loaded_t.is_stop_word is not None
+    assert loaded_t.is_stop_word == original_t.is_stop_word
+    assert loaded_t.embeddings is not None
+    assert isinstance(loaded_t.embeddings, np.ndarray)
+    assert (loaded_t.embeddings == original_t.embeddings).all()
+    assert loaded_t.part_of_speech is not None
+    assert loaded_t.part_of_speech == original_t.part_of_speech
+    assert loaded_t.is_punctuation is not None
+    assert loaded_t.is_punctuation == original_t.is_punctuation
+    assert loaded_t.is_special is not None
+    assert loaded_t.is_special == original_t.is_special
+    assert loaded_t.is_alpha is not None
+    assert loaded_t.is_alpha == original_t.is_alpha
+    assert loaded_t.is_numeric is not None
+    assert loaded_t.is_numeric == original_t.is_numeric
+    assert loaded_t.is_ascii is not None
+    assert loaded_t.is_ascii == original_t.is_ascii
+    assert loaded_t.dep is not None
+    assert loaded_t.dep == original_t.dep
+    assert loaded_t.entity_type is not None
+    assert loaded_t.entity_type == original_t.entity_type
+    assert loaded_t.sentiment is not None
+    assert loaded_t.sentiment == original_t.sentiment
+
+
 def test__tokens__to_dict():
     text = "This is a single document with some text and 1 2 3 numbers and && # % symbols."
     nlp = sp.load('en_core_web_sm')
     tokens = nlp(text)
 
-    def _assert_tokens_equal(loaded_t: Token, parsed_t: Token):
-        assert loaded_t.text is not None
-        assert loaded_t.text == parsed_t.text
-        assert loaded_t.lemma is not None
-        assert loaded_t.lemma == parsed_t.lemma
-        assert loaded_t.is_stop_word is not None
-        assert loaded_t.is_stop_word == parsed_t.is_stop_word
-        assert loaded_t.embeddings is not None
-        assert isinstance(loaded_t.embeddings, np.ndarray)
-        assert (loaded_t.embeddings == parsed_t.embeddings).all()
-        assert loaded_t.part_of_speech is not None
-        assert loaded_t.part_of_speech == parsed_t.part_of_speech
-        assert loaded_t.is_punctuation is not None
-        assert loaded_t.is_punctuation == parsed_t.is_punctuation
-        assert loaded_t.is_special is not None
-        assert loaded_t.is_special == parsed_t.is_special
-        assert loaded_t.is_alpha is not None
-        assert loaded_t.is_alpha == parsed_t.is_alpha
-        assert loaded_t.is_numeric is not None
-        assert loaded_t.is_numeric == parsed_t.is_numeric
-        assert loaded_t.is_ascii is not None
-        assert loaded_t.is_ascii == parsed_t.is_ascii
-        assert loaded_t.dep is not None
-        assert loaded_t.dep == parsed_t.dep
-        assert loaded_t.entity_type is not None
-        assert loaded_t.entity_type == parsed_t.entity_type
-        assert loaded_t.sentiment is not None
-        assert loaded_t.sentiment == parsed_t.sentiment
 
     # for each token, A) make sure we can serialize to json (e.g. that embeddings is converted
     # from a numpy array to a list) B) make sure we can load back in from json and C) make sure
@@ -162,6 +165,30 @@ def test__tokens__to_dict():
         assert loaded_json
         loaded_token = Token.from_dict(loaded_json)
         _assert_tokens_equal(loaded_token, parsed_token)
+
+
+def test__document__to_dict():
+    text = "This is a single document with some text and 1 2 3 numbers and && # % symbols."
+    text_clean = "This is a single document with some text and _number_ _number_ _number_ numbers and _symbol_ _symbol_ symbols."  # noqa
+    nlp = sp.load('en_core_web_sm')
+    tokens = nlp(text)
+
+    original_doc = Document(
+        tokens=[Token.from_spacy(token=t, stop_words=STOP_WORDS_DEFAULT) for t in tokens],
+        text_original=text,
+        text_cleaned=text_clean,
+    )
+    _file_name = get_test_file_path('spacy/document__to_dict__simple_example.txt')
+    with open(_file_name, 'w') as f:
+        json.dump(original_doc.to_dict(), f)
+    with open(_file_name, 'r') as f:
+        loaded_json = json.load(f)
+
+    loaded_doc = Document.from_dict(loaded_json)
+    assert loaded_doc._text_original == original_doc._text_original
+    assert loaded_doc._text_cleaned == original_doc._text_cleaned
+    for loaded_t, original_t in zip(loaded_doc._tokens, original_doc._tokens):
+        _assert_tokens_equal(loaded_t, original_t)
 
 
 def test__corpus__count_lemmas():

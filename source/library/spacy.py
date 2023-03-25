@@ -133,14 +133,22 @@ class Document:
     def __init__(self, tokens: list[Token], text_original: str, text_cleaned: str):
         self._tokens = tokens
         self._text_original = text_original
-        self._text_cleaned = text_cleaned  # todo i think i can get rid of this and simply do a ' '.join on `text` of tokenss, perhaps cache?
+        self._text_cleaned = text_cleaned
 
-    # def to_dict(self):
-    #     pass
+    def to_dict(self):
+        return {
+            'text_original': self._text_original,
+            'text_cleaned': self._text_cleaned,
+            'tokens': [t.to_dict() for t in self._tokens]
+        }
 
-    # @classmethod
-    # def from_dict(cls):
-    #     pass
+    @classmethod
+    def from_dict(cls, d: dict):
+        return cls(
+            tokens=[Token.from_dict(t_dict) for t_dict in d['tokens']],
+            text_original=d.get('text_original'),
+            text_cleaned=d.get('text_cleaned')
+        )
 
     def text(self, original=True):
         if original:
