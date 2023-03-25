@@ -117,7 +117,7 @@ def test__corpus__tokens(corpus_simple_example):
         file.write(corpus[0].diff(use_lemmas=True))
 
 
-def test__tokens__to_dict(corpus_simple_example):
+def test__tokens__to_dict():
     text = "This is a single document with some text and 1 2 3 numbers and && # % symbols."
     nlp = sp.load('en_core_web_sm')
     tokens = nlp(text)
