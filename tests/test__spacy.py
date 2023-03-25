@@ -150,8 +150,6 @@ def test__tokens__to_dict():
     text = "This is a single document with some text and 1 2 3 numbers and && # % symbols."
     nlp = sp.load('en_core_web_sm')
     tokens = nlp(text)
-
-
     # for each token, A) make sure we can serialize to json (e.g. that embeddings is converted
     # from a numpy array to a list) B) make sure we can load back in from json and C) make sure
     # the objects/values are unchanged
@@ -189,6 +187,60 @@ def test__document__to_dict():
     assert loaded_doc._text_cleaned == original_doc._text_cleaned
     for loaded_t, original_t in zip(loaded_doc._tokens, original_doc._tokens):
         _assert_tokens_equal(loaded_t, original_t)
+
+
+def test__corpus__to_dict(corpus_simple_example):
+    _file_name = get_test_file_path('spacy/corpus__to_doc_dicts__simple_example.txt')
+    with open(_file_name, 'w') as f:
+        json.dump(corpus_simple_example.to_doc_dicts(), f)
+    with open(_file_name, 'r') as f:
+        loaded_json = json.load(f)
+
+    # recreate the original Corpus with a new object
+    stop_words_to_add = {'dear', 'regard'}
+    stop_words_to_remove = {'down', 'no', 'none', 'nothing', 'keep'}
+    new_corpus = Corpus(
+        stop_words_to_add=stop_words_to_add,
+        stop_words_to_remove=stop_words_to_remove,
+        pre_process=clean,
+        spacy_model='en_core_web_md',
+        sklearn_tokenenizer_min_df=1,
+    )
+    new_corpus.from_doc_dicts(loaded_json)
+
+    # for each doc test all attributes of document are the same and retest all tokens match
+    for original_doc, new_doc in zip(corpus_simple_example, new_corpus):
+        assert original_doc._text_original == new_doc._text_original
+        assert original_doc._text_cleaned == new_doc._text_cleaned
+        for loaded_t, original_t in zip(new_doc._tokens, original_doc._tokens):
+            _assert_tokens_equal(loaded_t, original_t)
+
+    ####
+    # Lets make sure the vectorizers/etc. produce the same results
+    ####
+    orig_vector = corpus_simple_example.\
+        text_to_count_vector("This is an awesome document with characters").\
+        toarray()
+    assert orig_vector.sum() > 1
+    new_vector = new_corpus.\
+        text_to_count_vector("This is an awesome document with characters").\
+        toarray()
+    assert (orig_vector == new_vector).all()
+
+    orig_vector = corpus_simple_example.\
+        text_to_tf_idf_vector("This is an awesome document with characters").\
+        toarray()
+    assert orig_vector.sum() > 0
+    new_vector = new_corpus.\
+        text_to_tf_idf_vector("This is an awesome document with characters").\
+        toarray()
+    assert (orig_vector == new_vector).all()
+
+    assert (corpus_simple_example.embeddings_matrix() == new_corpus.embeddings_matrix()).all()
+    assert (corpus_simple_example.count_vectorizer_vocab() == new_corpus.count_vectorizer_vocab()).all()  # noqa
+    assert (corpus_simple_example.tf_idf_vectorizer_vocab() == new_corpus.tf_idf_vectorizer_vocab()).all()  # noqa
+    assert (corpus_simple_example.similarity_matrix(how='embeddings-tf_idf') == new_corpus.similarity_matrix(how='embeddings-tf_idf')).all()  # noqa
+    assert (corpus_simple_example.calculate_similarities(text='This is an awesome document', how='embeddings-tf_idf') == new_corpus.calculate_similarities(text='This is an awesome document', how='embeddings-tf_idf')).all()  # noqa
 
 
 def test__corpus__count_lemmas():

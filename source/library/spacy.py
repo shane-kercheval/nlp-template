@@ -479,7 +479,68 @@ class Corpus:
             self.documents = [item for sublist in results for item in sublist]
             assert len(self.documents) == len(documents)
 
+    def to_doc_dicts(self) -> list[dict]:
+        """
+        This function transforms all of the documents into a dictionary that can be saved as a
+        json. It does **not** transform the entire object into a dictionary. In order to recreate
+        the Corpus object using `from_doc_dicts` you need to recreate the Corpus object using the
+        same constructor values as the original object, and then pass the list of dictionaries to
+        `from_doc_dicts` instead of calling the `fit` method.
+
+        NOTE to self: I thought about moving the parameters in __init__ that are specific to the
+        spacy NLP pipeline (and that I don't want to serialize) directly into `fit()` so that we
+        could do a `to_dict()` and `from_dict()` that was consistent with Document/Token and that
+        would save the other parameters; the problem is that the Corpus object uses the spacy
+        pipeline after `fit()` when transforming new text into vectors. So I need everything to be
+        set up the same way, and i don't want to (and probably can't) serialize those
+        functions/objects into json.
+
+        Example:
+
+        ```
+        corpus = Corpus(...)
+        corpus.fit(documents=[...])
+        with open(...) as f:
+            json.dump(corpus.to_doc_dicts())
+
+        with open(...) as f:
+            docs_json = json.load(f)
+        corpus = Corpus(...)  # pass same values as original
+        corpus.from_doc_dicts(docs_json)  # call instead of `.fit()`
+        ```
+        """
+        return [d.to_dict() for d in self.documents]
+
+    def from_doc_dicts(self, doc_dicts: list[dict]):
+        """
+        This function is meant to read in Documents (serialized as dictionaries) that have already
+        been processed via Spacy, and so is meant to be used instead of the `fit()` function.
+
+        In order to recreate the Corpus object using `from_doc_dicts` you need to recreate the
+        Corpus object using the same constructor values as the original object, and then pass the
+        list of dictionaries to `from_doc_dicts` instead of calling the `fit` method.
+
+        Example:
+
+        ```
+        corpus = Corpus(...)
+        corpus.fit(documents=[...])
+        with open(...) as f:
+            json.dump(corpus.to_doc_dicts())
+
+        with open(...) as f:
+            docs_json = json.load(f)
+        corpus = Corpus(...)  # pass same values as original
+        corpus.from_doc_dicts(docs_json)  # call instead of `.fit()`
+        ```
+        """
+        self.documents = [Document.from_dict(doc_dict) for doc_dict in doc_dicts]
+
     def _text_to_doc(self, text: str) -> Document:
+        """
+        This function transform the `text` into a Document object, using the same pre_processing
+        and tokenization process that was used when `fit`ing the original documents.
+        """
         text_original = text
         if self.pre_process:
             text_clean = self.pre_process(text)
@@ -492,6 +553,10 @@ class Corpus:
         return Document(tokens=tokens, text_original=text_original, text_cleaned=text_clean)
 
     def _prepare_doc_for_vectorizer(self, document: Document) -> str:
+        """
+        This function ensures that when transforming a Document object to vectors (via
+        scikit-learn) we vectorize in the same way (i.e. same text input to the vectorizer)
+        """
         max_lemmas = self._max_tokens or len(document)
         lemmas = islice(document.lemmas(important_only=True), max_lemmas)
         vectorizer_text = ' '.join(lemmas)
