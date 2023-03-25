@@ -31,34 +31,88 @@ END_OF_SENTENCE_PUNCT = {'.', '?', '!'}
 
 class Token:
     """
-    This class extracts the essential information from a SpacyToken
+    This class encapsulates the characterists of a Token (specifically what is provided by a spaCy
+    token.)
     """
-    def __init__(self, token: st.Token, stop_words: set[str]) -> None:
+    def __init__(
+            self,
+            text: str,
+            lemma: str,
+            is_stop_word: bool,
+            embeddings: np.array,
+            part_of_speech: str,
+            is_punctuation: bool,
+            is_special: bool,
+            is_alpha: bool,
+            is_numeric: bool,
+            is_ascii: bool,
+            dep: str,
+            entity_type: str,
+            sentiment: float):
+        self.text = text
+        self.lemma = lemma
+        self.is_stop_word = is_stop_word
+        self.embeddings = embeddings
+        self.part_of_speech = part_of_speech
+        self.is_punctuation = is_punctuation
+        self.is_special = is_special
+        self.is_alpha = is_alpha
+        self.is_numeric = is_numeric
+        self.is_ascii = is_ascii
+        self.dep = dep
+        self.entity_type = entity_type
+        self.sentiment = sentiment
+
+    @classmethod
+    def from_spacy(cls, token: st.Token, stop_words: set[str]):
         _lemma = token.lemma_.lower()
-        self.text = token.text
-        self.lemma = _lemma
-        self.is_stop_word = token.is_stop or \
-            _lemma in stop_words or \
-            token.text.lower() in stop_words
-        self.embeddings = token.vector
-        self.part_of_speech = token.pos_
-        self.is_punctuation = token.is_punct or \
-            token.dep_ == 'punct' or \
-            token.pos_ == 'PUNCT'
-        # TODO this isn't working
-        self.is_special = token.pos_ == 'SYM' or (token.pos_ == 'X' and not token.is_alpha)
-        self.is_alpha = token.is_alpha
-        self.is_numeric = token.is_digit
-        self.is_ascii = token.is_ascii
-        self.dep = token.dep_
-        self.entity_type = token.ent_type_
-        self.sentiment = token.sentiment
+        return cls(
+            text=token.text,
+            lemma=_lemma,
+            is_stop_word=token.is_stop or _lemma in stop_words or token.text.lower() in stop_words,
+            embeddings=token.vector,
+            part_of_speech=token.pos_,
+            is_punctuation=token.is_punct or token.dep_ == 'punct' or token.pos_ == 'PUNCT',
+            # TODO this isn't working
+            is_special=token.pos_ == 'SYM' or (token.pos_ == 'X' and not token.is_alpha),
+            is_alpha=token.is_alpha,
+            is_numeric=token.is_digit,
+            is_ascii=token.is_ascii,
+            dep=token.dep_,
+            entity_type=token.ent_type_,
+            sentiment=token.sentiment,
+        )
+
+    @classmethod
+    def from_dict(cls, d):
+        embeddings = d.get('embeddings')
+        if isinstance(embeddings, list):
+            embeddings = np.array(embeddings)
+
+        return cls(
+            text=d.get('text'),
+            lemma=d.get('lemma'),
+            is_stop_word=d.get('is_stop_word'),
+            embeddings=embeddings,
+            part_of_speech=d.get('part_of_speech'),
+            is_punctuation=d.get('is_punctuation'),
+            is_special=d.get('is_special'),
+            is_alpha=d.get('is_alpha'),
+            is_numeric=d.get('is_numeric'),
+            is_ascii=d.get('is_ascii'),
+            dep=d.get('dep'),
+            entity_type=d.get('entity_type'),
+            sentiment=d.get('sentiment'),
+        )
 
     def __str__(self) -> str:
         return self.text
 
     def to_dict(self) -> dict:
-        return self.__dict__
+        _dict = self.__dict__
+        if isinstance(_dict['embeddings'], np.ndarray):
+            _dict['embeddings'] = _dict['embeddings'].tolist()
+        return _dict
 
     @property
     def is_important(self):
@@ -79,7 +133,14 @@ class Document:
     def __init__(self, tokens: list[Token], text_original: str, text_cleaned: str):
         self._tokens = tokens
         self._text_original = text_original
-        self._text_cleaned = text_cleaned
+        self._text_cleaned = text_cleaned  # todo i think i can get rid of this and simply do a ' '.join on `text` of tokenss, perhaps cache?
+
+    # def to_dict(self):
+    #     pass
+
+    # @classmethod
+    # def from_dict(cls):
+    #     pass
 
     def text(self, original=True):
         if original:
@@ -111,7 +172,7 @@ class Document:
                 if not t.is_punctuation and not t.is_special
             )
 
-    def to_dict(self) -> dict:
+    def to_dictionary(self) -> dict:
         """
         Returns a dictionary where keys correspond to the properties on the Token objects and
         the value of each key is a list with each value corresponding to each Token and the
@@ -283,7 +344,7 @@ def _process_document_batch(
     for i, doc in enumerate(docs):
         tokens = [None] * len(doc)
         for j, token in enumerate(doc):
-            tokens[j] = Token(token=token, stop_words=stop_words)
+            tokens[j] = Token.from_spacy(token=token, stop_words=stop_words)
         documents[i] = Document(
             tokens=tokens,
             text_original=_originals[i],
@@ -419,7 +480,7 @@ class Corpus:
         doc = self._nlp(text_clean)
         tokens = [None] * len(doc)
         for j, token in enumerate(doc):
-            tokens[j] = Token(token=token, stop_words=self.stop_words)
+            tokens[j] = Token.from_spacy(token=token, stop_words=self.stop_words)
         return Document(tokens=tokens, text_original=text_original, text_cleaned=text_clean)
 
     def _prepare_doc_for_vectorizer(self, document: Document) -> str:

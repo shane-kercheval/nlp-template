@@ -1,6 +1,11 @@
+import os
+import os.path
+import json
 import pandas as pd
+import numpy as np
+import spacy as sp
 
-from source.library.spacy import Corpus
+from source.library.spacy import Corpus, Document, Token, STOP_WORDS_DEFAULT
 from source.library.text_preparation import clean
 
 from tests.helpers import dataframe_to_text_file, get_test_file_path
@@ -40,8 +45,8 @@ def test__corpus__document(corpus_simple_example, documents_fake):
         assert [t.text for t in corpus[index]] == [t.text for t in corpus[index]._tokens]
         assert len(corpus[index]) == len(corpus[index]._tokens)
         dataframe_to_text_file(
-            pd.DataFrame(corpus[index].to_dict()),
-            get_test_file_path(f'spacy/document_to_dict__sample_{index}.txt')
+            pd.DataFrame(corpus[index].to_dictionary()),
+            get_test_file_path(f'spacy/document_to_dictionary__sample_{index}.txt')
         )
 
     assert all(len(list(d.lemmas(important_only=True))) > 0 for d in non_empty_corpi)
@@ -110,6 +115,55 @@ def test__corpus__tokens(corpus_simple_example):
 
     with open(get_test_file_path('spacy/document_diff__empty__use_lemmas.html'), 'w') as file:
         file.write(corpus[0].diff(use_lemmas=True))
+
+
+def test__tokens__to_dict(corpus_simple_example):
+    text = "This is a single document with some text and 1 2 3 numbers and && # % symbols."
+    nlp = sp.load('en_core_web_sm')
+    tokens = nlp(text)
+
+    def _assert_tokens_equal(loaded_t: Token, parsed_t: Token):
+        assert loaded_t.text is not None
+        assert loaded_t.text == parsed_t.text
+        assert loaded_t.lemma is not None
+        assert loaded_t.lemma == parsed_t.lemma
+        assert loaded_t.is_stop_word is not None
+        assert loaded_t.is_stop_word == parsed_t.is_stop_word
+        assert loaded_t.embeddings is not None
+        assert isinstance(loaded_t.embeddings, np.ndarray)
+        assert (loaded_t.embeddings == parsed_t.embeddings).all()
+        assert loaded_t.part_of_speech is not None
+        assert loaded_t.part_of_speech == parsed_t.part_of_speech
+        assert loaded_t.is_punctuation is not None
+        assert loaded_t.is_punctuation == parsed_t.is_punctuation
+        assert loaded_t.is_special is not None
+        assert loaded_t.is_special == parsed_t.is_special
+        assert loaded_t.is_alpha is not None
+        assert loaded_t.is_alpha == parsed_t.is_alpha
+        assert loaded_t.is_numeric is not None
+        assert loaded_t.is_numeric == parsed_t.is_numeric
+        assert loaded_t.is_ascii is not None
+        assert loaded_t.is_ascii == parsed_t.is_ascii
+        assert loaded_t.dep is not None
+        assert loaded_t.dep == parsed_t.dep
+        assert loaded_t.entity_type is not None
+        assert loaded_t.entity_type == parsed_t.entity_type
+        assert loaded_t.sentiment is not None
+        assert loaded_t.sentiment == parsed_t.sentiment
+
+    # for each token, A) make sure we can serialize to json (e.g. that embeddings is converted
+    # from a numpy array to a list) B) make sure we can load back in from json and C) make sure
+    # the objects/values are unchanged
+    for index, spacy_token in enumerate(tokens):
+        parsed_token = Token.from_spacy(token=spacy_token, stop_words=STOP_WORDS_DEFAULT)
+        _file_name = get_test_file_path(f'spacy/token__to_dict__index_{index}.txt')
+        with open(_file_name, 'w') as f:
+            json.dump(parsed_token.to_dict(), f)
+        with open(_file_name, 'r') as f:
+            loaded_json = json.load(f)
+        assert loaded_json
+        loaded_token = Token.from_dict(loaded_json)
+        _assert_tokens_equal(loaded_token, parsed_token)
 
 
 def test__corpus__count_lemmas():

@@ -1,5 +1,5 @@
            text        lemma  is_stop_word                                         embeddings part_of_speech  is_punctuation  is_special  is_alpha  is_numeric  is_ascii       dep entity_type  sentiment
-0          This         this          True  [1.6849, 1.9826, -0.77743, -4.7383, 5.5418, -1...           PRON           False       False      True       False      True     nsubj                    0.0
+0          This         this          True  [1.6849000453948975, 1.9825999736785889, -0.77...           PRON           False       False      True       False      True     nsubj                    0.0
 1            is           be          True  [1.475, 6.0078, 1.1205, -3.5874, 3.7638, 3.198...            AUX           False       False      True       False      True      ROOT                    0.0
 2      _NUMBER_     _number_         False  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ...           NOUN           False       False     False       False      True  compound                    0.0
 3      document     document         False  [0.11681, -3.0633, 1.8432, 0.2876, 3.5357, -1....           NOUN           False       False      True       False      True      attr                    0.0
