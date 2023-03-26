@@ -213,6 +213,8 @@ def test__corpus__to_dict(corpus_simple_example):
     for original_doc, new_doc in zip(corpus_simple_example, new_corpus):
         assert original_doc._text_original == new_doc._text_original
         assert original_doc._text_cleaned == new_doc._text_cleaned
+        assert (original_doc.token_embeddings() == new_doc.token_embeddings()).all()
+        assert (original_doc.embeddings() == new_doc.embeddings()).all()
         for loaded_t, original_t in zip(new_doc._tokens, original_doc._tokens):
             _assert_tokens_equal(loaded_t, original_t)
 

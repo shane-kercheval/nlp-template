@@ -86,9 +86,9 @@ class Token:
     @classmethod
     def from_dict(cls, d):
         embeddings = d.get('embeddings')
-        if isinstance(embeddings, list):
-            embeddings = np.array(embeddings)
-
+        embeddings_dtype = d.get('embeddings_dtype', 'float32')
+        assert isinstance(embeddings, list)
+        embeddings = np.array(embeddings, dtype=embeddings_dtype)
         return cls(
             text=d.get('text'),
             lemma=d.get('lemma'),
@@ -112,8 +112,9 @@ class Token:
         # copy because we are modifying the embeddings property and we don't want to modify the
         # underlying values
         _dict = self.__dict__.copy()
-        if isinstance(_dict['embeddings'], np.ndarray):
-            _dict['embeddings'] = _dict['embeddings'].tolist()
+        assert isinstance(_dict['embeddings'], np.ndarray)
+        _dict['embeddings_dtype'] = str(_dict['embeddings'].dtype)
+        _dict['embeddings'] = _dict['embeddings'].tolist()
         return _dict
 
     @property
@@ -193,6 +194,7 @@ class Document:
         if len(self) == 0:
             return {}
         token_keys = self._tokens[0].to_dict().keys()
+        token_keys = [k for k in token_keys if k != 'embeddings_dtype']
         _dict = {x: [None] * len(self) for x in token_keys}
         for i, token in enumerate(self):
             for k in token_keys:
