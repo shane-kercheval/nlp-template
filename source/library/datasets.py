@@ -246,9 +246,12 @@ def create_un_corpus_object() -> Corpus:
     return corpus
 
 
-class CorpusDataLoader(FileDataPersistence):
+class CorpusDataLoader(DataPersistence):
     """
-    Class that saves and loads a Corpus to/from a json file.
+    Class that saves and loads a Corpus to/from a set json files (one json per document).
+
+    A directory is created that corresponds to the name of the object and the json files are 
+    stored in that directory.
     """
     def __init__(
             self,
@@ -266,25 +269,56 @@ class CorpusDataLoader(FileDataPersistence):
         super().__init__(
             description=description,
             dependencies=dependencies,
-            directory=directory,
             cache=cache
         )
+        self.directory = directory
         self._corpus_creator = corpus_creator
 
     @property
-    def file_extension(self):
-        return '.json'
+    def sub_directory(self) -> str:
+        return os.path.join(self.directory, self.name + '__json')
 
-    def _load(self) -> list[dict]:
-        with open(self.path, 'r') as f:
-            loaded_json = json.load(f)
-        corpus = self._corpus_creator()
-        corpus.from_doc_dicts(loaded_json)
-        return corpus
+    def _get_file_name(self, index) -> str:
+        """Full path (directory and file name) to load/save."""
+        return os.path.join(self.sub_directory, f'doc_{index}.json')
+
+    def _read_json_files(self):
+        """Generator that reads in the json docs one at a time."""
+        doc_list = os.listdir(self.sub_directory)
+        # sort files based on the doc index e.g. `doc_0.json`, `doc_1.json`
+        # ensuring that the same order of the docs is maintained
+        # sort values based on index, we can't rely on string sorting because the files might be
+        # sorted like this:
+        # file_1
+        # file_10
+        # file_11
+        # ...
+        # file_2
+        # file_20
+        doc_list = sorted(doc_list, key=lambda x: int(x.split('_')[1].split('.')[0]))
+        for file_name in doc_list:
+            with open(os.path.join(self.sub_directory, file_name), 'r') as f:
+                yield json.load(f)
 
     def _save(self, data: Corpus):
-        with open(self.path, 'w') as f:
-            json.dump(data.to_doc_dicts(), f)
+        logging.info(f"Saving Corpus object to `{self.sub_directory}`")
+        # check if the directory exists; if it doesn't, create it; if it does, remove all files
+        import shutil
+        if os.path.exists(self.sub_directory):
+            shutil.rmtree(self.sub_directory)
+        os.mkdir(self.sub_directory)
+
+        # this is how I would save to file for large corpuses
+        for index, doc_dict in enumerate(data.to_doc_dicts()):
+            with open(self._get_file_name(index=index), 'w') as f:
+                # json.dump() method writes the JSON string directly to the file object, so we
+                # don't have to create the JSON string first.
+                json.dump(doc_dict, f)
+
+    def _load(self) -> list[dict]:
+        corpus = self._corpus_creator()
+        corpus.from_doc_dicts(self._read_json_files())
+        return corpus
 
 
 class DatasetsBase(ABC):

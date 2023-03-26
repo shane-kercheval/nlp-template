@@ -1,7 +1,12 @@
 import os
+import shutil
 
 import pandas as pd
 import numpy as np
+from source.library.datasets import create_reddit_corpus_object
+from source.library.spacy import Corpus
+
+from tests.conftest import TestCorpusDatasets
 
 
 def test__datasets(datasets_fake):
@@ -126,3 +131,60 @@ def test__datasets__corpus(datasets_corpus_fake, corpus_simple_example):
         assert original_doc._text_cleaned == loaded_doc._text_cleaned
         for loaded_t, original_t in zip(loaded_doc._tokens, original_doc._tokens):
             _assert_tokens_equal(loaded_t, original_t)
+
+
+def test__datasets__corpus__large_files_ensure_same_order(
+        datasets_corpus_fake: TestCorpusDatasets,
+        reddit: pd.DataFrame):
+    # We need to the documents are in the same order when they are read back in;
+    # we can't rely on how files are sorted because it might be sorted like this:
+    # file_1
+    # file_10
+    # file_11
+    # ...
+    # file_2
+    # file_20
+    data = datasets_corpus_fake
+    reddit_corpus = create_reddit_corpus_object()
+    reddit_corpus.fit(documents=reddit['post'].tolist())
+
+    data.corpus_reddit.save(reddit_corpus)
+    loaded_corpus = data.corpus_reddit.load()
+
+    # for each doc test all attributes of document are the same and test that all tokens match
+    for original_doc, new_doc in zip(reddit_corpus, loaded_corpus):
+        assert original_doc._text_original == new_doc._text_original
+        assert original_doc._text_cleaned == new_doc._text_cleaned
+        assert (original_doc.token_embeddings() == new_doc.token_embeddings()).all()
+        assert (original_doc.embeddings() == new_doc.embeddings()).all()
+        for loaded_t, original_t in zip(new_doc._tokens, original_doc._tokens):
+            _assert_tokens_equal(loaded_t, original_t)
+
+    ####
+    # Lets make sure the vectorizers/etc. produce the same results
+    ####
+    test_text_value = "This is a post about BMW cars and how to fix my engine"
+    orig_vector = reddit_corpus.\
+        text_to_count_vector(test_text_value).\
+        toarray()
+    assert orig_vector.sum() > 1
+    new_vector = loaded_corpus.\
+        text_to_count_vector(test_text_value).\
+        toarray()
+    assert (orig_vector == new_vector).all()
+
+    orig_vector = reddit_corpus.\
+        text_to_tf_idf_vector(test_text_value).\
+        toarray()
+    assert orig_vector.sum() > 0
+    new_vector = loaded_corpus.\
+        text_to_tf_idf_vector(test_text_value).\
+        toarray()
+    assert (orig_vector == new_vector).all()
+
+    assert (reddit_corpus.embeddings_matrix() == loaded_corpus.embeddings_matrix()).all()
+    assert (reddit_corpus.count_vectorizer_vocab() == loaded_corpus.count_vectorizer_vocab()).all()  # noqa
+    assert (reddit_corpus.tf_idf_vectorizer_vocab() == loaded_corpus.tf_idf_vectorizer_vocab()).all()  # noqa
+    assert (reddit_corpus.similarity_matrix(how='embeddings-tf_idf') == loaded_corpus.similarity_matrix(how='embeddings-tf_idf')).all()  # noqa
+    assert (reddit_corpus.calculate_similarities(text=test_text_value, how='embeddings-tf_idf') == loaded_corpus.calculate_similarities(text=test_text_value, how='embeddings-tf_idf')).all()  # noqa
+    shutil.rmtree(data.corpus_reddit.sub_directory)
