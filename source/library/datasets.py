@@ -341,6 +341,7 @@ class Datasets(DatasetsBase):
             description="This dataset was copied from https://github.com/blueprints-for-text-analytics-python/blueprints-text/tree/master/data/reddit-selfposts",  # noqa
             dependencies=[],
             directory='/code/artifacts/data/raw',
+            cache=False,
         )
         self.reddit_corpus = CorpusDataLoader(
             description="reddit dataset transformed to a corpus dataset",
@@ -353,11 +354,13 @@ class Datasets(DatasetsBase):
             description="This dataset was copied from https://github.com/blueprints-for-text-analytics-python/blueprints-text/tree/master/data/un-general-debates",  # noqa
             dependencies=[],
             directory='/code/artifacts/data/raw',
+            cache=False,
         )
         self.un_debate_paragraphs = PickledDataLoader(
             description="un_debates dataset transformed to paragraphs.",
             dependencies=['un_debates'],
             directory='/code/artifacts/data/processed',
+            cache=False,
         )
         self.un_debate_corpus = CorpusDataLoader(
             description="un_debates_paragraphs transformed to a corpus dataset",
