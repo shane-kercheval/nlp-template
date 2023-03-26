@@ -13,7 +13,7 @@ def reddit():
     return pd.read_pickle(get_test_file_path('datasets/reddit__sample.pkl'))
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def documents_fake():
     return [
         '',
@@ -25,7 +25,7 @@ def documents_fake():
     ]
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def corpus_simple_example(documents_fake):
     stop_words_to_add = {'dear', 'regard'}
     stop_words_to_remove = {'down', 'no', 'none', 'nothing', 'keep'}
