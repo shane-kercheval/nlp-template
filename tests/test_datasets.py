@@ -137,6 +137,7 @@ def test__datasets__corpus(datasets_corpus_fake, corpus_simple_example):
 def test__datasets__corpus__large_files_ensure_same_order(
         datasets_corpus_fake: TestCorpusDatasets,
         reddit: pd.DataFrame):
+    reddit = reddit.copy()
     # We need to the documents are in the same order when they are read back in;
     # we can't rely on how files are sorted because it might be sorted like this:
     # file_1

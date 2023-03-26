@@ -1113,6 +1113,7 @@ def test__corpus__get_similar_doc_indexes(corpus_simple_example, documents_fake)
 
 
 def test__corpus__tokens__reddit(corpus_reddit, reddit):
+    reddit = reddit.copy()
     corpus = corpus_reddit
     # check that the original text in each document in the corpus matches the original post (i.e.
     # in the same order)
@@ -1197,6 +1198,7 @@ def test__corpus__embeddings__reddit(corpus_reddit):
 
 
 def test__corpus__vectorizers__reddit(corpus_reddit, reddit):
+    reddit = reddit.copy()
     corpus = corpus_reddit
     ####
     # Test Count/Vectors
@@ -1211,7 +1213,7 @@ def test__corpus__vectorizers__reddit(corpus_reddit, reddit):
     # text text_to_count_vector by confirming if we pass in the same text we originally passed in
     # then it will get processed and vectorized in the same way and therefore have the same vector
     # values
-    reddit_post_list = reddit['post'].tolist()
+    reddit_post_list = reddit['post'].tolist().copy()
     for i in range(len(corpus)):
         vector = corpus.text_to_count_vector(text=reddit_post_list[i])
         vector = vector.toarray()[0]
