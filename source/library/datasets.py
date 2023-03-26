@@ -250,7 +250,7 @@ class CorpusDataLoader(DataPersistence):
     """
     Class that saves and loads a Corpus to/from a set json files (one json per document).
 
-    A directory is created that corresponds to the name of the object and the json files are 
+    A directory is created that corresponds to the name of the object and the json files are
     stored in that directory.
     """
     def __init__(
