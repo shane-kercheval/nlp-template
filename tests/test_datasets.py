@@ -147,7 +147,8 @@ def test__datasets__corpus__large_files_ensure_same_order(
     data = datasets_corpus_fake
     reddit_corpus = create_reddit_corpus_object()
     reddit_corpus.fit(documents=reddit['post'].tolist())
-
+    # save data to file and reload, then test that the re-loaded corpus has the same functionality
+    # as the original
     data.corpus_reddit.save(reddit_corpus)
     loaded_corpus = data.corpus_reddit.load()
 
