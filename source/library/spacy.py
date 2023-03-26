@@ -2,7 +2,7 @@ from collections import Counter
 from concurrent.futures import ProcessPoolExecutor
 from functools import lru_cache, singledispatchmethod
 from itertools import islice
-from typing import Callable, Iterable, Optional, Union
+from typing import Callable, Generator, Iterable, Optional, Union
 
 import pandas as pd
 import numpy as np
@@ -483,7 +483,7 @@ class Corpus:
             self.documents = [item for sublist in results for item in sublist]
             assert len(self.documents) == len(documents)
 
-    def to_doc_dicts(self) -> list[dict]:
+    def to_doc_dicts(self) -> Generator[dict]:
         """
         This function transforms all of the documents into a dictionary that can be saved as a
         json. It does **not** transform the entire object into a dictionary. In order to recreate
