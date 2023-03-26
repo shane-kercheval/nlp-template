@@ -483,7 +483,7 @@ class Corpus:
             self.documents = [item for sublist in results for item in sublist]
             assert len(self.documents) == len(documents)
 
-    def to_doc_dicts(self) -> Generator[dict]:
+    def to_doc_dicts(self) -> Generator[dict, None, None]:
         """
         This function transforms all of the documents into a dictionary that can be saved as a
         json. It does **not** transform the entire object into a dictionary. In order to recreate

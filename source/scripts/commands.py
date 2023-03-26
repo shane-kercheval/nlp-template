@@ -86,6 +86,8 @@ def transform():
 
     with Timer(f"Saving Reddit Corpus ({len(reddit):,} documents)"):
         DATA.reddit_corpus.save(corpus)
+    del corpus
+    del reddit
 
     ####
     # UN Debate Data
@@ -107,7 +109,10 @@ def transform():
         )
         un_debate_paragraphs['text'] = un_debate_paragraphs['text'].str.strip()
         un_debate_paragraphs = un_debate_paragraphs[un_debate_paragraphs['text'] != '']
-    DATA.un_debate_paragraphs.save(un_debate_paragraphs)
+        del un_debates
+
+    with Timer("Saving UN dataset"):
+        DATA.un_debate_paragraphs.save(un_debate_paragraphs)
 
     un_debate_paragraphs = un_debate_paragraphs.sample(100_000)
     with Timer(f"Creating UN dataset Corpus ({len(un_debate_paragraphs):,} documents)"):
@@ -126,7 +131,7 @@ def transform():
         assert all(x not in corpus.stop_words for x in stop_words_to_remove)
         corpus.fit(documents=un_debate_paragraphs['text'].tolist())
 
-    with Timer(f"Saving UN Corpus ({len(reddit):,} documents)"):
+    with Timer(f"Saving UN Corpus ({len(un_debate_paragraphs):,} documents)"):
         DATA.un_debate_corpus.save(corpus)
 
 
