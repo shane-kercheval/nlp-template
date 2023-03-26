@@ -83,7 +83,9 @@ def transform():
         assert all(x in corpus.stop_words for x in stop_words_to_add)
         assert all(x not in corpus.stop_words for x in stop_words_to_remove)
         corpus.fit(documents=reddit['post'].tolist())
-    DATA.reddit_corpus.save(corpus)
+
+    with Timer(f"Saving Reddit Corpus ({len(reddit):,} documents)"):
+        DATA.reddit_corpus.save(corpus)
 
     ####
     # UN Debate Data
@@ -123,7 +125,9 @@ def transform():
         assert all(x in corpus.stop_words for x in stop_words_to_add)
         assert all(x not in corpus.stop_words for x in stop_words_to_remove)
         corpus.fit(documents=un_debate_paragraphs['text'].tolist())
-    DATA.un_debate_corpus.save(corpus)
+
+    with Timer(f"Saving UN Corpus ({len(reddit):,} documents)"):
+        DATA.un_debate_corpus.save(corpus)
 
 
 @main.command()
