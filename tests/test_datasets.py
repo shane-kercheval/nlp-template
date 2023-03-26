@@ -3,56 +3,9 @@ import os
 import pandas as pd
 import numpy as np
 
-from source.library.datasets import CorpusDataLoader, DatasetsBase, PickledDataLoader, \
-    CsvDataLoader, create_reddit_corpus_object, create_un_corpus_object
 
-
-class TestDatasets(DatasetsBase):
-    def __init__(self) -> None:
-        # define the datasets before calling __init__()
-        self.dataset_1 = PickledDataLoader(
-            description="Dataset description",
-            dependencies=['SNOWFLAKE.SCHEMA.TABLE'],
-            directory='.',
-            cache=True,
-        )
-        self.other_dataset_2 = PickledDataLoader(
-            description="Other dataset description",
-            dependencies=['dataset_1'],
-            directory='.',
-            cache=True,
-        )
-        self.dataset_3_csv = CsvDataLoader(
-            description="Other dataset description",
-            dependencies=['other_dataset_2'],
-            directory='.',
-            cache=True,
-        )
-        super().__init__()
-
-
-class TestCorpusDatasets(DatasetsBase):
-    def __init__(self, cache: bool) -> None:
-        # define the datasets before calling __init__()
-        self.corpus_reddit = CorpusDataLoader(
-            description="Reddit Corpus description",
-            dependencies=['other_dataset_1'],
-            directory='.',
-            corpus_creator=create_reddit_corpus_object,
-            cache=cache,
-        )
-        self.corpus_un = CorpusDataLoader(
-            description="UN Corpus description",
-            dependencies=['other_dataset_2'],
-            directory='.',
-            corpus_creator=create_un_corpus_object,
-            cache=cache,
-        )
-        super().__init__()
-
-
-def test__datasets():
-    data = TestDatasets()
+def test__datasets(datasets_fake):
+    data = datasets_fake
     assert data.datasets == ['dataset_1', 'dataset_3_csv', 'other_dataset_2']
     assert data.descriptions == [
         {'dataset': 'dataset_1', 'description': 'Dataset description'},
@@ -137,8 +90,8 @@ def _assert_tokens_equal(loaded_token, original_token):
     assert loaded_token.sentiment == original_token.sentiment
 
 
-def test__datasets__corpus(corpus_simple_example):
-    data = TestCorpusDatasets(cache=True)
+def test__datasets__corpus(datasets_corpus_fake, corpus_simple_example):
+    data = datasets_corpus_fake
     assert data.datasets == ['corpus_reddit', 'corpus_un']
     assert data.descriptions == [
         {'dataset': 'corpus_reddit', 'description': 'Reddit Corpus description'},

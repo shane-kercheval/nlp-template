@@ -1,5 +1,7 @@
 import pytest
 import pandas as pd
+from source.library.datasets import CorpusDataLoader, CsvDataLoader, DatasetsBase, \
+    PickledDataLoader, create_reddit_corpus_object, create_un_corpus_object
 
 from tests.helpers import get_test_file_path
 from source.library.spacy import Corpus
@@ -99,3 +101,58 @@ def corpus_reddit_parallel(reddit):
     assert all(x in corpus.stop_words for x in stop_words_to_add)
     assert all(x not in corpus.stop_words for x in stop_words_to_remove)
     return corpus
+
+
+class TestDatasets(DatasetsBase):
+    def __init__(self) -> None:
+        # define the datasets before calling __init__()
+        self.dataset_1 = PickledDataLoader(
+            description="Dataset description",
+            dependencies=['SNOWFLAKE.SCHEMA.TABLE'],
+            directory='.',
+            cache=True,
+        )
+        self.other_dataset_2 = PickledDataLoader(
+            description="Other dataset description",
+            dependencies=['dataset_1'],
+            directory='.',
+            cache=True,
+        )
+        self.dataset_3_csv = CsvDataLoader(
+            description="Other dataset description",
+            dependencies=['other_dataset_2'],
+            directory='.',
+            cache=True,
+        )
+        super().__init__()
+
+
+class TestCorpusDatasets(DatasetsBase):
+    def __init__(self, cache: bool) -> None:
+        # define the datasets before calling __init__()
+        self.corpus_reddit = CorpusDataLoader(
+            description="Reddit Corpus description",
+            dependencies=['other_dataset_1'],
+            directory='.',
+            corpus_creator=create_reddit_corpus_object,
+            cache=cache,
+        )
+        self.corpus_un = CorpusDataLoader(
+            description="UN Corpus description",
+            dependencies=['other_dataset_2'],
+            directory='.',
+            corpus_creator=create_un_corpus_object,
+            cache=cache,
+        )
+        super().__init__()
+
+
+@pytest.fixture
+def datasets_fake():
+    return TestDatasets()
+
+@pytest.fixture
+def datasets_corpus_fake():
+    return TestCorpusDatasets(cache=True)
+
+
