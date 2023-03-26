@@ -23,13 +23,18 @@ df = ...logic..
 DATA.the_dataset.save(df)
 ```
 """
+import json
 import os
 import datetime
 import logging
 import pickle
 from abc import ABC, abstractmethod
+from typing import Callable
 
 import pandas as pd
+
+from source.library.spacy import Corpus
+from source.library.text_preparation import clean
 
 
 class DataPersistence(ABC):
@@ -37,7 +42,7 @@ class DataPersistence(ABC):
     Class that wraps the logic of saving/loading/describing a given dataset.
     Meant to be subclassed with specific types of loaders (e.g. pickle, csv, database, etc.)
     """
-    def __init__(self, description: str, dependencies: list):
+    def __init__(self, description: str, dependencies: list, cache: bool = False):
         """
         Args:
             description: description of the dataset
@@ -45,11 +50,12 @@ class DataPersistence(ABC):
         """
         self.description = description
         self.dependencies = dependencies
+        self.cache = cache
         self.name = None  # this is set dynamically
-        self._data = None
+        self._cached_data = None
 
     def clear_cache(self):
-        self._data = None
+        self._cached_data = None
 
     @abstractmethod
     def _load(self):
@@ -61,13 +67,17 @@ class DataPersistence(ABC):
 
     def load(self):
         assert self.name
-        if self._data is None:
-            self._data = self._load()
-        return self._data
+        if self.cache:
+            if self._cached_data is None:
+                self._cached_data = self._load()
+            return self._cached_data
+        else:
+            return self._load()
 
     def save(self, data):
         assert self.name
-        self._data = data
+        if self.cache:
+            self._cached_data = data
         self._save(data)
 
 
@@ -78,13 +88,13 @@ class FileDataPersistence(DataPersistence):
     the file with a timestamp)
     Meant to be subclassed with specific types of loaders (e.g. pickle, csv, etc.)
     """
-    def __init__(self, description: str, dependencies: list, directory: str):
+    def __init__(self, description: str, dependencies: list, directory: str, cache: bool = False):
         """
         Args:
             description: description of the dataset
             dependencies: dependencies of the dataset
         """
-        super().__init__(description, dependencies)
+        super().__init__(description=description, dependencies=dependencies, cache=cache)
         self.directory = directory
 
     @abstractmethod
@@ -129,7 +139,7 @@ class PickledDataLoader(FileDataPersistence):
     """
     Class that wraps the logic of saving/loading/describing a given dataset.
     """
-    def __init__(self, description: str, dependencies: list, directory: str):
+    def __init__(self, description: str, dependencies: list, directory: str, cache: bool = False):
         """
         Args:
             description: description of the dataset
@@ -139,7 +149,12 @@ class PickledDataLoader(FileDataPersistence):
                 name which is assigned at a later point in time based on the property name in the
                 `Datasets` class.
         """
-        super().__init__(description, dependencies, directory)
+        super().__init__(
+            description=description,
+            dependencies=dependencies,
+            directory=directory,
+            cache=cache
+        )
 
     @property
     def file_extension(self):
@@ -159,7 +174,7 @@ class CsvDataLoader(FileDataPersistence):
     """
     Class that wraps the logic of saving/loading/describing a given dataset.
     """
-    def __init__(self, description: str, dependencies: list, directory: str):
+    def __init__(self, description: str, dependencies: list, directory: str, cache: bool = False):
         """
         Args:
             description: description of the dataset
@@ -169,7 +184,12 @@ class CsvDataLoader(FileDataPersistence):
                 which is assigned at a later point in time based on the property name in the
                 `Datasets` class.
         """
-        super().__init__(description, dependencies, directory)
+        super().__init__(
+            description=description,
+            dependencies=dependencies,
+            directory=directory,
+            cache=cache
+        )
 
     @property
     def file_extension(self):
@@ -180,6 +200,91 @@ class CsvDataLoader(FileDataPersistence):
 
     def _save(self, data: pd.DataFrame):
         data.to_csv(self.path, index=None)
+
+
+def create_reddit_corpus_object() -> Corpus:
+    """
+    This function ensures we create the reddit Corpus object in the same way each time.
+    We do not want to serialize the entire Corpus object because we initialize it with a function
+    for cleaning new/unseen text, which we can't serialize to json.
+    """
+    stop_words_to_add = {'dear', 'regard', '_number_', '_tag_'}
+    stop_words_to_remove = {'down', 'no', 'none', 'nothing', 'keep'}
+    corpus = Corpus(
+        stop_words_to_add=stop_words_to_add,
+        stop_words_to_remove=stop_words_to_remove,
+        pre_process=clean,
+        spacy_model='en_core_web_sm',
+        sklearn_tokenenizer_min_df=20,
+        sklearn_tokenenizer_max_tokens=200,
+        sklearn_tokenenizer_max_bi_grams=30,
+    )
+    assert all(x in corpus.stop_words for x in stop_words_to_add)
+    assert all(x not in corpus.stop_words for x in stop_words_to_remove)
+    return corpus
+
+
+def create_un_corpus_object() -> Corpus:
+    """
+    This function ensures we create the reddit Corpus object in the same way each time.
+    We do not want to serialize the entire Corpus object because we initialize it with a function
+    for cleaning new/unseen text, which we can't serialize to json.
+    """
+    stop_words_to_add = {'dear', 'regard', '_number_', '_tag_'}
+    stop_words_to_remove = {'down', 'no', 'none', 'nothing', 'keep'}
+    corpus = Corpus(
+        stop_words_to_add=stop_words_to_add,
+        stop_words_to_remove=stop_words_to_remove,
+        pre_process=clean,
+        spacy_model='en_core_web_sm',
+        sklearn_tokenenizer_min_df=20,
+        sklearn_tokenenizer_max_tokens=200,
+        sklearn_tokenenizer_max_bi_grams=30,
+    )
+    assert all(x in corpus.stop_words for x in stop_words_to_add)
+    assert all(x not in corpus.stop_words for x in stop_words_to_remove)
+    return corpus
+
+
+class CorpusDataLoader(FileDataPersistence):
+    """
+    Class that saves and loads a Corpus to/from a json file.
+    """
+    def __init__(
+            self,
+            description: str,
+            dependencies: list,
+            directory: str,
+            corpus_creator: Callable[[], Corpus],
+            cache: bool = False):
+        """
+        Args:
+            description: description of the dataset
+            dependencies: dependencies of the dataset
+            corpus_creator: callable that creates a Corpus object
+        """
+        super().__init__(
+            description=description,
+            dependencies=dependencies,
+            directory=directory,
+            cache=cache
+        )
+        self._corpus_creator = corpus_creator
+
+    @property
+    def file_extension(self):
+        return '.json'
+
+    def _load(self) -> list[dict]:
+        with open(self.path, 'r') as f:
+            loaded_json = json.load(f)
+        corpus = self._corpus_creator()
+        corpus.from_doc_dicts(loaded_json)
+        return corpus
+
+    def _save(self, data: Corpus):
+        with open(self.path, 'w') as f:
+            json.dump(data.to_doc_dicts(), f)
 
 
 class DatasetsBase(ABC):

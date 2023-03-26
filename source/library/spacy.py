@@ -109,7 +109,9 @@ class Token:
         return self.text
 
     def to_dict(self) -> dict:
-        _dict = self.__dict__
+        # copy because we are modifying the embeddings property and we don't want to modify the
+        # underlying values
+        _dict = self.__dict__.copy()
         if isinstance(_dict['embeddings'], np.ndarray):
             _dict['embeddings'] = _dict['embeddings'].tolist()
         return _dict

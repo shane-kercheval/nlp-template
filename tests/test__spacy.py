@@ -158,6 +158,7 @@ def test__tokens__to_dict():
         _file_name = get_test_file_path(f'spacy/token__to_dict__index_{index}.txt')
         with open(_file_name, 'w') as f:
             json.dump(parsed_token.to_dict(), f)
+        assert isinstance(parsed_token.embeddings, np.ndarray)
         with open(_file_name, 'r') as f:
             loaded_json = json.load(f)
         assert loaded_json
