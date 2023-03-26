@@ -513,7 +513,7 @@ class Corpus:
         corpus.from_doc_dicts(docs_json)  # call instead of `.fit()`
         ```
         """
-        return [d.to_dict() for d in self.documents]
+        return (d.to_dict() for d in self.documents)
 
     def from_doc_dicts(self, doc_dicts: list[dict]):
         """

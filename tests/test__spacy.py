@@ -191,11 +191,20 @@ def test__document__to_dict():
 
 
 def test__corpus__to_dict(corpus_simple_example):
-    _file_name = get_test_file_path('spacy/corpus__to_doc_dicts__simple_example.txt')
-    with open(_file_name, 'w') as f:
-        json.dump(corpus_simple_example.to_doc_dicts(), f)
-    with open(_file_name, 'r') as f:
-        loaded_json = json.load(f)
+    def _create_file_name(index: int) -> str:
+        return get_test_file_path(f'spacy/corpus__to_doc_dicts__simple_example__{index}.json')
+
+    # this is how I would save to file for large corpuses
+    for index, doc_dict in enumerate(corpus_simple_example.to_doc_dicts()):
+        with open(_create_file_name(index=index), 'w') as f:
+            # json.dump() method writes the JSON string directly to the file object, so we don't
+            # have to create the JSON string first.
+            json.dump(doc_dict, f)
+
+    def read_json_files():
+        for index in range(len(corpus_simple_example)):
+            with open(_create_file_name(index=index), 'r') as f:
+                yield json.load(f)
 
     # recreate the original Corpus with a new object
     stop_words_to_add = {'dear', 'regard'}
@@ -207,7 +216,7 @@ def test__corpus__to_dict(corpus_simple_example):
         spacy_model='en_core_web_md',
         sklearn_tokenenizer_min_df=1,
     )
-    new_corpus.from_doc_dicts(loaded_json)
+    new_corpus.from_doc_dicts(read_json_files())
 
     # for each doc test all attributes of document are the same and retest all tokens match
     for original_doc, new_doc in zip(corpus_simple_example, new_corpus):
