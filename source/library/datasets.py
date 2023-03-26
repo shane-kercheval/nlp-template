@@ -342,10 +342,12 @@ class Datasets(DatasetsBase):
             dependencies=[],
             directory='/code/artifacts/data/raw',
         )
-        self.reddit_corpus = PickledDataLoader(
+        self.reddit_corpus = CorpusDataLoader(
             description="reddit dataset transformed to a corpus dataset",
             dependencies=['reddit'],
             directory='/code/artifacts/data/processed',
+            corpus_creator=create_reddit_corpus_object,
+            cache=False,
         )
         self.un_debates = PickledDataLoader(
             description="This dataset was copied from https://github.com/blueprints-for-text-analytics-python/blueprints-text/tree/master/data/un-general-debates",  # noqa
@@ -357,10 +359,12 @@ class Datasets(DatasetsBase):
             dependencies=['un_debates'],
             directory='/code/artifacts/data/processed',
         )
-        self.un_debate_corpus = PickledDataLoader(
+        self.un_debate_corpus = CorpusDataLoader(
             description="un_debates_paragraphs transformed to a corpus dataset",
             dependencies=['un_debate_paragraphs'],
             directory='/code/artifacts/data/processed',
+            corpus_creator=create_un_corpus_object,
+            cache=False,
         )
         # call __init__() after defining properties
         super().__init__()
