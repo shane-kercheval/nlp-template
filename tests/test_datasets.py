@@ -107,10 +107,11 @@ def test__datasets__corpus(datasets_corpus_fake, corpus_simple_example):
         {'dataset': 'corpus_un', 'dependencies': ['other_dataset_2']},
     ]
     assert data.corpus_reddit._cached_data is None
-    assert data.corpus_reddit.path == './corpus_reddit.json'
-    assert not os.path.isfile(data.corpus_reddit.path)
+
+    assert data.corpus_reddit.sub_directory == './corpus_reddit__json'
+    assert not os.path.exists(data.corpus_reddit.sub_directory)
     data.corpus_reddit.save(corpus_simple_example)
-    assert os.path.isfile(data.corpus_reddit.path)
+    assert os.path.exists(data.corpus_reddit.sub_directory)
     assert data.corpus_reddit._cached_data is not None
     # loading the cached value
     loaded_corpus = data.corpus_reddit.load()
@@ -124,7 +125,7 @@ def test__datasets__corpus(datasets_corpus_fake, corpus_simple_example):
     data.corpus_reddit.clear_cache()
     assert data.corpus_reddit._cached_data is None
     loaded_corpus = data.corpus_reddit.load()
-    os.remove(data.corpus_reddit.path)
+    shutil.rmtree(data.corpus_reddit.sub_directory)
     # for each doc test all attributes of document are the same and retest all tokens match
     for original_doc, loaded_doc in zip(corpus_simple_example, loaded_corpus):
         assert original_doc._text_original == loaded_doc._text_original
