@@ -8,12 +8,12 @@ from source.library.spacy import Corpus
 from source.library.text_preparation import clean
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def reddit():
     return pd.read_pickle(get_test_file_path('datasets/reddit__sample.pkl'))
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def documents_fake():
     return [
         '',
@@ -25,7 +25,7 @@ def documents_fake():
     ]
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def corpus_simple_example(documents_fake):
     stop_words_to_add = {'dear', 'regard'}
     stop_words_to_remove = {'down', 'no', 'none', 'nothing', 'keep'}
@@ -50,8 +50,9 @@ def corpus_simple_example(documents_fake):
     return corpus
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def corpus_reddit(reddit):
+    reddit = reddit.copy()
     # this Corpus is fit() without parallelization
     # it is used for base tests and to compare against Corpus fit() with parallelization
     stop_words_to_add = {'dear', 'regard', '_number_', '_tag_'}
@@ -78,8 +79,9 @@ def corpus_reddit(reddit):
     return corpus
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def corpus_reddit_parallel(reddit):
+    reddit = reddit.copy()
     stop_words_to_add = {'dear', 'regard', '_number_', '_tag_'}
     stop_words_to_remove = {'down', 'no', 'none', 'nothing', 'keep'}
 
@@ -147,12 +149,11 @@ class TestCorpusDatasets(DatasetsBase):
         super().__init__()
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def datasets_fake():
     return TestDatasets()
 
-@pytest.fixture
+
+@pytest.fixture(scope='function')
 def datasets_corpus_fake():
     return TestCorpusDatasets(cache=True)
-
-
