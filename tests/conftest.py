@@ -137,6 +137,7 @@ class TestCorpusDatasets(DatasetsBase):
             dependencies=['other_dataset_1'],
             directory='.',
             corpus_creator=create_reddit_corpus_object,
+            batch_size=100,
             cache=cache,
         )
         self.corpus_un = CorpusDataLoader(

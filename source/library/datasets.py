@@ -23,6 +23,7 @@ df = ...logic..
 DATA.the_dataset.save(df)
 ```
 """
+import asyncio
 import json
 import os
 import datetime
@@ -246,6 +247,13 @@ def create_un_corpus_object() -> Corpus:
     return corpus
 
 
+def save_to_json(data: dict, file_name: str) -> None:
+    with open(file_name, 'w') as f:
+        # json.dump() method writes the JSON string directly to the file object, so we
+        # don't have to create the JSON string first.
+        json.dump(data, f)
+
+
 class CorpusDataLoader(DataPersistence):
     """
     Class that saves and loads a Corpus to/from a set json files (one json per document).
@@ -259,6 +267,7 @@ class CorpusDataLoader(DataPersistence):
             dependencies: list,
             directory: str,
             corpus_creator: Callable[[], Corpus],
+            batch_size: int = 1000,
             cache: bool = False):
         """
         Args:
@@ -273,6 +282,8 @@ class CorpusDataLoader(DataPersistence):
         )
         self.directory = directory
         self._corpus_creator = corpus_creator
+        self._batch_size = batch_size
+        self.loop = asyncio.new_event_loop()
 
     @property
     def sub_directory(self) -> str:
@@ -300,6 +311,14 @@ class CorpusDataLoader(DataPersistence):
             with open(os.path.join(self.sub_directory, file_name), 'r') as f:
                 yield json.load(f)
 
+    async def _save_async(self, doc_dicts: list[dict], start_index):
+        tasks = []
+        for index, doc_dict in enumerate(doc_dicts):
+            file_name = self._get_file_name(index=index + start_index)
+            task = self.loop.run_in_executor(None, save_to_json, doc_dict, file_name)
+            tasks.append(task)
+        await asyncio.gather(*tasks)
+
     def _save(self, data: Corpus):
         logging.info(f"Saving Corpus object to `{self.sub_directory}`")
         # check if the directory exists; if it doesn't, create it; if it does, remove all files
@@ -308,12 +327,13 @@ class CorpusDataLoader(DataPersistence):
             shutil.rmtree(self.sub_directory)
         os.mkdir(self.sub_directory)
 
-        # this is how I would save to file for large corpuses
-        for index, doc_dict in enumerate(data.to_doc_dicts()):
-            with open(self._get_file_name(index=index), 'w') as f:
-                # json.dump() method writes the JSON string directly to the file object, so we
-                # don't have to create the JSON string first.
-                json.dump(doc_dict, f)
+        from itertools import islice
+        gen = data.to_doc_dicts()
+        start_index = 0
+        for batch in iter(lambda: list(islice(gen, self._batch_size)), []):
+            logging.info(f"Saving to JSON; processing {len(batch)} items; start_index = {start_index}...")  # noqa
+            self.loop.run_until_complete(self._save_async(batch, start_index))
+            start_index += len(batch)
 
     def _load(self) -> list[dict]:
         corpus = self._corpus_creator()

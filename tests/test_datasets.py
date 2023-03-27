@@ -149,7 +149,11 @@ def test__datasets__corpus__large_files_ensure_same_order(
     # save data to file and reload, then test that the re-loaded corpus has the same functionality
     # as the original
     data.corpus_reddit.save(reddit_corpus)
+    assert data.corpus_reddit._cached_data is not None
+    data.corpus_reddit.clear_cache()
+    assert data.corpus_reddit._cached_data is None
     loaded_corpus = data.corpus_reddit.load()
+    shutil.rmtree(data.corpus_reddit.sub_directory)
 
     # for each doc test all attributes of document are the same and test that all tokens match
     for original_doc, new_doc in zip(reddit_corpus, loaded_corpus):
@@ -187,4 +191,3 @@ def test__datasets__corpus__large_files_ensure_same_order(
     assert (reddit_corpus.tf_idf_vectorizer_vocab() == loaded_corpus.tf_idf_vectorizer_vocab()).all()  # noqa
     assert (reddit_corpus.similarity_matrix(how='embeddings-tf_idf') == loaded_corpus.similarity_matrix(how='embeddings-tf_idf')).all()  # noqa
     assert (reddit_corpus.calculate_similarities(text=test_text_value, how='embeddings-tf_idf') == loaded_corpus.calculate_similarities(text=test_text_value, how='embeddings-tf_idf')).all()  # noqa
-    shutil.rmtree(data.corpus_reddit.sub_directory)
