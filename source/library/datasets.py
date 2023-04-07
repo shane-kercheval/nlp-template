@@ -336,6 +336,7 @@ class CorpusDataLoader(DataPersistence):
             start_index += len(batch)
 
     def _load(self) -> list[dict]:
+        logging.info(f"Loading Corpus object from `{self.sub_directory}`")
         corpus = self._corpus_creator()
         corpus.from_doc_dicts(self._read_json_files())
         return corpus
