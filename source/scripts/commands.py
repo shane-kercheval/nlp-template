@@ -114,7 +114,7 @@ def transform():
     with Timer("Saving UN dataset"):
         DATA.un_debate_paragraphs.save(un_debate_paragraphs)
 
-    un_debate_paragraphs = un_debate_paragraphs.sample(100_000)
+    un_debate_paragraphs = un_debate_paragraphs.sample(20_000)
     with Timer(f"Creating UN dataset Corpus ({len(un_debate_paragraphs):,} documents)"):
         stop_words_to_add = {'dear', 'regard', '_number_', '_tag_'}
         stop_words_to_remove = {'down', 'no', 'none', 'nothing', 'keep'}
