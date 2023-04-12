@@ -46,10 +46,10 @@ data: data_extract data_transform
 
 ## Run the basic exploration notebook(s).
 exploration_basic:
-	jupyter nbconvert --execute --to html source/notebooks/text_eda_un_debates.ipynb
-	mv source/notebooks/text_eda_un_debates.html output/data/text_eda_un_debates.html
 	jupyter nbconvert --execute --to html source/notebooks/text_eda_reddit.ipynb
 	mv source/notebooks/text_eda_reddit.html output/data/text_eda_reddit.html
+	# jupyter nbconvert --execute --to html source/notebooks/text_eda_un_debates.ipynb
+	# mv source/notebooks/text_eda_un_debates.html output/data/text_eda_un_debates.html
 
 ## Run all the NLP notebooks.
 exploration: exploration_basic

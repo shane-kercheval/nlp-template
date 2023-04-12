@@ -1,0 +1,2 @@
+  text lemma  is_stop_word                                         embeddings part_of_speech  is_punctuation  is_special  is_alpha  is_numeric  is_ascii   dep entity_type  sentiment
+0    I     i          True  [-1.8607, 0.15804, -4.1425, -8.6359, -16.955, ...           PRON           False       False      True       False      True  ROOT                    0.0

@@ -13,6 +13,7 @@ RUN rm requirements.txt
 
 RUN pip install -U spacy
 RUN python -m spacy download en_core_web_sm
+RUN python -m spacy download en_core_web_md
 
 WORKDIR /
 RUN pip install fasttext

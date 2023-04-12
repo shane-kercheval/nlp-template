@@ -1,0 +1,6 @@
+
+<b>This is 1 document that has very important information</b> and some $ & # characters.
+I
+This is another (the 2nd i.e. 2) unimportant document with almost no #awesome information!!
+  
+However, this is 'another' document with hyphen-word. & It has two sentences and is dumb.
