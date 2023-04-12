@@ -1298,6 +1298,8 @@ class Corpus:
             return self.documents[index]
         elif isinstance(index, slice):
             return self.documents[index.start:index.stop:index.step]
+        elif isinstance(index, list) or isinstance(index, np.ndarray):
+            return [self.documents[i] for i in index]
         else:
             raise TypeError("Invalid index type")
 

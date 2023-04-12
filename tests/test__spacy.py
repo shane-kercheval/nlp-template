@@ -1265,3 +1265,34 @@ def test__Corpus_num_batches(corpus_reddit, corpus_reddit_parallel):
         (np.embeddings() == p.embeddings()).all()
         for np, p in zip(corpus_reddit, corpus_reddit_parallel)
     )
+
+
+def test__corpus__indexing(corpus_simple_example):
+    original_text = [x.text(original=True) for x in corpus_simple_example]
+    # test individual indexes
+    for i in range(len(original_text)):
+        assert corpus_simple_example[i].text(original=True) == original_text[i]
+
+    # test slice
+    corpus_slice = corpus_simple_example[0:4]
+    assert isinstance(corpus_slice, list)
+    assert len(corpus_slice) == 4
+    assert original_text[0:4] == [x.text(original=True) for x in corpus_slice]
+    corpus_slice = corpus_simple_example[3:6]
+    assert isinstance(corpus_slice, list)
+    assert len(corpus_slice) == 3
+    assert original_text[3:6] == [x.text(original=True) for x in corpus_slice]
+
+    # test list
+    index_list = [0, 4, 3, 1]
+    corpus_indexed_list = corpus_simple_example[index_list]
+    assert isinstance(corpus_indexed_list, list)
+    assert len(corpus_indexed_list) == len(index_list)
+    assert [original_text[i] for i in index_list] == [x.text(original=True) for x in corpus_indexed_list]  # noqa
+
+    # test numpy array
+    index_list = np.array([5, 1, 3, 2])
+    corpus_indexed_list = corpus_simple_example[index_list]
+    assert isinstance(corpus_indexed_list, list)
+    assert len(corpus_indexed_list) == len(index_list)
+    assert [original_text[i] for i in index_list] == [x.text(original=True) for x in corpus_indexed_list]  # noqa
