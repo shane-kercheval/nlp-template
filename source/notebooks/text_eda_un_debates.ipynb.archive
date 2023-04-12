@@ -38,7 +38,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 1,
    "id": "66085eae",
    "metadata": {},
    "outputs": [],
@@ -48,25 +48,99 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 2,
    "id": "3492686a",
    "metadata": {},
    "outputs": [],
    "source": [
+    "from helpsk.logging import Timer\n",
     "from source.library.text_analysis import count_tokens, tf_idf, get_context_from_keyword, count_keywords, \\\n",
-    "    count_keywords_by, impurity"
+    "    count_keywords_by, impurity\n",
+    "from source.library.datasets import DATA"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "624dedbc",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "2023-03-27 15:35:46 - INFO     | Timer Started: Loading Data\n",
+      "2023-03-27 15:35:46 - INFO     | Loading data `un_debate_paragraphs` from `/code/artifacts/data/processed/un_debate_paragraphs.pkl`\n",
+      "2023-03-27 15:35:47 - INFO     | Timer Finished: (0.97 seconds)\n"
+     ]
+    }
+   ],
+   "source": [
+    "with Timer(\"Loading Data\"):\n",
+    "    un_paragraphs = DATA.un_debate_paragraphs.load()\n",
+    "    #un_paragraphs_corpus = DATA.un_debate_corpus.load()"
    ]
   },
   {
    "cell_type": "code",
    "execution_count": null,
-   "id": "624dedbc",
+   "id": "0359edae",
    "metadata": {},
    "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "44586dff",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "2023-03-27 15:35:50 - INFO     | Timer Started: Creating UN dataset Corpus (279,045 documents)\n"
+     ]
+    },
+    {
+     "ename": "",
+     "evalue": "",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[1;31mCanceled future for execute_request message before replies were done"
+     ]
+    },
+    {
+     "ename": "",
+     "evalue": "",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[1;31mThe Kernel crashed while executing code in the the current cell or a previous cell. Please review the code in the cell(s) to identify a possible cause of the failure. Click <a href='https://aka.ms/vscodeJupyterKernelCrash'>here</a> for more info. View Jupyter <a href='command:jupyter.viewOutput'>log</a> for further details."
+     ]
+    }
+   ],
    "source": [
-    "with Timer(\"Loading Data\"):\n",
-    "    path = 'artifacts/data/processed/un-general-debates-blueprint.pkl'\n",
-    "    df = pd.read_pickle(path)"
+    "#un_paragraphs = un_paragraphs.sample(100_000)\n",
+    "\n",
+    "from source.library.spacy import Corpus\n",
+    "from source.library.text_preparation import clean\n",
+    "\n",
+    "\n",
+    "with Timer(f\"Creating UN dataset Corpus ({len(un_paragraphs):,} documents)\"):\n",
+    "    stop_words_to_add = {'dear', 'regard', '_number_', '_tag_'}\n",
+    "    stop_words_to_remove = {'down', 'no', 'none', 'nothing', 'keep'}\n",
+    "    corpus = Corpus(\n",
+    "        stop_words_to_add=stop_words_to_add,\n",
+    "        stop_words_to_remove=stop_words_to_remove,\n",
+    "        pre_process=clean,\n",
+    "        spacy_model='en_core_web_sm',\n",
+    "        sklearn_tokenenizer_min_df=20,\n",
+    "        sklearn_tokenenizer_max_tokens=200,\n",
+    "        sklearn_tokenenizer_max_bi_grams=30,\n",
+    "    )\n",
+    "    assert all(x in corpus.stop_words for x in stop_words_to_add)\n",
+    "    assert all(x not in corpus.stop_words for x in stop_words_to_remove)\n",
+    "    corpus.fit(documents=un_paragraphs['text'].tolist(), num_batches=1000)"
    ]
   },
   {
@@ -963,7 +1037,7 @@
  ],
  "metadata": {
   "kernelspec": {
-   "display_name": "Python 3 (ipykernel)",
+   "display_name": "Python 3",
    "language": "python",
    "name": "python3"
   },
@@ -977,7 +1051,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.9.13"
+   "version": "3.10.10"
   },
   "toc": {
    "base_numbering": 1,
@@ -996,6 +1070,11 @@
    },
    "toc_section_display": true,
    "toc_window_display": true
+  },
+  "vscode": {
+   "interpreter": {
+    "hash": "949777d72b0d2535278d3dc13498b2535136f6dfe0678499012e853ee9abcab1"
+   }
   }
  },
  "nbformat": 4,
