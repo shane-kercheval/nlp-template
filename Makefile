@@ -31,7 +31,8 @@ linting:
 
 ## Run unit-tests.
 tests: linting
-	pytest tests
+	coverage run -m pytest --durations=0 tests
+	coverage html
 
 ## Extract Data
 data_extract:
