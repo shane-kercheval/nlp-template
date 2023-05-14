@@ -1,7 +1,6 @@
 import os
 import shutil
 import pandas as pd
-import numpy as np
 from source.library.datasets import create_reddit_corpus_object
 from tests.conftest import TestCorpusDatasets
 
