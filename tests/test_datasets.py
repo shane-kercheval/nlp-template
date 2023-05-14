@@ -69,9 +69,6 @@ def _assert_tokens_equal(loaded_token, original_token):
     assert loaded_token.lemma == original_token.lemma
     assert loaded_token.is_stop_word is not None
     assert loaded_token.is_stop_word == original_token.is_stop_word
-    assert loaded_token.embeddings is not None
-    assert isinstance(loaded_token.embeddings, np.ndarray)
-    assert (loaded_token.embeddings == original_token.embeddings).all()
     assert loaded_token.part_of_speech is not None
     assert loaded_token.part_of_speech == original_token.part_of_speech
     assert loaded_token.is_punctuation is not None
@@ -159,7 +156,6 @@ def test__datasets__corpus__large_files_ensure_same_order(
     for original_doc, new_doc in zip(reddit_corpus, loaded_corpus):
         assert original_doc._text_original == new_doc._text_original
         assert original_doc._text_cleaned == new_doc._text_cleaned
-        assert (original_doc.embeddings() == new_doc.embeddings()).all()
         for loaded_t, original_t in zip(new_doc._tokens, original_doc._tokens):
             _assert_tokens_equal(loaded_t, original_t)
 
@@ -188,5 +184,5 @@ def test__datasets__corpus__large_files_ensure_same_order(
     assert (reddit_corpus.embeddings_matrix() == loaded_corpus.embeddings_matrix()).all()
     assert (reddit_corpus.count_vectorizer_vocab() == loaded_corpus.count_vectorizer_vocab()).all()  # noqa
     assert (reddit_corpus.tf_idf_vectorizer_vocab() == loaded_corpus.tf_idf_vectorizer_vocab()).all()  # noqa
-    assert (reddit_corpus.similarity_matrix(how='embeddings-tf_idf') == loaded_corpus.similarity_matrix(how='embeddings-tf_idf')).all()  # noqa
-    assert (reddit_corpus.calculate_similarities(text=test_text_value, how='embeddings-tf_idf') == loaded_corpus.calculate_similarities(text=test_text_value, how='embeddings-tf_idf')).all()  # noqa
+    assert (reddit_corpus.similarity_matrix(how='embeddings') == loaded_corpus.similarity_matrix(how='embeddings')).all()  # noqa
+    assert (reddit_corpus.calculate_similarities(text=test_text_value, how='embeddings') == loaded_corpus.calculate_similarities(text=test_text_value, how='embeddings')).all()  # noqa
