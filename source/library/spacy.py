@@ -15,6 +15,7 @@ import spacy.tokens as st
 from spacy.util import compile_prefix_regex, compile_infix_regex, compile_suffix_regex
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from sentence_transformers import SentenceTransformer
 
 from helpsk.diff import diff_text
 import source.library.regex_patterns as rp
@@ -39,7 +40,6 @@ class Token:
             text: str,
             lemma: str,
             is_stop_word: bool,
-            embeddings: np.array,
             part_of_speech: str,
             is_punctuation: bool,
             is_special: bool,
@@ -52,7 +52,6 @@ class Token:
         self.text = text
         self.lemma = lemma
         self.is_stop_word = is_stop_word
-        self.embeddings = embeddings
         self.part_of_speech = part_of_speech
         self.is_punctuation = is_punctuation
         self.is_special = is_special
@@ -70,7 +69,6 @@ class Token:
             text=token.text,
             lemma=_lemma,
             is_stop_word=token.is_stop or _lemma in stop_words or token.text.lower() in stop_words,
-            embeddings=token.vector,
             part_of_speech=token.pos_,
             is_punctuation=token.is_punct or token.dep_ == 'punct' or token.pos_ == 'PUNCT',
             # TODO this isn't working
@@ -85,15 +83,10 @@ class Token:
 
     @classmethod
     def from_dict(cls, d):
-        embeddings = d.get('embeddings')
-        embeddings_dtype = d.get('embeddings_dtype', 'float32')
-        assert isinstance(embeddings, list)
-        embeddings = np.array(embeddings, dtype=embeddings_dtype)
         return cls(
             text=d.get('text'),
             lemma=d.get('lemma'),
             is_stop_word=d.get('is_stop_word'),
-            embeddings=embeddings,
             part_of_speech=d.get('part_of_speech'),
             is_punctuation=d.get('is_punctuation'),
             is_special=d.get('is_special'),
@@ -109,13 +102,7 @@ class Token:
         return self.text
 
     def to_dict(self) -> dict:
-        # copy because we are modifying the embeddings property and we don't want to modify the
-        # underlying values
-        _dict = self.__dict__.copy()
-        assert isinstance(_dict['embeddings'], np.ndarray)
-        _dict['embeddings_dtype'] = str(_dict['embeddings'].dtype)
-        _dict['embeddings'] = _dict['embeddings'].tolist()
-        return _dict
+        return self.__dict__.copy()
 
     @property
     def is_important(self):
@@ -194,7 +181,6 @@ class Document:
         if len(self) == 0:
             return {}
         token_keys = self._tokens[0].to_dict().keys()
-        token_keys = [k for k in token_keys if k != 'embeddings_dtype']
         _dict = {x: [None] * len(self) for x in token_keys}
         for i, token in enumerate(self):
             for k in token_keys:
@@ -247,22 +233,14 @@ class Document:
     def entities(self) -> Iterable[str]:
         return ((t.text, t.entity_type) for t in self._tokens if t.entity_type)
 
-    def token_embeddings(self) -> np.array:
+    def embeddings(self, model: SentenceTransformer) -> np.array:
         """
-        This function returns the vectors of the important tokens (i.e. not a stop word and not
-        punctuation).
+        Args:
+            model:
+                model from sentence_transformers package
+                https://www.sbert.net/docs/pretrained_models.html
         """
-        return np.array([t.embeddings for t in self._tokens if t.is_important])
-
-    def embeddings(self, aggregation: str = 'average') -> np.array:
-        """This function aggregates the individual token vectors into one document vector."""
-        if len(self.token_embeddings()) == 0:
-            return self.token_embeddings()
-
-        if aggregation == 'average':
-            return self.token_embeddings().mean(axis=0)
-        else:
-            raise ValueError(f"{aggregation} value not supported for `vector()`")
+        return model.encode(self.text())
 
     @lru_cache()
     def diff(self, use_lemmas: bool = False) -> str:
@@ -373,6 +351,7 @@ class Corpus:
             tokenizer: Optional[stz.Tokenizer] = None,
             pre_process: Optional[Callable] = None,
             spacy_model: str = 'en_core_web_sm',
+            embeddings_model: str = 'multi-qa-MiniLM-L6-cos-v1',
             sklearn_tokenenizer_min_df: int = 5,
             sklearn_tokenenizer_include_bi_grams: bool = True,
             sklearn_tokenenizer_max_tokens: Optional[int] = None,
@@ -399,6 +378,7 @@ class Corpus:
         self._tf_idf_matrix = None
         self.pre_process = pre_process
         self._nlp = spacy.load(spacy_model)
+        self._embeddings_model = embeddings_model
         self._nlp.Defaults.stop_words = STOP_WORDS_DEFAULT.copy()
         self._include_bi_grams = sklearn_tokenenizer_include_bi_grams
         self._max_tokens = sklearn_tokenenizer_max_tokens
@@ -1073,81 +1053,14 @@ class Corpus:
             text_b=text_b
         )
 
-    def _doc_to_tf_idf_embeddings(self, document: Document) -> np.array:
-        """
-        This function takes a document and returns a vector of aggregated token embeddings based
-        weighted by the tf_idf matrix.
-        """
-        # we'll use idf as the weight, which has greater values for words that are less
-        # frequent across all documents
-        # we ignore the Term-Frequency part because that is the number of times the term
-        # appears in a document, which will already be handled as we iterate through each
-        # token. So if a particular token appears multiple times in a doc it will get weighted
-        # multple times
-        idf_lookup = dict(zip(
-            self.tf_idf_vectorizer_vocab(),
-            self._tf_idf_vectorizer().idf_
-        ))
-        # each row in `token_embeddings` matrix corresponds to a lemma in
-        # `lemmas(important_only=True)` and the lemma's embedding
-        token_embeddings = document.token_embeddings()
-        if len(token_embeddings) == 0:
-            return np.array([])
-
-        assert token_embeddings.shape[0] == document.num_tokens()
-        lemmas = list(document.lemmas(important_only=True))
-        assert len(lemmas) == token_embeddings.shape[0]
-        # for each lemma (which corresponds to a row in the token_embeddings matrix) let's
-        # get the **IDF** weight
-        # some lemmas (e.g. _number_ or lemmas that didn't make the minimum document
-        # frequency) will not have IDF values and so we'll assign them a value/weight of 0
-        weights = np.array([idf_lookup.get(x, 0) for x in lemmas])
-        # Normalize the weights to sum to 1; when used with the dot product will get a
-        # weighted average
-        weights = weights / np.sum(weights)
-        assert len(weights) == token_embeddings.shape[0]
-        doc_weighted_embedding = weights.dot(token_embeddings)
-        assert doc_weighted_embedding.shape == (token_embeddings.shape[1],)
-        return doc_weighted_embedding
-
     @lru_cache()
-    def embeddings_matrix(self, aggregation='average') -> np.array:
+    def embeddings_matrix(self) -> np.array:
         """
         Returns the embeddings_matrix for the corpus, where each row of the matrix is the
-        corresponding document's aggregated embeddings (from the individual Token's embeddings).
-        Embeddings can be aggregated either by averaging all of the token's embeddings or weighting
-        each of the token's embeddings by the TF-IDF values for that document/token.
-
-        Args:
-            aggregation: values can be `average` or `tf_idf`, as described above.
+        corresponding document's embeddings via sentence-tranformers package.
         """
-        def _pad_vectors(_vectors):
-            """
-            Ensure vectors/embeddings are all the same size (empty documents will have empty
-            embeddings).
-            """
-            # Find the length of the longest array in _vectors
-            _max_len = max([x.size for x in _vectors])
-            # Pad the shorter arrays with zeros to match the length of the longest array
-            _vectors = [
-                np.pad(x, (0, _max_len - x.size), mode='constant') if x.size > 0 else np.zeros(_max_len)  # noqa
-                for x in _vectors
-            ]
-            return _vectors
-
-        if aggregation == 'average':
-            embeddings_vectors = [d.embeddings(aggregation=aggregation) for d in self.documents]
-            return np.array(_pad_vectors(embeddings_vectors))
-
-        elif aggregation == 'tf_idf':
-            embeddings_vectors = [None] * len(self)
-            for i, document in enumerate(self):
-                embeddings_vectors[i] = self._doc_to_tf_idf_embeddings(document=document)
-
-            return np.array(_pad_vectors(embeddings_vectors))
-
-        else:
-            raise ValueError(f"Invalid value of `aggregation`: '{aggregation}'")
+        model = SentenceTransformer(self._embeddings_model)
+        return np.array([x.embeddings(model=model) for x in self])
 
     def _count_vectorizer(self):
         if self.__count_vectorizer is None:
@@ -1207,10 +1120,8 @@ class Corpus:
         NOTE: the similarity matrix for a given document/row will have all values of 0 if the
         document is empty. In scikit-learn, the cosine_similarity of two vectors of all 0's is 0.
         """
-        if how == 'embeddings-average':
-            return cosine_similarity(X=self.embeddings_matrix(aggregation='average'))
-        elif how == 'embeddings-tf_idf':
-            return cosine_similarity(X=self.embeddings_matrix(aggregation='tf_idf'))
+        if how == 'embeddings':
+            return cosine_similarity(X=self.embeddings_matrix())
         elif how == 'count':
             return cosine_similarity(X=self.count_matrix())
         elif how == 'tf_idf':
@@ -1227,22 +1138,14 @@ class Corpus:
         way it is calculated, two empty documents (i.e. empty vectors) will have a similarity of 0.
         As a default, doesn't seem like a bad thing.
         """
-        if how == 'embeddings-average':
+        if how == 'embeddings':
             document = self._text_to_doc(text=text)
-            document_embeddings = document.embeddings(aggregation='average')
+            model = SentenceTransformer(self._embeddings_model)
+            document_embeddings = document.embeddings(model=model)
             if len(document_embeddings) == 0:
                 return np.zeros(len(self))
             return cosine_similarity(
-                X=self.embeddings_matrix(aggregation='average'),
-                Y=document.embeddings(aggregation='average').reshape(1, -1)
-            ).flatten()
-        elif how == 'embeddings-tf_idf':
-            document = self._text_to_doc(text=text)
-            document_embeddings = self._doc_to_tf_idf_embeddings(document=document)
-            if len(document_embeddings) == 0:
-                return np.zeros(len(self))
-            return cosine_similarity(
-                X=self.embeddings_matrix(aggregation='tf_idf'),
+                X=self.embeddings_matrix(),
                 Y=document_embeddings.reshape(1, -1)
             ).flatten()
         elif how == 'count':

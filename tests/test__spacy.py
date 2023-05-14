@@ -2,6 +2,8 @@ import json
 import pandas as pd
 import numpy as np
 import spacy as sp
+from sentence_transformers import SentenceTransformer
+
 
 from source.library.spacy import Corpus, Document, Token, STOP_WORDS_DEFAULT
 from source.library.text_preparation import clean
@@ -9,7 +11,7 @@ from source.library.text_preparation import clean
 from tests.helpers import dataframe_to_text_file, get_test_file_path
 
 
-def test__corpus__empty_string(corpus_simple_example, documents_fake):
+def test__corpus__empty_string(corpus_simple_example: Corpus, documents_fake: list[str]):
     corpus = corpus_simple_example
     assert len(corpus) == len(documents_fake)
     # first let's check the documents with edge cases
@@ -32,7 +34,7 @@ def test__corpus__empty_string(corpus_simple_example, documents_fake):
     assert list(corpus[4].lemmas(important_only=False)) == []
 
 
-def test__corpus__document(corpus_simple_example, documents_fake):
+def test__corpus__document(corpus_simple_example: Corpus, documents_fake: list[str]):
     corpus = corpus_simple_example
     non_empty_corpi = [corpus[1], corpus[3], corpus[5]]
 
@@ -76,7 +78,7 @@ def test__corpus__document(corpus_simple_example, documents_fake):
     assert len(corpus[1].diff(use_lemmas=True)) > 0
 
 
-def test__corpus__tokens(corpus_simple_example):
+def test__corpus__tokens(corpus_simple_example: Corpus):
     corpus = corpus_simple_example
     with open(get_test_file_path('spacy/corpus__text__original__sample.txt'), 'w') as handle:
         handle.writelines(t + "\n" for t in corpus.text())
@@ -123,9 +125,6 @@ def _assert_tokens_equal(loaded_t: Token, original_t: Token):
     assert loaded_t.lemma == original_t.lemma
     assert loaded_t.is_stop_word is not None
     assert loaded_t.is_stop_word == original_t.is_stop_word
-    assert loaded_t.embeddings is not None
-    assert isinstance(loaded_t.embeddings, np.ndarray)
-    assert (loaded_t.embeddings == original_t.embeddings).all()
     assert loaded_t.part_of_speech is not None
     assert loaded_t.part_of_speech == original_t.part_of_speech
     assert loaded_t.is_punctuation is not None
@@ -150,15 +149,11 @@ def test__tokens__to_dict():
     text = "This is a single document with some text and 1 2 3 numbers and && # % symbols."
     nlp = sp.load('en_core_web_sm')
     tokens = nlp(text)
-    # for each token, A) make sure we can serialize to json (e.g. that embeddings is converted
-    # from a numpy array to a list) B) make sure we can load back in from json and C) make sure
-    # the objects/values are unchanged
     for index, spacy_token in enumerate(tokens):
         parsed_token = Token.from_spacy(token=spacy_token, stop_words=STOP_WORDS_DEFAULT)
         _file_name = get_test_file_path(f'spacy/token__to_dict__index_{index}.txt')
         with open(_file_name, 'w') as f:
             json.dump(parsed_token.to_dict(), f)
-        assert isinstance(parsed_token.embeddings, np.ndarray)
         with open(_file_name, 'r') as f:
             loaded_json = json.load(f)
         assert loaded_json
@@ -190,7 +185,7 @@ def test__document__to_dict():
         _assert_tokens_equal(loaded_t, original_t)
 
 
-def test__corpus__to_dict(corpus_simple_example):
+def test__corpus__to_dict(corpus_simple_example: Corpus):
     def _create_file_name(index: int) -> str:
         return get_test_file_path(f'spacy/corpus__to_doc_dicts__simple_example__{index}.json')
 
@@ -222,8 +217,6 @@ def test__corpus__to_dict(corpus_simple_example):
     for original_doc, new_doc in zip(corpus_simple_example, new_corpus):
         assert original_doc._text_original == new_doc._text_original
         assert original_doc._text_cleaned == new_doc._text_cleaned
-        assert (original_doc.token_embeddings() == new_doc.token_embeddings()).all()
-        assert (original_doc.embeddings() == new_doc.embeddings()).all()
         for loaded_t, original_t in zip(new_doc._tokens, original_doc._tokens):
             _assert_tokens_equal(loaded_t, original_t)
 
@@ -251,8 +244,8 @@ def test__corpus__to_dict(corpus_simple_example):
     assert (corpus_simple_example.embeddings_matrix() == new_corpus.embeddings_matrix()).all()
     assert (corpus_simple_example.count_vectorizer_vocab() == new_corpus.count_vectorizer_vocab()).all()  # noqa
     assert (corpus_simple_example.tf_idf_vectorizer_vocab() == new_corpus.tf_idf_vectorizer_vocab()).all()  # noqa
-    assert (corpus_simple_example.similarity_matrix(how='embeddings-tf_idf') == new_corpus.similarity_matrix(how='embeddings-tf_idf')).all()  # noqa
-    assert (corpus_simple_example.calculate_similarities(text='This is an awesome document', how='embeddings-tf_idf') == new_corpus.calculate_similarities(text='This is an awesome document', how='embeddings-tf_idf')).all()  # noqa
+    assert (corpus_simple_example.similarity_matrix(how='embeddings') == new_corpus.similarity_matrix(how='embeddings')).all()  # noqa
+    assert (corpus_simple_example.calculate_similarities(text='This is an awesome document', how='embeddings') == new_corpus.calculate_similarities(text='This is an awesome document', how='embeddings')).all()  # noqa
 
 
 def test__corpus__count_lemmas():
@@ -600,7 +593,7 @@ def test__corpus__count_tokens():
     assert len(corpus.tf_idf_tokens(token_type='entities', min_count=1)) > 0
 
 
-def test__corpus__attributes(corpus_simple_example):
+def test__corpus__attributes(corpus_simple_example: Corpus):
     # these are stupid tests but I just want to verify they run
     assert [x.sentiment() for x in corpus_simple_example] == list(corpus_simple_example.sentiments())  # noqa
     assert [x.impurity(original=True) for x in corpus_simple_example] == list(corpus_simple_example.impurities(original=True))  # noqa
@@ -611,7 +604,7 @@ def test__corpus__attributes(corpus_simple_example):
     assert [x.num_tokens(important_only=False) for x in corpus_simple_example] == list(corpus_simple_example.num_tokens(important_only=False))  # noqa
 
 
-def test__corpus__to_dataframe(corpus_simple_example, documents_fake):
+def test__corpus__to_dataframe(corpus_simple_example: Corpus, documents_fake: list[str]):
     expected_columns = [
         'text_original',
         'text_clean',
@@ -724,7 +717,7 @@ def test__corpus__to_dataframe(corpus_simple_example, documents_fake):
     assert all(isinstance(x, int) for x in df['num_tokens_all'].fillna(0))
 
 
-def test__corpus__to_dataframe__first_n(corpus_simple_example, documents_fake):
+def test__corpus__to_dataframe__first_n(corpus_simple_example: Corpus, documents_fake: list[str]):
     df_full = corpus_simple_example.to_dataframe(columns='all')
     expected_columns = [
         'text_original',
@@ -779,7 +772,7 @@ def test__corpus__to_dataframe__first_n(corpus_simple_example, documents_fake):
     assert all(isinstance(x, int) for x in df['num_tokens_all'].fillna(0))
 
 
-def test__corpus__diff(corpus_simple_example):
+def test__corpus__diff(corpus_simple_example: Corpus):
     corpus = corpus_simple_example
 
     with open(get_test_file_path('spacy/document_diff__sample_1.html'), 'w') as file:
@@ -798,53 +791,12 @@ def test__corpus__diff(corpus_simple_example):
         file.write(corpus.diff(use_lemmas=True))
 
 
-def test__corpus__embeddings(corpus_simple_example):
-    corpus = corpus_simple_example
-    non_empty_corpi = [corpus[1], corpus[3], corpus[5]]
-
-    assert len(corpus[0].embeddings()) == 0
-    assert len(corpus[0].token_embeddings()) == 0
-
-    embedding_shape = corpus[1][0].embeddings.shape
-    assert embedding_shape[0] > 0
-    assert corpus[1].embeddings().shape == embedding_shape
-    assert all([d.token_embeddings().shape  == (d.num_tokens(important_only=True), embedding_shape[0]) for d in non_empty_corpi])  # noqa
-    assert all((d.embeddings() > 0).any() for d in non_empty_corpi)
-
-    expected_embeddings_length = corpus[1][0].embeddings.shape[0]
-    embeddings_average = corpus.embeddings_matrix(aggregation='average')
-    assert embeddings_average.shape == (len(corpus), expected_embeddings_length)
-    # same test to maek sure lru_cache plays nice with generators
-    assert (corpus.embeddings_matrix(aggregation='average') == embeddings_average).all()
-    assert (embeddings_average[0] == 0).all()
-    assert (embeddings_average[2] == 0).all()
-    assert (embeddings_average[4] == 0).all()
-    assert (embeddings_average[1] != 0).any()
-    assert (embeddings_average[3] != 0).any()
-    assert (embeddings_average[5] != 0).any()
-    with open(get_test_file_path('spacy/corpus__embeddings_matrix__average.txt'), 'w') as file:
-        _T = embeddings_average.T
-        for index in range(len(_T)):
-            file.write(str(_T[index]) + "\n")
-
-    # tf-idf embeddings
-    embeddings_tf_idf = corpus.embeddings_matrix(aggregation='tf_idf')
-    assert embeddings_tf_idf.shape == embeddings_average.shape
-    # same test to maek sure lru_cache plays nice with generators
-    assert (corpus.embeddings_matrix(aggregation='tf_idf') == embeddings_tf_idf).all()
-    assert (embeddings_tf_idf[0] == 0).all()
-    assert (embeddings_tf_idf[2] == 0).all()
-    assert (embeddings_tf_idf[4] == 0).all()
-    assert (embeddings_tf_idf[1] != 0).any()
-    assert (embeddings_tf_idf[3] != 0).any()
-    assert (embeddings_tf_idf[5] != 0).any()
-    with open(get_test_file_path('spacy/corpus__embeddings_matrix__tf_idf.txt'), 'w') as file:
-        _T = embeddings_tf_idf.T
-        for index in range(len(_T)):
-            file.write(str(_T[index]) + "\n")
+def test__corpus__embeddings(corpus_simple_example: Corpus):
+    embeddings_matrix = corpus_simple_example.embeddings_matrix()
+    assert embeddings_matrix.shape == (len(corpus_simple_example), 384)
 
 
-def test__corpus__prepare_doc_for_vectorizer(corpus_simple_example, documents_fake):
+def test__corpus__prepare_doc_for_vectorizer(corpus_simple_example: Corpus, documents_fake: list[str]):  # noqa
     corpus = corpus_simple_example
     assert corpus._max_tokens is None
     assert corpus._max_bi_grams is None
@@ -852,7 +804,8 @@ def test__corpus__prepare_doc_for_vectorizer(corpus_simple_example, documents_fa
     doc = corpus._text_to_doc(text=documents_fake[1])
     # `_text_to_doc` should produce the same document (which implies the same embeddings)
     # as the original
-    assert (doc.embeddings() == corpus[1].embeddings()).all()
+    model = SentenceTransformer('multi-qa-MiniLM-L6-cos-v1')
+    assert (doc.embeddings(model) == corpus[1].embeddings(model)).all()
     assert list(doc.lemmas(important_only=False)) == list(corpus[1].lemmas(important_only=False))
     assert corpus._prepare_doc_for_vectorizer(doc) == corpus._prepare_doc_for_vectorizer(corpus[1])
     assert corpus._prepare_doc_for_vectorizer(doc) == '_number_ document important information # character _number_-document important-information'  # noqa
@@ -865,7 +818,7 @@ def test__corpus__prepare_doc_for_vectorizer(corpus_simple_example, documents_fa
     assert corpus._prepare_doc_for_vectorizer(doc) == corpus._prepare_doc_for_vectorizer(corpus[1])
 
 
-def test__corpus__vectorizers(corpus_simple_example, documents_fake):
+def test__corpus__vectorizers(corpus_simple_example: Corpus, documents_fake: list[str]):
     corpus = corpus_simple_example
     ####
     # Test Count/Vectors
@@ -921,12 +874,14 @@ def test__corpus__vectorizers(corpus_simple_example, documents_fake):
         assert (vector.round(5) == tf_idf_matrix[i].round(5)).all()
 
 
-def test__corpus__similarity_matrix(corpus_simple_example):
+def test__corpus__similarity_matrix(corpus_simple_example: Corpus):
     corpus = corpus_simple_example
+    sim_matrix_embeddings = corpus.similarity_matrix(how='embeddings')
+    assert sim_matrix_embeddings.shape == (len(corpus), len(corpus))
 
-    ####
-    # Test Similarity Matrix
-    ####
+    with open(get_test_file_path('spacy/corpus__similarity_matrix__embeddings.html'), 'w') as file:  # noqa
+        file.write(str(sim_matrix_embeddings))
+
     def _check_sim_matrix(sim_matrix):
         assert (sim_matrix[0] == 0).all()
         assert (sim_matrix[:, 0] == 0).all()
@@ -937,24 +892,10 @@ def test__corpus__similarity_matrix(corpus_simple_example):
         # diagnals of non-empty docs
         assert (sim_matrix[[1, 3, 5], [1, 3, 5]].round(5) == 1).all()
 
-    sim_matrix_emb_average = corpus.similarity_matrix(how='embeddings-average')
-    assert sim_matrix_emb_average.shape == (len(corpus), len(corpus))
-    _check_sim_matrix(sim_matrix_emb_average)
-    with open(get_test_file_path('spacy/corpus__similarity_matrix__embeddings_average.html'), 'w') as file:  # noqa
-        file.write(str(sim_matrix_emb_average))
-
-    sim_matrix_emb_tf_idf = corpus.similarity_matrix(how='embeddings-tf_idf')
-    assert sim_matrix_emb_tf_idf.shape == (len(corpus), len(corpus))
-    _check_sim_matrix(sim_matrix_emb_tf_idf)
-    assert (sim_matrix_emb_average.round(5) != sim_matrix_emb_tf_idf.round(5)).any()
-    with open(get_test_file_path('spacy/corpus__similarity_matrix__embeddings_tf_idf.html'), 'w') as file:  # noqa
-        file.write(str(sim_matrix_emb_tf_idf))
-
     sim_matrix_count = corpus.similarity_matrix(how='count')
     assert sim_matrix_count.shape == (len(corpus), len(corpus))
     _check_sim_matrix(sim_matrix_count)
-    assert (sim_matrix_count.round(5) != sim_matrix_emb_average.round(5)).any()
-    assert (sim_matrix_count.round(5) != sim_matrix_emb_tf_idf.round(5)).any()
+    assert (sim_matrix_count.round(5) != sim_matrix_embeddings.round(5)).any()
     with open(get_test_file_path('spacy/corpus__similarity_matrix__count.html'), 'w') as file:  # noqa
         file.write(str(sim_matrix_count))
 
@@ -962,13 +903,12 @@ def test__corpus__similarity_matrix(corpus_simple_example):
     assert sim_matrix_tf_idf.shape == (len(corpus), len(corpus))
     _check_sim_matrix(sim_matrix_tf_idf)
     assert (sim_matrix_tf_idf.round(5) != sim_matrix_count.round(5)).any()
-    assert (sim_matrix_tf_idf.round(5) != sim_matrix_emb_average.round(5)).any()
-    assert (sim_matrix_tf_idf.round(5) != sim_matrix_emb_tf_idf.round(5)).any()
+    assert (sim_matrix_tf_idf.round(5) != sim_matrix_embeddings.round(5)).any()
     with open(get_test_file_path('spacy/corpus__similarity_matrix__tf_idf.html'), 'w') as file:  # noqa
         file.write(str(sim_matrix_tf_idf))
 
 
-def test__corpus__calculate_similarities(corpus_simple_example, documents_fake):
+def test__corpus__calculate_similarities(corpus_simple_example: Corpus, documents_fake: list[str]):
     corpus = corpus_simple_example
 
     ####
@@ -1008,11 +948,25 @@ def test__corpus__calculate_similarities(corpus_simple_example, documents_fake):
 
     _test_calculate_similarity(how='count')
     _test_calculate_similarity(how='tf_idf')
-    _test_calculate_similarity(how='embeddings-average')
-    _test_calculate_similarity(how='embeddings-tf_idf')
+
+    results = corpus.calculate_similarities(text='', how='embeddings')
+    assert results[0].round(6) == 1
+    assert results[1].round(6) < 1
+    assert results[2].round(6) < 1
+    assert results[3].round(6) < 1
+    assert results[4].round(6) == 1
+    assert results[5].round(6) < 1
+
+    results = corpus.calculate_similarities(text=documents_fake[1], how='embeddings')
+    assert results[0].round(6) < 1
+    assert results[1].round(6) == 1
+    assert results[2].round(6) < 1
+    assert results[3].round(6) < 1
+    assert results[4].round(6) < 1
+    assert results[5].round(6) < 1
 
 
-def test__corpus__get_similar_doc_indexes(corpus_simple_example, documents_fake):  # noqa
+def test__corpus__get_similar_doc_indexes(corpus_simple_example: Corpus, documents_fake: list[str]):  # noqa
     corpus = corpus_simple_example
 
     def _test_get_similar_doc_indexes(how: str):
@@ -1053,8 +1007,16 @@ def test__corpus__get_similar_doc_indexes(corpus_simple_example, documents_fake)
 
     _test_get_similar_doc_indexes(how='count')
     _test_get_similar_doc_indexes(how='tf_idf')
-    _test_get_similar_doc_indexes(how='embeddings-average')
-    _test_get_similar_doc_indexes(how='embeddings-tf_idf')
+
+    results = corpus.get_similar_doc_indexes(0, how='embeddings')
+    # should not contain index 0 because that is the comparison index
+    assert all(x != 0 for x in results[0])
+    assert results[0][0] == 4
+    assert results[1][0].round(6) == 1
+    assert results[1][1].round(6) < 1
+    assert results[1][2].round(6) < 1
+    assert results[1][3].round(6) < 1
+    assert results[1][4].round(6) < 1
 
     def _test_get_similar_doc_indexes(how: str):
         indexes, similarities = corpus.get_similar_doc_indexes(documents_fake[0], how=how)
@@ -1108,11 +1070,20 @@ def test__corpus__get_similar_doc_indexes(corpus_simple_example, documents_fake)
 
     _test_get_similar_doc_indexes(how='count')
     _test_get_similar_doc_indexes(how='tf_idf')
-    _test_get_similar_doc_indexes(how='embeddings-average')
-    _test_get_similar_doc_indexes(how='embeddings-tf_idf')
+
+    results = corpus.get_similar_doc_indexes(documents_fake[1], how='embeddings')
+    # this time, we can include index 1 because we're not specific index, only text; and index 1
+    # is the best match
+    assert results[0][0] == 1
+    assert results[1][0].round(6) == 1
+    assert results[1][1].round(6) < 1
+    assert results[1][2].round(6) < 1
+    assert results[1][3].round(6) < 1
+    assert results[1][4].round(6) < 1
+    assert results[1][5].round(6) < 1
 
 
-def test__corpus__tokens__reddit(corpus_reddit, reddit):
+def test__corpus__tokens__reddit(corpus_reddit: Corpus, reddit: pd.DataFrame):
     reddit = reddit.copy()
     corpus = corpus_reddit
     # check that the original text in each document in the corpus matches the original post (i.e.
@@ -1150,7 +1121,7 @@ def test__corpus__tokens__reddit(corpus_reddit, reddit):
         handle.writelines('|'.join(f"{e[0]} ({e[1]})" for e in x) + "\n" for x in corpus.entities())  # noqa
 
 
-def test__corpus__diff__reddit(corpus_reddit):
+def test__corpus__diff__reddit(corpus_reddit: Corpus):
     corpus = corpus_reddit
 
     with open(get_test_file_path('spacy/document_diff__reddit_1.html'), 'w') as file:
@@ -1169,26 +1140,9 @@ def test__corpus__diff__reddit(corpus_reddit):
         file.write(corpus.diff(use_lemmas=True))
 
 
-def test__corpus__embeddings__reddit(corpus_reddit):
-    corpus = corpus_reddit
-
-    embedding_shape = corpus[0][0].embeddings.shape
-    assert embedding_shape[0] > 0
-    assert corpus[1].embeddings().shape == embedding_shape
-    assert all([d.token_embeddings().shape  == (d.num_tokens(important_only=True), embedding_shape[0]) for d in corpus])  # noqa
-    assert all((d.embeddings() > 0).any() for d in corpus)
-
-    expected_embeddings_length = corpus[1][0].embeddings.shape[0]
-    embeddings_average = corpus.embeddings_matrix(aggregation='average')
-    assert embeddings_average.shape == (len(corpus), expected_embeddings_length)
-    # same test to maek sure lru_cache plays nice with generators
-    assert (corpus.embeddings_matrix(aggregation='average') == embeddings_average).all()
-
-    # tf-idf embeddings
-    embeddings_tf_idf = corpus.embeddings_matrix(aggregation='tf_idf')
-    assert embeddings_tf_idf.shape == embeddings_average.shape
-    # same test to maek sure lru_cache plays nice with generators
-    assert (corpus.embeddings_matrix(aggregation='tf_idf') == embeddings_tf_idf).all()
+def test__corpus__embeddings__reddit(corpus_reddit: Corpus):
+    embeddings = corpus_reddit.embeddings_matrix()
+    assert embeddings.shape == (len(corpus_reddit), 384)
 
     # documents.term_freq()
     # documents.plot_wordcloud()
@@ -1197,7 +1151,7 @@ def test__corpus__embeddings__reddit(corpus_reddit):
     # documents.find_similar()
 
 
-def test__corpus__vectorizers__reddit(corpus_reddit, reddit):
+def test__corpus__vectorizers__reddit(corpus_reddit: Corpus, reddit: pd.DataFrame):
     reddit = reddit.copy()
     corpus = corpus_reddit
     ####
@@ -1245,7 +1199,7 @@ def test__corpus__vectorizers__reddit(corpus_reddit, reddit):
         assert (vector.round(5) == tf_idf_matrix[i].round(5)).all()
 
 
-def test__Corpus_num_batches(corpus_reddit, corpus_reddit_parallel):
+def test__Corpus_num_batches(corpus_reddit: Corpus, corpus_reddit_parallel: Corpus):
     assert len(corpus_reddit) == len(corpus_reddit_parallel)
     # check that the original/clean text in each document for both corpuses matches the original
     # post (i.e ensure the same order and same cleaning)
@@ -1261,13 +1215,12 @@ def test__Corpus_num_batches(corpus_reddit, corpus_reddit_parallel):
         list(np.lemmas(important_only=False)) == list(p.lemmas(important_only=False))
         for np, p in zip(corpus_reddit, corpus_reddit_parallel)
     )
-    assert all(
-        (np.embeddings() == p.embeddings()).all()
-        for np, p in zip(corpus_reddit, corpus_reddit_parallel)
-    )
+    cr_embeddings = corpus_reddit.embeddings_matrix()
+    crp_embeddings = corpus_reddit_parallel.embeddings_matrix()
+    assert (cr_embeddings == crp_embeddings).all()
 
 
-def test__corpus__indexing(corpus_simple_example):
+def test__corpus__indexing(corpus_simple_example: Corpus):
     original_text = [x.text(original=True) for x in corpus_simple_example]
     # test individual indexes
     for i in range(len(original_text)):

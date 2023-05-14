@@ -1,5 +1,6 @@
 arviz
 click
+coverage
 flake8
 helpsk
 jupyter-contrib-nbextensions
@@ -20,6 +21,7 @@ nltk
 pyLDAvis
 pytest
 regex
+sentence_transformers
 spacy
 textacy
 wordcloud
