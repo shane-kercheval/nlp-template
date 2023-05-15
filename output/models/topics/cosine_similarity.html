@@ -14636,7 +14636,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="s2">&quot;Loading Data&quot;</span><span class="p">):</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;/code/artifacts/data/processed/un-general-debates-paragraphs.pkl&#39;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;/code/artifacts/data/processed/un_debate_paragraphs.pkl&#39;</span>
     <span class="n">paragraphs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">paragraphs</span> <span class="o">=</span> <span class="n">paragraphs</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">5000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
     
@@ -14767,7 +14767,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Cosine-Similarity">Cosine Similarity<a class="anchor-link" href="#Cosine-Similarity">&#182;</a></h1>
+<h1 id="Cosine-Similarity---TF-IDF">Cosine Similarity - TF-IDF<a class="anchor-link" href="#Cosine-Similarity---TF-IDF">&#182;</a></h1>
 </div>
 </div>
 </div>
@@ -14912,7 +14912,6 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.metrics.pairwise</span> <span class="kn">import</span> <span class="n">cosine_similarity</span>
 
-
 <span class="c1"># note we need to build a pipeline that cleans not just the training data but also new data if we want to use it for *search*</span>
 <span class="c1"># This would also ensure consistency e.g. i accidently used text_clean instead of all_lemmas    </span>
 <span class="n">example</span> <span class="o">=</span> <span class="n">paragraphs</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -15037,7 +15036,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">top_n</span> <span class="o">=</span> <span class="mi">15</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">top_n</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="n">_temp_sample</span> <span class="o">=</span> <span class="n">paragraphs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 <span class="n">_temp_sample</span><span class="p">[</span><span class="s1">&#39;similarities&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">example_cosine_sim</span>
 
@@ -15056,176 +15055,6 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">top_n_examples</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
-
-
-
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>year</th>
-      <th>country</th>
-      <th>text</th>
-      <th>similarities</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>228015</th>
-      <td>2006</td>
-      <td>Palestine, State of</td>
-      <td>Indeed, I need not reconfirm the fact that, af...</td>
-      <td>1.000000</td>
-    </tr>
-    <tr>
-      <th>54940</th>
-      <td>1979</td>
-      <td>Yemen</td>
-      <td>49.\tThe international community unanimously r...</td>
-      <td>0.171640</td>
-    </tr>
-    <tr>
-      <th>18124</th>
-      <td>1974</td>
-      <td>United Arab Emirates</td>
-      <td>198.\tOur position on the question of Palestin...</td>
-      <td>0.169033</td>
-    </tr>
-    <tr>
-      <th>92629</th>
-      <td>1985</td>
-      <td>Iraq</td>
-      <td>The Palestinian question, including the rights...</td>
-      <td>0.164453</td>
-    </tr>
-    <tr>
-      <th>47040</th>
-      <td>1978</td>
-      <td>Sao Tome and Principe</td>
-      <td>108.\tThe position of my Government concerning...</td>
-      <td>0.156974</td>
-    </tr>
-    <tr>
-      <th>263055</th>
-      <td>2012</td>
-      <td>Turkey</td>
-      <td>For instance, we have time and again declared\...</td>
-      <td>0.153039</td>
-    </tr>
-    <tr>
-      <th>89228</th>
-      <td>1984</td>
-      <td>United States</td>
-      <td>27.\tBut any economic progress, as well as any...</td>
-      <td>0.149119</td>
-    </tr>
-    <tr>
-      <th>53325</th>
-      <td>1979</td>
-      <td>Qatar</td>
-      <td>10.\tThe State of Qatar, in fulfilment of what...</td>
-      <td>0.145091</td>
-    </tr>
-    <tr>
-      <th>207437</th>
-      <td>2002</td>
-      <td>Zimbabwe</td>
-      <td>The United Nations is confronted with a volati...</td>
-      <td>0.138416</td>
-    </tr>
-    <tr>
-      <th>207053</th>
-      <td>2002</td>
-      <td>Tanzania, United Republic of</td>
-      <td>The framework for the resumption of negotiatio...</td>
-      <td>0.135827</td>
-    </tr>
-    <tr>
-      <th>204792</th>
-      <td>2002</td>
-      <td>Lebanon</td>
-      <td>Iraq should not once again be a theatre of war...</td>
-      <td>0.134130</td>
-    </tr>
-    <tr>
-      <th>205528</th>
-      <td>2002</td>
-      <td>Malaysia</td>
-      <td>8\n\nMalaysia believes that, while all acts of...</td>
-      <td>0.131625</td>
-    </tr>
-    <tr>
-      <th>71768</th>
-      <td>1982</td>
-      <td>Honduras</td>
-      <td>This atmosphere of tension and lack of effecti...</td>
-      <td>0.130798</td>
-    </tr>
-    <tr>
-      <th>45354</th>
-      <td>1978</td>
-      <td>Morocco</td>
-      <td>129.\tThe Kingdom of Morocco, which condemns t...</td>
-      <td>0.127471</td>
-    </tr>
-    <tr>
-      <th>187169</th>
-      <td>1999</td>
-      <td>Lebanon</td>
-      <td>In any event, no world order, whether old or n...</td>
-      <td>0.126873</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">top_n_examples</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -15269,7 +15098,7 @@ regional confrontations and global crises
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">top_n_examples</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
@@ -15295,6 +15124,575 @@ regional confrontations and global crises
 <pre>49.	The international community unanimously recognizes that a just and lasting peace cannot be achieved if it does not include the basic elements that we have just set forth. But the Zionist entity, which professes to want peace, arrogantly and obstinately opposes this unanimous will of the international community and continues its aggression and its occupation of Palestine and other independent and sovereign Arab countries neighbouring Palestine. Moreover, the decision taken on 16 September last by the Council of Ministers of Israel, under which Israelis will be allowed to acquire Arab lands and property on the West Bank and in Jerusalem, again confirms Israel&#39;s determination to pursue its policy of Occupation and aggression and to undermine the chances for a just and lasting peace in the area
 </pre>
 </div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;display.max_colwidth&#39;</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+<span class="n">top_n_examples</span><span class="p">[[</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;country&#39;</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;similarities&#39;</span><span class="p">]]</span><span class="o">.</span>\
+    <span class="n">style</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<style type="text/css">
+</style>
+<table id="T_0f36b">
+  <thead>
+    <tr>
+      <th class="blank level0" >&nbsp;</th>
+      <th id="T_0f36b_level0_col0" class="col_heading level0 col0" >year</th>
+      <th id="T_0f36b_level0_col1" class="col_heading level0 col1" >country</th>
+      <th id="T_0f36b_level0_col2" class="col_heading level0 col2" >text</th>
+      <th id="T_0f36b_level0_col3" class="col_heading level0 col3" >similarities</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_0f36b_level0_row0" class="row_heading level0 row0" >228015</th>
+      <td id="T_0f36b_row0_col0" class="data row0 col0" >2006</td>
+      <td id="T_0f36b_row0_col1" class="data row0 col1" >Palestine, State of</td>
+      <td id="T_0f36b_row0_col2" class="data row0 col2" >Indeed, I need not reconfirm the fact that, after 
+the experiences of war and suffering that we have been 
+through, unless the question of Palestine and that of the 
+continuing occupation of Palestinian and Arab lands 
+since 1967 is resolved, the elements of tension and 
+conflagration will keep the conflict alive and leave the 
+door wide open to all forms of violence, terrorism, 
+regional confrontations and global crises</td>
+      <td id="T_0f36b_row0_col3" class="data row0 col3" >1.000000</td>
+    </tr>
+    <tr>
+      <th id="T_0f36b_level0_row1" class="row_heading level0 row1" >54940</th>
+      <td id="T_0f36b_row1_col0" class="data row1 col0" >1979</td>
+      <td id="T_0f36b_row1_col1" class="data row1 col1" >Yemen</td>
+      <td id="T_0f36b_row1_col2" class="data row1 col2" >49.	The international community unanimously recognizes that a just and lasting peace cannot be achieved if it does not include the basic elements that we have just set forth. But the Zionist entity, which professes to want peace, arrogantly and obstinately opposes this unanimous will of the international community and continues its aggression and its occupation of Palestine and other independent and sovereign Arab countries neighbouring Palestine. Moreover, the decision taken on 16 September last by the Council of Ministers of Israel, under which Israelis will be allowed to acquire Arab lands and property on the West Bank and in Jerusalem, again confirms Israel's determination to pursue its policy of Occupation and aggression and to undermine the chances for a just and lasting peace in the area</td>
+      <td id="T_0f36b_row1_col3" class="data row1 col3" >0.171640</td>
+    </tr>
+    <tr>
+      <th id="T_0f36b_level0_row2" class="row_heading level0 row2" >18124</th>
+      <td id="T_0f36b_row2_col0" class="data row2 col0" >1974</td>
+      <td id="T_0f36b_row2_col1" class="data row2 col1" >United Arab Emirates</td>
+      <td id="T_0f36b_row2_col2" class="data row2 col2" >198.	Our position on the question of Palestine is known to all. We have often stated our views regarding the aggressive nature of Zionism and denounced Israel's aggression and occupation of Arab territories. We shall, nevertheless, state in greater detail our views during the discussion of the question of Palestine and other relevant items. We should like, however, to reiterate now our demand for Israel's withdrawal from all occupied territories. We shall continue to extend every possible assistance for the achievement of that goal</td>
+      <td id="T_0f36b_row2_col3" class="data row2 col3" >0.169033</td>
+    </tr>
+    <tr>
+      <th id="T_0f36b_level0_row3" class="row_heading level0 row3" >92629</th>
+      <td id="T_0f36b_row3_col0" class="data row3 col0" >1985</td>
+      <td id="T_0f36b_row3_col1" class="data row3 col1" >Iraq</td>
+      <td id="T_0f36b_row3_col2" class="data row3 col2" >The Palestinian question, including the rights of the Arab Palestinian people, has been one of the most important issues in the United Nations since its foundation, while the tragedy of this dispersed people remains a pressing matter, the Arabs of Palestine are repeatedly subjected to massacre and extermination. The objective has always been to eliminate this people's heritage, identity and very existence. The Palestinians continue to suffer the most inhuman treatment at the hands of their Zionist oppressors, whose racist measures have included not only expulsion, dispersion, confiscation of property, and so on, but also the establishment of Zionist settlements on Arab lands</td>
+      <td id="T_0f36b_row3_col3" class="data row3 col3" >0.164453</td>
+    </tr>
+    <tr>
+      <th id="T_0f36b_level0_row4" class="row_heading level0 row4" >47040</th>
+      <td id="T_0f36b_row4_col0" class="data row4 col0" >1978</td>
+      <td id="T_0f36b_row4_col1" class="data row4 col1" >Sao Tome and Principe</td>
+      <td id="T_0f36b_row4_col2" class="data row4 col2" >108.	The position of my Government concerning the Palestinian question, which arose soon after the Second World War, is well known. Israel must be asked to abandon its policy of aggression, occupation and expansion, a policy which keeps alive the existing conflict in the Middle East, which we all deplore. To be more explicit, Israel must be asked to withdraw from the Arab territories occupied since 1967 and to recognize the right of the Palestinian people to a homeland. Peace in that region is closely linked with a change of attitude by Israel, which must henceforward understand that war is in no way beneficial to the development and progress of the world or to understanding among the nations and peoples of the earth. War renders ill service to international peace and security. War is destructive from every point of view</td>
+      <td id="T_0f36b_row4_col3" class="data row4 col3" >0.156974</td>
+    </tr>
+    <tr>
+      <th id="T_0f36b_level0_row5" class="row_heading level0 row5" >263055</th>
+      <td id="T_0f36b_row5_col0" class="data row5 col0" >2012</td>
+      <td id="T_0f36b_row5_col1" class="data row5 col1" >Turkey</td>
+      <td id="T_0f36b_row5_col2" class="data row5 col2" >For instance, we have time and again declared
+our support for a two-State solution to the question of
+Palestine and adopted numerous resolutions to that end. However, we still hope that, one day soon, Palestine will
+be represented as an equal member in the Assembly</td>
+      <td id="T_0f36b_row5_col3" class="data row5 col3" >0.153039</td>
+    </tr>
+    <tr>
+      <th id="T_0f36b_level0_row6" class="row_heading level0 row6" >89228</th>
+      <td id="T_0f36b_row6_col0" class="data row6 col0" >1984</td>
+      <td id="T_0f36b_row6_col1" class="data row6 col1" >United States</td>
+      <td id="T_0f36b_row6_col2" class="data row6 col2" >27.	But any economic progress, as well as any movement in the direction of greater understanding between the nations of the world, is, of course, endangered by the prospect of conflict at both the global and the regional levels. In a few minutes I will turn to the menace of conflict on a world-wide scale and discuss the status of negotiations between the United States and the Soviet Union. But permit me first to address the critical problem of regional conflicts, for history displays tragic evidence that it is these conflicts which can set off the sparks leading to world-wide conflagration</td>
+      <td id="T_0f36b_row6_col3" class="data row6 col3" >0.149119</td>
+    </tr>
+    <tr>
+      <th id="T_0f36b_level0_row7" class="row_heading level0 row7" >53325</th>
+      <td id="T_0f36b_row7_col0" class="data row7 col0" >1979</td>
+      <td id="T_0f36b_row7_col1" class="data row7 col1" >Qatar</td>
+      <td id="T_0f36b_row7_col2" class="data row7 col2" >10.	The State of Qatar, in fulfilment of what was unanimously agreed upon by the Arabs and in the resolutions of Arab Summit Conferences, particularly those of Algiers in 1974, Rabat in 1974 and Baghdad in 1978, and in accordance with the international community's stand, as reflected in the resolutions of the United Nations and the Sixth Conference of Heads of State or Government of Non-Aligned Countries, reaffirms that any peaceful, just and comprehensive settlement of the Arab-Israeli conflict should be based on the following main principles: first, the total withdrawal of Israel from all Arab territories occupied by force in 1967, including Arab Jerusalem; secondly, the recognition of the inalienable rights of the Palestinian people and the exercise of their legitimate rights to self-determination, independence and sovereignty in Palestine, their homeland; thirdly, the right of the PLO, the sole legitimate representative of the Palestinian people, to participate as an independent and equal partner in all international conferences, activities and international forums concerned with the Palestinian question and the Middle East dispute, which means that no other party may have the right to speak on behalf of the Palestinian people; and fourthly, the invalidity of all agreements pertaining to the Palestinian question unless the PLO, as the sole legitimate representative of the Palestinian people, is a principal partner to them, in accordance with General Assembly resolution 33/28 A. Hence, the implications of the Camp David agreements, which are considered by the Government of Qatar as a violation of the Charter of the League of Arab States, international legitimacy and the resolutions of the United Nations in relation to the Palestine question and the occupied Arab and Palestinian territories, should be declared null and void. Furthermore, these agreements ignored the legitimate rights of the Palestinian people, including their right to establish their independent State in Palestine, and also completely ignored the question of occupied Arab Jerusalem</td>
+      <td id="T_0f36b_row7_col3" class="data row7 col3" >0.145091</td>
+    </tr>
+    <tr>
+      <th id="T_0f36b_level0_row8" class="row_heading level0 row8" >207437</th>
+      <td id="T_0f36b_row8_col0" class="data row8 col0" >2002</td>
+      <td id="T_0f36b_row8_col1" class="data row8 col1" >Zimbabwe</td>
+      <td id="T_0f36b_row8_col2" class="data row8 col2" >The United Nations is confronted with a volatile
+situation in the Middle East that has the potential to
+engulf the entire subregion. The Palestinian question
+should be resolved without further delay, as it is
+causing untold suffering to the people in the occupied
+25
+
+territories. Israel must withdraw its forces from
+Palestinian lands, and the Palestinians must be afforded
+the opportunity of having a State of their own. The
+carnage that is going on at present will benefit neither
+side. Israel must know that its chances for peace and
+security lie in having a Palestinian State that will live
+side by side with it in mutual respect between
+sovereign States</td>
+      <td id="T_0f36b_row8_col3" class="data row8 col3" >0.138416</td>
+    </tr>
+    <tr>
+      <th id="T_0f36b_level0_row9" class="row_heading level0 row9" >207053</th>
+      <td id="T_0f36b_row9_col0" class="data row9 col0" >2002</td>
+      <td id="T_0f36b_row9_col1" class="data row9 col1" >Tanzania, United Republic of</td>
+      <td id="T_0f36b_row9_col2" class="data row9 col2" >The framework for the resumption of negotiations
+between Israel and the Government of Palestine
+already exists. Both sides must create an environment
+conducive to negotiations. There has to be an end to
+Israeli occupation of Arab lands and significant
+movement towards the creation of a viable Palestinian
+State living side by side with Israel as an imperative to
+lasting peace in the Middle East. The security concerns
+of Israel should be addressed and encoded properly in
+any agreement. In this regard, all relevant Security
+Council and General Assembly resolutions must be
+adhered to</td>
+      <td id="T_0f36b_row9_col3" class="data row9 col3" >0.135827</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<hr />
+
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h1 id="Cosine-Similarity---Embeddings">Cosine Similarity - Embeddings<a class="anchor-link" href="#Cosine-Similarity---Embeddings">&#182;</a></h1>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformer</span><span class="p">,</span> <span class="n">util</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="s1">&#39;multi-qa-MiniLM-L6-cos-v1&#39;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
+<pre>/usr/local/lib/python3.10/site-packages/tqdm/auto.py:22: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">paragraph_embeddings</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">paragraphs</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+<span class="n">paragraph_embeddings</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>(5000, 384)</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_embedding</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">paragraphs</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">similarities</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">dot_score</span><span class="p">(</span><span class="n">query_embedding</span><span class="p">,</span> <span class="n">paragraph_embeddings</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">similarities</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[15]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>tensor([1.0000, 0.3442, 0.3606,  ..., 0.3995, 0.2873, 0.3785])</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<hr />
+
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cosine_sims</span> <span class="o">=</span> <span class="n">cosine_similarity</span><span class="p">(</span><span class="n">paragraph_embeddings</span><span class="p">,</span> <span class="n">query_embedding</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+<span class="c1"># looks like cosine_similarity and dot_score return same thing</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cosine_sims</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">similarities</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">])</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>[[1.         0.34419763 0.3605953  0.36372387 0.19492552]]
+tensor([1.0000, 0.3442, 0.3606, 0.3637, 0.1949])
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<hr />
+
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">top_n</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">_temp_sample</span> <span class="o">=</span> <span class="n">paragraphs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">_temp_sample</span><span class="p">[</span><span class="s1">&#39;similarities&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">similarities</span>
+<span class="n">top_n_examples</span> <span class="o">=</span> <span class="n">_temp_sample</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;similarities&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">top_n</span><span class="p">)</span>
+<span class="k">assert</span> <span class="nb">round</span><span class="p">(</span><span class="n">top_n_examples</span><span class="p">[</span><span class="s1">&#39;similarities&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;display.max_colwidth&#39;</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+<span class="n">top_n_examples</span><span class="p">[[</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;country&#39;</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;similarities&#39;</span><span class="p">]]</span><span class="o">.</span>\
+    <span class="n">style</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[18]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<style type="text/css">
+</style>
+<table id="T_5f5c6">
+  <thead>
+    <tr>
+      <th class="blank level0" >&nbsp;</th>
+      <th id="T_5f5c6_level0_col0" class="col_heading level0 col0" >year</th>
+      <th id="T_5f5c6_level0_col1" class="col_heading level0 col1" >country</th>
+      <th id="T_5f5c6_level0_col2" class="col_heading level0 col2" >text</th>
+      <th id="T_5f5c6_level0_col3" class="col_heading level0 col3" >similarities</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_5f5c6_level0_row0" class="row_heading level0 row0" >228015</th>
+      <td id="T_5f5c6_row0_col0" class="data row0 col0" >2006</td>
+      <td id="T_5f5c6_row0_col1" class="data row0 col1" >Palestine, State of</td>
+      <td id="T_5f5c6_row0_col2" class="data row0 col2" >Indeed, I need not reconfirm the fact that, after 
+the experiences of war and suffering that we have been 
+through, unless the question of Palestine and that of the 
+continuing occupation of Palestinian and Arab lands 
+since 1967 is resolved, the elements of tension and 
+conflagration will keep the conflict alive and leave the 
+door wide open to all forms of violence, terrorism, 
+regional confrontations and global crises</td>
+      <td id="T_5f5c6_row0_col3" class="data row0 col3" >1.000000</td>
+    </tr>
+    <tr>
+      <th id="T_5f5c6_level0_row1" class="row_heading level0 row1" >224905</th>
+      <td id="T_5f5c6_row1_col0" class="data row1 col0" >2006</td>
+      <td id="T_5f5c6_row1_col1" class="data row1 col1" >China</td>
+      <td id="T_5f5c6_row1_col2" class="data row1 col2" >The question of Palestine is at the core of the 
+Middle East issue. The peace process should be re-
+started in keeping with the relevant resolutions of the 
+United Nations and the principle of land for peace, in 
+the interest of reaching an early and comprehensive 
+settlement of the Middle East issue, including the 
+Palestinian-Israeli conflict, so that the countries 
+involved can live in harmony and the region can enjoy 
+durable peace</td>
+      <td id="T_5f5c6_row1_col3" class="data row1 col3" >0.757447</td>
+    </tr>
+    <tr>
+      <th id="T_5f5c6_level0_row2" class="row_heading level0 row2" >47040</th>
+      <td id="T_5f5c6_row2_col0" class="data row2 col0" >1978</td>
+      <td id="T_5f5c6_row2_col1" class="data row2 col1" >Sao Tome and Principe</td>
+      <td id="T_5f5c6_row2_col2" class="data row2 col2" >108.	The position of my Government concerning the Palestinian question, which arose soon after the Second World War, is well known. Israel must be asked to abandon its policy of aggression, occupation and expansion, a policy which keeps alive the existing conflict in the Middle East, which we all deplore. To be more explicit, Israel must be asked to withdraw from the Arab territories occupied since 1967 and to recognize the right of the Palestinian people to a homeland. Peace in that region is closely linked with a change of attitude by Israel, which must henceforward understand that war is in no way beneficial to the development and progress of the world or to understanding among the nations and peoples of the earth. War renders ill service to international peace and security. War is destructive from every point of view</td>
+      <td id="T_5f5c6_row2_col3" class="data row2 col3" >0.735725</td>
+    </tr>
+    <tr>
+      <th id="T_5f5c6_level0_row3" class="row_heading level0 row3" >136871</th>
+      <td id="T_5f5c6_row3_col0" class="data row3 col0" >1992</td>
+      <td id="T_5f5c6_row3_col1" class="data row3 col1" >Oman</td>
+      <td id="T_5f5c6_row3_col2" class="data row3 col2" >The problem of Palestine has been the major factor underlying the 
+tragedies and wars witnessed by the peoples of the Middle East region. Peace 
+and stability in this important and delicate region cannot be achieved without 
+finding a solution to this problem, which is the crux of the Arab-Israeli 
+conflict</td>
+      <td id="T_5f5c6_row3_col3" class="data row3 col3" >0.731984</td>
+    </tr>
+    <tr>
+      <th id="T_5f5c6_level0_row4" class="row_heading level0 row4" >94917</th>
+      <td id="T_5f5c6_row4_col0" class="data row4 col0" >1985</td>
+      <td id="T_5f5c6_row4_col1" class="data row4 col1" >Saudi Arabia</td>
+      <td id="T_5f5c6_row4_col2" class="data row4 col2" >The problems that our region is facing and the complications that appear on the ground there are in fact, and in the final analysis, only repercussions of the Zionist aggression against Palestine, and the actual result of the accumulation of developments in the Palestine problem. The wars and political and military conflicts through which the area has been living for the past 33 years are but one effect of the failure to solve the basic problem, and are a result of Israeli aggression in the area. The perpetuation of Israeli occupation of Arab territories is living proof of its designs for expansion, its flagrant defiance of United Nations resolutions and its constant disregard for world public opinion and every law and convention</td>
+      <td id="T_5f5c6_row4_col3" class="data row4 col3" >0.726528</td>
+    </tr>
+    <tr>
+      <th id="T_5f5c6_level0_row5" class="row_heading level0 row5" >143786</th>
+      <td id="T_5f5c6_row5_col0" class="data row5 col0" >1993</td>
+      <td id="T_5f5c6_row5_col1" class="data row5 col1" >Mongolia</td>
+      <td id="T_5f5c6_row5_col2" class="data row5 col2" >Furthermore, solutions are being found even to the most
+protracted regional conflicts. The recent historic act of
+mutual recognition between Israel and the Palestine
+Liberation Organization (PLO) and the interim peace
+agreement are a case in point. We hope that this will lead
+to a just and comprehensive solution to the Arab-Israeli
+conflict</td>
+      <td id="T_5f5c6_row5_col3" class="data row5 col3" >0.713083</td>
+    </tr>
+    <tr>
+      <th id="T_5f5c6_level0_row6" class="row_heading level0 row6" >200785</th>
+      <td id="T_5f5c6_row6_col0" class="data row6 col0" >2001</td>
+      <td id="T_5f5c6_row6_col1" class="data row6 col1" >Palestine, State of</td>
+      <td id="T_5f5c6_row6_col2" class="data row6 col2" >We welcome the positive positions taken by
+President George W. Bush and other leaders who have
+called for the establishment of a Palestinian State. We
+believe this constitutes a significant step towards
+ending the conflict and establishing peace in the
+Middle East. I will say candidly to you that reviving
+and completing the peace process will need a new
+qualitative push, and after all that has happened it will
+not be possible to confine ourselves to interim
+solutions. It is impossible, of course, to achieve another
+interim agreement, as called for by some. To control
+the situation on the ground and to get the situation back
+to the way it existed before 28 September 2000
+requires clear political imagination and new hope</td>
+      <td id="T_5f5c6_row6_col3" class="data row6 col3" >0.702671</td>
+    </tr>
+    <tr>
+      <th id="T_5f5c6_level0_row7" class="row_heading level0 row7" >148474</th>
+      <td id="T_5f5c6_row7_col0" class="data row7 col0" >1994</td>
+      <td id="T_5f5c6_row7_col1" class="data row7 col1" >Congo</td>
+      <td id="T_5f5c6_row7_col2" class="data row7 col2" >Firmly and resolutely, the dynamic of peace begun
+in the Middle East is growing stronger and is opening
+prospects for cooperation to peoples long ruined by war
+and yet fated by geography and history to live together</td>
+      <td id="T_5f5c6_row7_col3" class="data row7 col3" >0.694066</td>
+    </tr>
+    <tr>
+      <th id="T_5f5c6_level0_row8" class="row_heading level0 row8" >119687</th>
+      <td id="T_5f5c6_row8_col0" class="data row8 col0" >1989</td>
+      <td id="T_5f5c6_row8_col1" class="data row8 col1" >Democratic Yemen</td>
+      <td id="T_5f5c6_row8_col2" class="data row8 col2" >This positive initiative has been accompanied by the steadfastness of the Palestinian people's intifadah in the occupied territories. From this rostrum we salute the continued courage of the Palestinian people engaged in an in equal confrontation with the Israeli occupation, it is important to state that Israel's true image has been clearly revealed to world public opinion. Does any doubt still persist about the fact that Israel does not want peace to prevail in the region? Does any doubt still persist about another fact that Israel's policy is based on expansion and colonial settlement? Has it not yet been proved beyond any doubt through clear, tangible, irrefutable evidence, that Israel violates human rights in the occupied territories? Has the world forgotten the crimes committed by Israel against the defenceless Palestinian people, burying them alive and breaking their bones?
+The international community as a whole calls for terminating the Israeli occupation of Palestine and other Arab territories. It calls for seizing the opportunity to proceed with the preparations for the convening of the International Peace Conference on the Middle East, in accordance with numerous successive resolutions adopted by the General Assembly, with the participation on an equal footing of all parties concerned, including the Palestine Liberation Organization, the sole legitimate representative of the Palestinian people. That is the right approach, agreed upon internationally  it would lead to a just political settlement in the Middle East that would guarantee the national inalienable rights of the Palestinian people, foremost among which is their right to self-determination and to the establishment of their independent State</td>
+      <td id="T_5f5c6_row8_col3" class="data row8 col3" >0.692149</td>
+    </tr>
+    <tr>
+      <th id="T_5f5c6_level0_row9" class="row_heading level0 row9" >207437</th>
+      <td id="T_5f5c6_row9_col0" class="data row9 col0" >2002</td>
+      <td id="T_5f5c6_row9_col1" class="data row9 col1" >Zimbabwe</td>
+      <td id="T_5f5c6_row9_col2" class="data row9 col2" >The United Nations is confronted with a volatile
+situation in the Middle East that has the potential to
+engulf the entire subregion. The Palestinian question
+should be resolved without further delay, as it is
+causing untold suffering to the people in the occupied
+25
+
+territories. Israel must withdraw its forces from
+Palestinian lands, and the Palestinians must be afforded
+the opportunity of having a State of their own. The
+carnage that is going on at present will benefit neither
+side. Israel must know that its chances for peace and
+security lie in having a Palestinian State that will live
+side by side with it in mutual respect between
+sovereign States</td>
+      <td id="T_5f5c6_row9_col3" class="data row9 col3" >0.691404</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+
 </div>
 
 </div>

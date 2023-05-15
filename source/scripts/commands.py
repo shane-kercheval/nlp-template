@@ -158,8 +158,7 @@ def nmf(num_topics, ngrams_low, ngrams_high, num_samples):
     logging.info(f"Number of Samples: {num_samples}")
 
     with Timer("Loading Data"):
-        path = 'artifacts/data/processed/un-general-debates-paragraphs.pkl'
-        paragraphs = pd.read_pickle(path)
+        paragraphs = DATA.un_debate_paragraphs.load()
         paragraphs = paragraphs.sample(num_samples, random_state=42)
 
     with Timer("Calculating TF-IDF"):
@@ -208,8 +207,7 @@ def lda(num_topics, ngrams_low, ngrams_high, num_samples):
     logging.info(f"Number of Samples: {num_samples}")
 
     with Timer("Loading Data"):
-        path = 'artifacts/data/processed/un-general-debates-paragraphs.pkl'
-        paragraphs = pd.read_pickle(path)
+        paragraphs = DATA.un_debate_paragraphs.load()
         paragraphs = paragraphs.sample(num_samples, random_state=42)
 
     with Timer("Calculating TF"):
@@ -258,8 +256,7 @@ def k_means(num_topics, ngrams_low, ngrams_high, num_samples):
     logging.info(f"Number of Samples: {num_samples}")
 
     with Timer("Loading Data"):
-        path = 'artifacts/data/processed/un-general-debates-paragraphs.pkl'
-        paragraphs = pd.read_pickle(path)
+        paragraphs = DATA.un_debate_paragraphs.load()
         paragraphs = paragraphs.sample(num_samples, random_state=42)
 
     with Timer("Calculating TF-IDF"):
