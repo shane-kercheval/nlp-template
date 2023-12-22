@@ -35,6 +35,22 @@ class Token:
     This class encapsulates the characterists of a Token (specifically what is provided by a spaCy
     token.)
     """
+
+    __slots__ = [
+        'text',
+        'lemma',
+        'is_stop_word',
+        'part_of_speech',
+        'is_punctuation',
+        'is_special',
+        'is_alpha',
+        'is_numeric',
+        'is_ascii',
+        'dep',
+        'entity_type',
+        'sentiment',
+    ]
+
     def __init__(
             self,
             text: str,
@@ -102,7 +118,20 @@ class Token:
         return self.text
 
     def to_dict(self) -> dict:
-        return self.__dict__.copy()
+        return {
+            'text': self.text,
+            'lemma': self.lemma,
+            'is_stop_word': self.is_stop_word,
+            'part_of_speech': self.part_of_speech,
+            'is_punctuation': self.is_punctuation,
+            'is_special': self.is_special,
+            'is_alpha': self.is_alpha,
+            'is_numeric': self.is_numeric,
+            'is_ascii': self.is_ascii,
+            'dep': self.dep,
+            'entity_type': self.entity_type,
+            'sentiment': self.sentiment,
+        }
 
     @property
     def is_important(self):
@@ -120,6 +149,13 @@ def _valid_noun_phrase(token_a: Token, token_b: Token) -> bool:
 
 
 class Document:
+
+    __slots__ = [
+        '_tokens',
+        '_text_original',
+        '_text_cleaned',
+    ]
+
     def __init__(self, tokens: list[Token], text_original: str, text_cleaned: str):
         self._tokens = tokens
         self._text_original = text_original
