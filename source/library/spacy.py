@@ -1,3 +1,5 @@
+"""Provides convenient wrappers around Spacy."""
+
 from collections import Counter
 from concurrent.futures import ProcessPoolExecutor
 from functools import lru_cache, singledispatchmethod
@@ -23,17 +25,17 @@ from source.library.text_analysis import tf_idf
 
 
 STOP_WORDS_DEFAULT = sw.STOP_WORDS.copy()
-IMPORTANT_TOKEN_EXCLUDE_POS = set(['PART', 'PUNCT', 'DET', 'PRON', 'SYM', 'SPACE'])
-NOUN_POS = set(['NOUN', 'PROPN'])
-ADJ_VERB_POS = set(['ADJ', 'VERB'])
-NOUN_ADJ_VERB_POS = set(['NOUN', 'ADJ', 'VERB'])
+IMPORTANT_TOKEN_EXCLUDE_POS = {'PART', 'PUNCT', 'DET', 'PRON', 'SYM', 'SPACE'}
+NOUN_POS = {'NOUN', 'PROPN'}
+ADJ_VERB_POS = {'ADJ', 'VERB'}
+NOUN_ADJ_VERB_POS = {'NOUN', 'ADJ', 'VERB'}
 END_OF_SENTENCE_PUNCT = {'.', '?', '!'}
 
 
 class Token:
     """
-    This class encapsulates the characterists of a Token (specifically what is provided by a spaCy
-    token.)
+    Encapsulates the characterists of a Token (specifically what is provided by a spaCy
+    token).
     """
 
     __slots__ = [
@@ -79,7 +81,8 @@ class Token:
         self.sentiment = sentiment
 
     @classmethod
-    def from_spacy(cls, token: st.Token, stop_words: set[str]):
+    def from_spacy(cls, token: st.Token, stop_words: set[str]):  # noqa: ANN102
+        """From spacy object."""
         _lemma = token.lemma_.lower()
         return cls(
             text=token.text,
@@ -98,7 +101,8 @@ class Token:
         )
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d: dict):  # noqa: ANN102
+        """From dictionary."""
         return cls(
             text=d.get('text'),
             lemma=d.get('lemma'),
@@ -118,6 +122,7 @@ class Token:
         return self.text
 
     def to_dict(self) -> dict:
+        """Convert to dictionary."""
         return {
             'text': self.text,
             'lemma': self.lemma,
@@ -134,14 +139,13 @@ class Token:
         }
 
     @property
-    def is_important(self):
+    def is_important(self) -> bool:
+        """True if the token is not a stop word and is marked as an important 'part of speech'."""
         return not self.is_stop_word and self.part_of_speech not in IMPORTANT_TOKEN_EXCLUDE_POS
 
 
 def _valid_noun_phrase(token_a: Token, token_b: Token) -> bool:
-    """
-    This function defines the logic to determine if two tokens combine to form a valid noun-phrase.
-    """
+    """Defines the logic to determine if two tokens combine to form a valid noun-phrase."""
     return token_a.is_important and \
         token_b.is_important and \
         token_a.part_of_speech in NOUN_ADJ_VERB_POS and \
@@ -149,6 +153,7 @@ def _valid_noun_phrase(token_a: Token, token_b: Token) -> bool:
 
 
 class Document:
+    """Encapsulates a document (i.e. a string of text) and the associated tokens."""
 
     __slots__ = [
         '_tokens',
@@ -161,30 +166,32 @@ class Document:
         self._text_original = text_original
         self._text_cleaned = text_cleaned
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
+        """Convert to dictionary."""
         return {
             'text_original': self._text_original,
             'text_cleaned': self._text_cleaned,
-            'tokens': [t.to_dict() for t in self._tokens]
+            'tokens': [t.to_dict() for t in self._tokens],
         }
 
     @classmethod
-    def from_dict(cls, d: dict):
+    def from_dict(cls, d: dict):  # noqa: ANN102
+        """Create from dictionary."""
         return cls(
             tokens=[Token.from_dict(t_dict) for t_dict in d['tokens']],
             text_original=d.get('text_original'),
-            text_cleaned=d.get('text_cleaned')
+            text_cleaned=d.get('text_cleaned'),
         )
 
-    def text(self, original=True):
+    def text(self, original: bool = True) -> str:
+        """Returns either the original text or the cleaned text."""
         if original:
             return self._text_original
-        else:
-            return self._text_cleaned
+        return self._text_cleaned
 
-    def num_tokens(self, important_only=True) -> int:
+    def num_tokens(self, important_only: bool = True) -> int:
         """
-        This number correpsonds to the number of tokens.
+        Returns the number of tokens.
 
         Args:
             important_only:
@@ -200,11 +207,10 @@ class Document:
         """
         if important_only:
             return sum(t.is_important for t in self._tokens)
-        else:
-            return sum(
-                1 for t in self._tokens
-                if not t.is_punctuation and not t.is_special
-            )
+        return sum(
+            1 for t in self._tokens
+            if not t.is_punctuation and not t.is_special
+        )
 
     def to_dictionary(self) -> dict:
         """
@@ -225,7 +231,7 @@ class Document:
 
     def lemmas(self, important_only: bool = True) -> Iterable[str]:
         """
-        This function returns the lemmas of the document.
+        Returns the lemmas of the document.
 
         Args:
             important_only:
@@ -236,13 +242,13 @@ class Document:
         """
         if important_only:
             return (t.lemma for t in self._tokens if t.is_important)
-        else:
-            return (
-                t.lemma for t in self._tokens
-                if (not t.is_punctuation and not t.is_special) or (t.text in END_OF_SENTENCE_PUNCT)
-            )
+        return (
+            t.lemma for t in self._tokens
+            if (not t.is_punctuation and not t.is_special) or (t.text in END_OF_SENTENCE_PUNCT)
+        )
 
     def n_grams(self, n: int = 2, separator: str = '-') -> Iterable[str]:
+        """Returns n-grams for the document."""
         _tokens = [
             t for t in self._tokens if not t.is_punctuation or t.text in END_OF_SENTENCE_PUNCT
         ]
@@ -252,9 +258,11 @@ class Document:
         )
 
     def nouns(self) -> Iterable[str]:
+        """Returns the nouns of the document."""
         return (t.lemma for t in self._tokens if t.part_of_speech in NOUN_POS)
 
     def noun_phrases(self, separator: str = '-') -> Iterable[str]:
+        """Returns the noun phrases of the document."""
         _tokens = [
             t for t in self._tokens if not t.is_punctuation or t.text in END_OF_SENTENCE_PUNCT
         ]
@@ -264,13 +272,17 @@ class Document:
         )
 
     def adjectives_verbs(self) -> Iterable[str]:
+        """Returns the adjectives and verbs of the document."""
         return (t.lemma for t in self._tokens if t.part_of_speech in ADJ_VERB_POS)
 
     def entities(self) -> Iterable[str]:
+        """Returns the entities of the document."""
         return ((t.text, t.entity_type) for t in self._tokens if t.entity_type)
 
     def embeddings(self, model: SentenceTransformer) -> np.array:
         """
+        Returns the embeddings for the document based on the provided model.
+
         Args:
             model:
                 model from sentence_transformers package
@@ -278,7 +290,7 @@ class Document:
         """
         return model.encode(self.text())
 
-    @lru_cache()
+    @lru_cache
     def diff(self, use_lemmas: bool = False) -> str:
         """
         Returns HTML containing diff between `text_original` and either the cleaned text or,
@@ -291,24 +303,24 @@ class Document:
         if use_lemmas:
             return diff_text(
                 text_a=self._text_original,
-                text_b=' '.join(self.lemmas(important_only=False))
+                text_b=' '.join(self.lemmas(important_only=False)),
             )
-        else:
-            return diff_text(text_a=self._text_original, text_b=self._text_cleaned)
+        return diff_text(text_a=self._text_original, text_b=self._text_cleaned)
 
-    @lru_cache()
+    @lru_cache
     def sentiment(self) -> float:
+        """Returns the average sentiment of the important tokens."""
         _sentiment = [t.sentiment for t in self._tokens if t.is_important]
         if len(_sentiment) == 0:
             return 0
         return sum(_sentiment) / len(_sentiment)
 
-    @lru_cache()
+    @lru_cache
     def impurity(
             self,
             pattern: str = rp.SUSPICIOUS,
             min_length: int = 10,
-            original=False) -> float:
+            original: bool = False) -> float:
         """
         Returns the percent of characters matching regex_patterns.SUSPICIOUS from either the
         cleaned text (i.e. `text` property) if `original` if False) or the `text_original` property
@@ -332,8 +344,7 @@ class Document:
         text = self._text_original if original else self._text_cleaned
         if text is None or len(text) < min_length:
             return np.nan
-        else:
-            return len(regex.findall(pattern, text))/len(text)
+        return len(regex.findall(pattern, text))/len(text)
 
     def __str__(self) -> str:
         return self._text_original if self._text_original else self._text_cleaned
@@ -342,26 +353,22 @@ class Document:
         return len(self._tokens)
 
     def __iter__(self):
-        for token in self._tokens:
+        for token in self._tokens:  # noqa: UP028
             yield token
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int | slice):
         if isinstance(index, int):
             return self._tokens[index]
-        elif isinstance(index, slice):
+        if isinstance(index, slice):
             return self._tokens[index.start:index.stop:index.step]
-        else:
-            raise TypeError("Invalid index type")
-
+        raise TypeError("Invalid index type")
 
 def _process_document_batch(
         documents: list[str],
         nlp_pipe: Callable,
         stop_words: set,
         pre_process: Callable) -> list[Document]:
-    """
-    Takes a set of "documents" (a list of strings) and returns a list of document objects.
-    """
+    """Takes a set of "documents" (a list of strings) and returns a list of document objects."""
     _originals = documents.copy()
     if pre_process:
         documents = [pre_process(x) for x in documents]
@@ -380,6 +387,8 @@ def _process_document_batch(
 
 
 class Corpus:
+    """Encapsulates a corpus of documents."""
+
     def __init__(
             self,
             stop_words_to_add: Union[set[str], None] = None,
@@ -388,14 +397,15 @@ class Corpus:
             pre_process: Optional[Callable] = None,
             spacy_model: str = 'en_core_web_sm',
             embeddings_model: str = 'multi-qa-MiniLM-L6-cos-v1',
-            sklearn_tokenenizer_min_df: int = 5,
-            sklearn_tokenenizer_include_bi_grams: bool = True,
+            sklearn_tokenenizer_min_df: int | float = 0.01,
+            sklearn_tokenenizer_max_df: int | float = 0.95,
             sklearn_tokenenizer_max_tokens: Optional[int] = None,
+            sklearn_tokenenizer_include_bi_grams: bool = True,
             sklearn_tokenenizer_max_bi_grams: Optional[int] = None):
         """
         Args:
-            stopwords_to_add: stop words to add
-            stopwords_to_remove: stop words to remove
+            stop_words_to_add: stop words to add
+            stop_words_to_remove: stop words to remove
             tokenizer: a custom tokenizer
             pre_process:
                 a function that takes a string as input and returns the string after cleaning/
@@ -403,6 +413,24 @@ class Corpus:
             spacy_model:
                 the spacy model to use
                 (e.g. 'en_core_web_sm', 'en_core_web_md', 'en_core_web_lg')
+            embeddings_model:
+                the sentence-transformers model to use for generating embeddings
+                (e.g. 'multi-qa-MiniLM-L6-cos-v1', 'paraphrase-MiniLM-L6-v2')
+            sklearn_tokenenizer_min_df:
+                The minimum number of documents the lemma must appear in order to be included. Can
+                be an integer (number of documents) or a float (percent of documents).
+            sklearn_tokenenizer_max_df:
+                The maximum number of documents the lemma can appear in order to be included. Can
+                be an integer (number of documents) or a float (percent of documents).
+            sklearn_tokenenizer_max_tokens:
+                the maximum number of tokens (from the lemmas) of the text to include in the
+                vectorizer.
+            sklearn_tokenenizer_include_bi_grams:
+                if True, include bi-grams in the vectorizer. The bi-grams will be generated from
+                the lemmas.
+            sklearn_tokenenizer_max_bi_grams:
+                the maximum number of bi-grams (from the lemmas) of the text to include in the
+                vectorizer.
         """
         # spacy.load caches this language model and any stop words we have added/removed
         # calling spacy.load on subsequent calls loads in the cached model, nothing is reset
@@ -417,9 +445,10 @@ class Corpus:
         self._embeddings_model = embeddings_model
         self._nlp.Defaults.stop_words = STOP_WORDS_DEFAULT.copy()
         self._include_bi_grams = sklearn_tokenenizer_include_bi_grams
+        self._min_df = sklearn_tokenenizer_min_df
+        self._max_df = sklearn_tokenenizer_max_df
         self._max_tokens = sklearn_tokenenizer_max_tokens
         self._max_bi_grams = sklearn_tokenenizer_max_bi_grams
-        self._min_df = sklearn_tokenenizer_min_df
 
         # https://machinelearningknowledge.ai/tutorial-for-stopwords-in-spacy/#i_Stopwords_List_in_Spacy
         if stop_words_to_add is not None:
@@ -459,7 +488,7 @@ class Corpus:
         else:
             self._nlp.tokenizer = custom_tokenizer(self._nlp)
 
-    def fit(self, documents: list[str], num_batches: int = 10):
+    def fit(self, documents: list[str], num_batches: int = 10) -> None:
         """
         Takes a list of strings and coverts that list into a list of Document objects.
 
@@ -474,13 +503,13 @@ class Corpus:
                 documents=documents,
                 nlp_pipe=self._nlp.pipe,
                 stop_words=self.stop_words,
-                pre_process=self.pre_process
+                pre_process=self.pre_process,
             )
         else:
-            def split_list(items, n):
+            def split_list(items: list, n: int) -> list:
                 """Split a list into n sublists of equal size."""
                 k, m = divmod(len(items), n)
-                return list(items[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n))
+                return [items[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n)]
 
             batches = split_list(items=documents, n=num_batches)
             assert len(batches) == num_batches
@@ -493,7 +522,7 @@ class Corpus:
                     batches,
                     pipes,
                     stop_words,
-                    pre_processes
+                    pre_processes,
                 ))
             # results will be a list of list of Documents; we want to flatten the list
             self.documents = [item for sublist in results for item in sublist]
@@ -719,7 +748,7 @@ class Corpus:
             tokens=self.lemmas(important_only=important_only),
             min_count=min_count,
             group_by=group_by,
-            count_once_per_doc=count_once_per_doc
+            count_once_per_doc=count_once_per_doc,
         )
 
     def _tf_idf_tokens(
@@ -797,7 +826,7 @@ class Corpus:
         return self._tf_idf_tokens(
             tokens=self.lemmas(important_only=important_only),
             min_count=min_count,
-            group_by=group_by
+            group_by=group_by,
         )
 
     def n_grams(self, n: int = 2, separator: str = '-') -> Iterable[list]:
@@ -842,7 +871,7 @@ class Corpus:
             tokens=self.n_grams(n=n, separator=separator),
             min_count=min_count,
             group_by=group_by,
-            count_once_per_doc=count_once_per_doc
+            count_once_per_doc=count_once_per_doc,
         )
 
     def tf_idf_n_grams(
@@ -871,7 +900,7 @@ class Corpus:
         return self._tf_idf_tokens(
             tokens=self.n_grams(n=n, separator=separator),
             min_count=min_count,
-            group_by=group_by
+            group_by=group_by,
         )
 
     def count_tokens(
@@ -914,7 +943,7 @@ class Corpus:
             tokens=tokens,
             min_count=min_count,
             group_by=group_by,
-            count_once_per_doc=count_once_per_doc
+            count_once_per_doc=count_once_per_doc,
         )
 
     def tf_idf_tokens(
@@ -951,7 +980,7 @@ class Corpus:
         return self._tf_idf_tokens(
             tokens=tokens,
             min_count=min_count,
-            group_by=group_by
+            group_by=group_by,
         )
 
     def nouns(self) -> Iterable[list]:
@@ -1086,10 +1115,10 @@ class Corpus:
 
         return diff_text(
             text_a=[x.text(original=True) for x in self.documents[0:first_n]],
-            text_b=text_b
+            text_b=text_b,
         )
 
-    @lru_cache()
+    @lru_cache
     def embeddings_matrix(self) -> np.array:
         """
         Returns the embeddings_matrix for the corpus, where each row of the matrix is the
@@ -1105,6 +1134,7 @@ class Corpus:
                 stop_words=None,  # already removed via _prepare_doc_for_vectorizer via
                 token_pattern="(?u)\\b[\\w-]+\\b",
                 min_df=self._min_df,
+                max_df=self._max_df,
             )
             self._count_matrix = self.__count_vectorizer.fit_transform(vectorizer_text)
 
@@ -1130,6 +1160,7 @@ class Corpus:
                 stop_words=None,  # already removed via _prepare_doc_for_vectorizer
                 token_pattern="(?u)\\b[\\w-]+\\b",
                 min_df=self._min_df,
+                max_df=self._max_df,
             )
             self._tf_idf_matrix = self.__tf_idf_vectorizer.fit_transform(vectorizer_text)
 
@@ -1182,7 +1213,7 @@ class Corpus:
                 return np.zeros(len(self))
             return cosine_similarity(
                 X=self.embeddings_matrix(),
-                Y=document_embeddings.reshape(1, -1)
+                Y=document_embeddings.reshape(1, -1),
             ).flatten()
         elif how == 'count':
             count_vector = self.text_to_count_vector(text=text)
@@ -1271,5 +1302,5 @@ def custom_tokenizer(nlp: Language) -> stz.Tokenizer:
         prefix_search=compile_prefix_regex(prefixes).search,
         suffix_search=compile_suffix_regex(suffixes).search,
         infix_finditer=compile_infix_regex(infixes).finditer,
-        token_match=nlp.Defaults.token_match
+        token_match=nlp.Defaults.token_match,
     )
