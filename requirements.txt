@@ -18,6 +18,7 @@ xmltodict
 fasttext
 jellyfish
 nltk
+pyarrow
 pyLDAvis
 pytest
 regex

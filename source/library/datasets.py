@@ -1,5 +1,5 @@
 """
-This file defines classes that hides the logic/path for saving and loading specific datasets that
+Defines classes that hides the logic/path for saving and loading specific datasets that
 are used across this project, as well as providing a brief description for each dataset.
 
 To define a new dataset, create a property in Datasets.__init__() following the existing patthern.
@@ -23,6 +23,7 @@ df = ...logic..
 DATA.the_dataset.save(df)
 ```
 """
+
 import asyncio
 import json
 import os
@@ -136,10 +137,9 @@ class FileDataPersistence(DataPersistence):
         super().save(data)
 
 
-class PickledDataLoader(FileDataPersistence):
-    """
-    Class that wraps the logic of saving/loading/describing a given dataset.
-    """
+class ParquetDataLoader(FileDataPersistence):
+    """Class that wraps the logic of saving/loading/describing a given dataset."""
+
     def __init__(self, description: str, dependencies: list, directory: str, cache: bool = False):
         """
         Args:
@@ -149,26 +149,25 @@ class PickledDataLoader(FileDataPersistence):
                 the directory to save to and load from. NOTE: this should **not** contain the file
                 name which is assigned at a later point in time based on the property name in the
                 `Datasets` class.
+            cache: whether or not to cache the data in memory.
         """
         super().__init__(
             description=description,
             dependencies=dependencies,
             directory=directory,
-            cache=cache
+            cache=cache,
         )
 
     @property
-    def file_extension(self):
-        return '.pkl'
+    def file_extension(self) -> str:
+        """The file extension to use for the path."""
+        return '.parquet'
 
-    def _load(self):
-        with open(self.path, 'rb') as handle:
-            unpickled_object = pickle.load(handle)
-        return unpickled_object
+    def _load(self) -> pd.DataFrame:
+        return pd.read_parquet(self.path)
 
-    def _save(self, data):
-        with open(self.path, 'wb') as handle:
-            pickle.dump(data, handle)
+    def _save(self, data: pd.DataFrame) -> None:
+        data.to_parquet(self.path)
 
 
 class CsvDataLoader(FileDataPersistence):
@@ -392,7 +391,7 @@ class DatasetsBase(ABC):
 class Datasets(DatasetsBase):
     def __init__(self) -> None:
         # define the datasets before calling __init__()
-        self.reddit = PickledDataLoader(
+        self.reddit = ParquetDataLoader(
             description="This dataset was copied from https://github.com/blueprints-for-text-analytics-python/blueprints-text/tree/master/data/reddit-selfposts",  # noqa
             dependencies=[],
             directory='/code/artifacts/data/raw',
@@ -405,13 +404,13 @@ class Datasets(DatasetsBase):
             corpus_creator=create_reddit_corpus_object,
             cache=False,
         )
-        self.un_debates = PickledDataLoader(
+        self.un_debates = ParquetDataLoader(
             description="This dataset was copied from https://github.com/blueprints-for-text-analytics-python/blueprints-text/tree/master/data/un-general-debates",  # noqa
             dependencies=[],
             directory='/code/artifacts/data/raw',
             cache=False,
         )
-        self.un_debate_paragraphs = PickledDataLoader(
+        self.un_debate_paragraphs = ParquetDataLoader(
             description="un_debates dataset transformed to paragraphs.",
             dependencies=['un_debates'],
             directory='/code/artifacts/data/processed',
@@ -432,4 +431,4 @@ class Datasets(DatasetsBase):
 DATA = Datasets()
 
 # ensure all names got set properly
-assert all([getattr(DATA, x).name == x for x in DATA.datasets])
+assert all(getattr(DATA, x).name == x for x in DATA.datasets)

@@ -19,7 +19,7 @@ def test__datasets(datasets_fake):
         {'dataset': 'other_dataset_2', 'dependencies': ['dataset_1']},
     ]
     assert data.dataset_1._cached_data is None
-    assert data.dataset_1.path == './dataset_1.pkl'
+    assert data.dataset_1.path == './dataset_1.parquet'
     assert not os.path.isfile(data.dataset_1.path)
     df = pd.DataFrame({'a': [1, 2, 3], 'b': [4, 5, 6]})
     data.dataset_1.save(df)
@@ -32,7 +32,7 @@ def test__datasets(datasets_fake):
     assert (df == df_loaded).all().all()
 
     assert data.other_dataset_2._cached_data is None
-    assert data.other_dataset_2.path == './other_dataset_2.pkl'
+    assert data.other_dataset_2.path == './other_dataset_2.parquet'
     assert not os.path.isfile(data.other_dataset_2.path)
     data.other_dataset_2.save(df.replace(1, 10))
     assert data.other_dataset_2._cached_data is not None
@@ -55,8 +55,8 @@ def test__datasets(datasets_fake):
     assert data.dataset_3_csv._cached_data is not None
     assert (df.replace(1, 10) == df_loaded).all().all()
 
-    os.remove('./dataset_1.pkl')
-    os.remove('./other_dataset_2.pkl')
+    os.remove('./dataset_1.parquet')
+    os.remove('./other_dataset_2.parquet')
     os.remove('./dataset_3_csv.csv')
 
 

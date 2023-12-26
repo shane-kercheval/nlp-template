@@ -43,15 +43,15 @@ def extract():
     Extracts the data.
     """
     logging.info("Extracting Data")
-    with Timer("Loading UN Generate Debate Dataset - Saving to /artifacts/data/raw/un-general-debates-blueprint.pkl"):  # noqa
+    with Timer("Loading UN Generate Debate Dataset - Saving to /artifacts/data/raw/un-general-debates-blueprint.parquet"):  # noqa
         logging.info("This dataset was copied from https://github.com/blueprints-for-text-analytics-python/blueprints-text/tree/master/data/un-general-debates")  # noqa
         un_debates = pd.read_csv('artifacts/data/external/un-general-debates-blueprint.csv.zip')
         DATA.un_debates.save(un_debates)
 
-    with Timer("Loading Reddit Dataset - Saving to /artifacts/data/raw/reddit.pkl"):
+    with Timer("Loading Reddit Dataset - Saving to /artifacts/data/raw/reddit.parquet"):
         logging.info("This dataset was copied from https://github.com/blueprints-for-text-analytics-python/blueprints-text/tree/master/data/reddit-selfposts")  # noqa
         reddit = pd.read_csv('artifacts/data/external/reddit.tsv.zip', sep="\t")
-        reddit.rename(columns={'selftext': 'post'}, inplace=True)
+        reddit = reddit.rename(columns={'selftext': 'post'})
         DATA.reddit.save(reddit)
 
 
@@ -166,7 +166,7 @@ def nmf(num_topics, ngrams_low, ngrams_high, num_samples):
             stop_words=list(stop_words),
             ngram_range=(ngrams_low, ngrams_high),
             min_df=5,
-            max_df=0.7
+            max_df=0.7,
         )
         tfidf_vectors = tfidf_vectorizer.fit_transform(paragraphs["text"])
         file = f'artifacts/models/topics/nmf-topics-{num_topics}-ngrams-{ngrams_low}-{ngrams_high}__vectorizer.pkl'  # noqa

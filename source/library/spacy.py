@@ -1,5 +1,6 @@
 """Provides convenient wrappers around Spacy."""
 
+import os
 from collections import Counter
 from concurrent.futures import ProcessPoolExecutor
 from functools import lru_cache, singledispatchmethod
@@ -30,6 +31,12 @@ NOUN_POS = {'NOUN', 'PROPN'}
 ADJ_VERB_POS = {'ADJ', 'VERB'}
 NOUN_ADJ_VERB_POS = {'NOUN', 'ADJ', 'VERB'}
 END_OF_SENTENCE_PUNCT = {'.', '?', '!'}
+
+
+def _split_list(items: list, n: int) -> list:
+    """Split a list into n sublists of equal size."""
+    k, m = divmod(len(items), n)
+    return [items[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n)]
 
 
 class Token:
@@ -288,7 +295,7 @@ class Document:
                 model from sentence_transformers package
                 https://www.sbert.net/docs/pretrained_models.html
         """
-        return model.encode(self.text())
+        return model.encode(self.text(), convert_to_numpy=True, convert_to_tensor=False)
 
     @lru_cache
     def diff(self, use_lemmas: bool = False) -> str:
@@ -363,6 +370,7 @@ class Document:
             return self._tokens[index.start:index.stop:index.step]
         raise TypeError("Invalid index type")
 
+
 def _process_document_batch(
         documents: list[str],
         nlp_pipe: Callable,
@@ -404,18 +412,23 @@ class Corpus:
             sklearn_tokenenizer_max_bi_grams: Optional[int] = None):
         """
         Args:
-            stop_words_to_add: stop words to add
-            stop_words_to_remove: stop words to remove
-            tokenizer: a custom tokenizer
+            stop_words_to_add: stop words to add.
+            stop_words_to_remove: stop words to remove.
+            tokenizer: a custom tokenizer.
             pre_process:
                 a function that takes a string as input and returns the string after cleaning/
-                pre-processing (this function will be called before tokenizing.)
+                pre-processing (this function will be called before tokenizing).
             spacy_model:
-                the spacy model to use
-                (e.g. 'en_core_web_sm', 'en_core_web_md', 'en_core_web_lg')
+                The spacy model to use (e.g. 'en_core_web_sm', 'en_core_web_md', 'en_core_web_lg').
             embeddings_model:
-                the sentence-transformers model to use for generating embeddings
-                (e.g. 'multi-qa-MiniLM-L6-cos-v1', 'paraphrase-MiniLM-L6-v2')
+                The sentence-transformers model to use for generating embeddings (e.g.
+                'multi-qa-MiniLM-L6-cos-v1', 'paraphrase-MiniLM-L6-v2').
+                https://www.sbert.net/docs/pretrained_models.html
+                "The all-mpnet-base-v2 model provides the best quality, while all-MiniLM-L6-v2 is
+                5 times faster and still offers good quality.
+                multi-qa-MiniLM-L6-cos-v1 "was tuned for semantic search: Given a query/question,
+                if can find relevant passages. It was trained on a large and diverse set of
+                (question, answer) pairs."
             sklearn_tokenenizer_min_df:
                 The minimum number of documents the lemma must appear in order to be included. Can
                 be an integer (number of documents) or a float (percent of documents).
@@ -506,12 +519,7 @@ class Corpus:
                 pre_process=self.pre_process,
             )
         else:
-            def split_list(items: list, n: int) -> list:
-                """Split a list into n sublists of equal size."""
-                k, m = divmod(len(items), n)
-                return [items[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n)]
-
-            batches = split_list(items=documents, n=num_batches)
+            batches = _split_list(items=documents, n=num_batches)
             assert len(batches) == num_batches
             with ProcessPoolExecutor() as pool:
                 pipes = [self._nlp.pipe] * num_batches
@@ -1124,8 +1132,18 @@ class Corpus:
         Returns the embeddings_matrix for the corpus, where each row of the matrix is the
         corresponding document's embeddings via sentence-tranformers package.
         """
+        # don't try to parallelize; SentenceTransformer seems to use all available cpus
+        # I was originally calling [doc.embeddings() for doc in self.documents], which only fed one
+        # document at a time to the model, and that was slow. Then I tried parallizing across all
+        # multiple batches of documents, but that was incredibly slower. I think because
+        # SentenceTransformer is already using all available cpus. The current implementation
+        # took the time for test__corpus__embeddings__reddit from ~350 seconds to ~40 seconds.
         model = SentenceTransformer(self._embeddings_model)
-        return np.array([x.embeddings(model=model) for x in self])
+        return model.encode(
+            [d.text() for d in self.documents],
+            convert_to_numpy=True,
+            convert_to_tensor=False,
+        )
 
     def _count_vectorizer(self):
         if self.__count_vectorizer is None:
@@ -1260,8 +1278,7 @@ class Corpus:
         return len(self.documents)
 
     def __iter__(self):
-        for document in self.documents:
-            yield document
+        yield from self.documents
 
     def __getitem__(self, index):
         if isinstance(index, int):
@@ -1276,7 +1293,7 @@ class Corpus:
 
 def custom_tokenizer(nlp: Language) -> stz.Tokenizer:
     """
-    This code creates a custom tokenizer, as described on pg. 108 of
+    Creates a custom tokenizer, as described on pg. 108 of the from Albrecht et al.
 
         Blueprints for Text Analytics Using Python
         by Jens Albrecht, Sidharth Ramachandran, and Christian Winkler

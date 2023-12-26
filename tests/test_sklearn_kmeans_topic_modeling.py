@@ -13,7 +13,7 @@ class TestSklearnTopicModeling(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        paragraphs = pd.read_pickle(get_test_file_path('datasets/un_debates_paragraphs__sample.pkl'))  # noqa
+        paragraphs = pd.read_parquet(get_test_file_path('datasets/un_debates_paragraphs__sample.parquet'))  # noqa
         cls.paragraphs = paragraphs
         num_topics = 10
         cls.num_topics = num_topics

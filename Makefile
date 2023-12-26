@@ -30,8 +30,9 @@ linting:
 	flake8 --max-line-length 99 tests
 
 ## Run unit-tests.
-tests: linting
-	coverage run -m pytest --durations=0 tests
+tests:
+	# show the slowest 20 tests among those that take at least 1 second
+	coverage run -m pytest --durations=20 --durations-min=1.0 tests
 	coverage html
 
 ## Extract Data

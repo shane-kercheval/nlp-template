@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 from source.library.datasets import CorpusDataLoader, CsvDataLoader, DatasetsBase, \
-    PickledDataLoader, create_reddit_corpus_object, create_un_corpus_object
+    ParquetDataLoader, create_reddit_corpus_object, create_un_corpus_object
 
 from tests.helpers import get_test_file_path
 from source.library.spacy import Corpus
@@ -10,7 +10,7 @@ from source.library.text_preparation import clean
 
 @pytest.fixture(scope='session')
 def reddit():
-    return pd.read_pickle(get_test_file_path('datasets/reddit__sample.pkl'))
+    return pd.read_parquet(get_test_file_path('datasets/reddit__sample.parquet'))
 
 
 @pytest.fixture(scope='function')
@@ -108,13 +108,13 @@ def corpus_reddit_parallel(reddit):
 class TestDatasets(DatasetsBase):
     def __init__(self) -> None:
         # define the datasets before calling __init__()
-        self.dataset_1 = PickledDataLoader(
+        self.dataset_1 = ParquetDataLoader(
             description="Dataset description",
             dependencies=['SNOWFLAKE.SCHEMA.TABLE'],
             directory='.',
             cache=True,
         )
-        self.other_dataset_2 = PickledDataLoader(
+        self.other_dataset_2 = ParquetDataLoader(
             description="Other dataset description",
             dependencies=['dataset_1'],
             directory='.',
