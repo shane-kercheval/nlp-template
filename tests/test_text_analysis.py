@@ -23,7 +23,7 @@ class TestTextAnalysis(unittest.TestCase):
         cls.dumb_sentence = "This is a sentence; it has punctuation, etc.. It also has numbers. " \
             "It's a dumb sentence."
 
-        reddit = pd.read_pickle(get_test_file_path('datasets/reddit__sample.parquet'))
+        reddit = pd.read_parquet(get_test_file_path('datasets/reddit__sample.parquet'))
         cls.reddit = reddit
 
     def test__count_tokens(self):
